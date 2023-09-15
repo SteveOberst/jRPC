@@ -1,11 +1,11 @@
 package net.sxlver.jrpc.client.protocol.codec;
 
-import net.sxlver.jrpc.core.protocol.codec.JRPCAuthEncoder;
+import net.sxlver.jrpc.core.protocol.codec.JRPCHandshakeEncoder;
 
-public class JRPCClientAuthMessageEncoder extends JRPCAuthEncoder {
+public class JRPCClientHandshakeMessageEncoder extends JRPCHandshakeEncoder {
     private final int versionNumber;
 
-    public JRPCClientAuthMessageEncoder(int versionNumber) {
+    public JRPCClientHandshakeMessageEncoder(int versionNumber) {
         this.versionNumber = versionNumber;
     }
 

@@ -1,5 +1,7 @@
 package net.sxlver.jrpc.core.protocol;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 public enum ProtocolVersion {
@@ -15,6 +17,7 @@ public enum ProtocolVersion {
         return versionNumber;
     }
 
+    @Nullable
     public static ProtocolVersion getByVersionNumber(final int versionNumber) {
         return Arrays.stream(values())
                 .filter(protocolVersion -> protocolVersion.getVersionNumber() == versionNumber)

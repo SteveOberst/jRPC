@@ -2,6 +2,6 @@ package net.sxlver.jrpc.client.protocol;
 
 import net.sxlver.jrpc.core.protocol.Packet;
 
-public interface DataProcessor {
-    void onReceive(final Packet packet);
+public interface MessageReceiver<T extends Packet> {
+    void onReceive(final T packet);
 }

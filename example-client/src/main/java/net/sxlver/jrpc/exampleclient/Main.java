@@ -1,4 +1,4 @@
-package net.sxlver.jrpc;
+package net.sxlver.jrpc.exampleclient;
 
 public class Main {
     public static void main(String[] args) {

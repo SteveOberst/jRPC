@@ -1,19 +1,51 @@
 plugins {
     id 'java'
+    id 'com.palantir.git-version' version '0.12.1'
+    id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+group = 'net.sxlver.jrpc'
+version = '0.0.1-alpha'
 
-repositories {
-    mavenCentral()
-}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
+    group = parent.group
+    version = parent.version
 
-test {
-    useJUnitPlatform()
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenCentral()
+        maven { url('https://jitpack.io') }
+        mavenLocal()
+    }
+
+    dependencies {
+        compileOnly 'org.jetbrains:annotations:22.0.0'
+
+        // guava
+        implementation 'com.google.guava:guava:11.0.2'
+
+        // netty
+        implementation 'io.netty:netty-all:4.1.97.Final'
+
+        // apache commons
+        implementation 'org.apache.commons:commons-lang3:3.0'
+
+        // gson
+        implementation 'com.google.code.gson:gson:2.10.1'
+
+        // configuration library - clone and install to local repo
+        // https://github.com/SteveOberst/ConfigLib
+        implementation group: 'de.exlll', name: 'configlib-core', version: '2.2.0'
+
+        // Lombok
+        compileOnly 'org.projectlombok:lombok:1.18.22'
+        annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    }
 }

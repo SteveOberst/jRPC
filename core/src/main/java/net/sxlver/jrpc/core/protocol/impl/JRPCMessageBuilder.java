@@ -1,28 +1,52 @@
 package net.sxlver.jrpc.core.protocol.impl;
 
 import lombok.NonNull;
+import net.sxlver.jrpc.core.protocol.DataSource;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageBuilder;
 
 public class JRPCMessageBuilder implements MessageBuilder<JRPCMessage> {
 
+    private String target;
+    private Message.TargetType targetType;
+    private DataSource dataSource;
+    private byte[] data;
+
+    private JRPCMessageBuilder() {}
+
+    public static MessageBuilder<JRPCMessage> builder() {
+        return new JRPCMessageBuilder();
+    }
+
+    @Override
+    public MessageBuilder<JRPCMessage> target(final @NonNull String target) {
+        this.target = target;
+        return this;
+    }
+
+    @Override
+    public MessageBuilder<JRPCMessage> targetType(final @NonNull Message.TargetType targetType) {
+        this.targetType = targetType;
+        return this;
+    }
+
+    @Override
+    public MessageBuilder<JRPCMessage> source(final @NonNull DataSource dataSource) {
+        this.dataSource = dataSource;
+        return this;
+    }
+    @Override
+    public MessageBuilder<JRPCMessage> data(final byte[] data) {
+        this.data = data;
+        return this;
+    }
 
     public JRPCMessage build() {
-        return null;
+        if(!canBuild()) throw new IllegalStateException("Builder incomplete");
+        return new JRPCMessage(target, targetType, dataSource.getSource(), data);
     }
 
-    @Override
-    public MessageBuilder<JRPCMessage> data(byte[] data) {
-        return null;
-    }
-
-    @Override
-    public MessageBuilder<JRPCMessage> target(@NonNull String target) {
-        return null;
-    }
-
-    @Override
-    public MessageBuilder<JRPCMessage> targetType(Message.@NonNull TargetType targetType) {
-        return null;
+    private boolean canBuild() {
+        return data != null && target != null && targetType != null && dataSource != null;
     }
 }

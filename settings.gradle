@@ -1,2 +1,3 @@
 rootProject.name = 'jRPC'
+include 'server', 'client', 'example-client', 'core'
 

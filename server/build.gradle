@@ -29,7 +29,13 @@ repositories {
 }
 
 dependencies {
+    implementation project(':core')
+}
 
+tasks.shadowJar {
+    manifest {
+        attributes["Main-Class"] = "net.sxlver.jrpc.server.Main"
+    }
 }
 
 test {

@@ -4,13 +4,13 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 
 public interface Message {
 
-    String getSource();
+    String source();
 
     String getTarget();
 
     JRPCMessage.TargetType getTargetType();
 
-    byte[] getData();
+    byte[] data();
 
     enum TargetType {
         /**

@@ -22,14 +22,14 @@ publishing {
 }
 
 group properties.get("package")
-version properties.get("serverVersion")
+version properties.get("clientVersion")
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-
+    implementation project(':core')
 }
 
 test {

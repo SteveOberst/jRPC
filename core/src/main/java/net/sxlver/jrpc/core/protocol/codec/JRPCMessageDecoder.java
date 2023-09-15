@@ -1,13 +1,15 @@
-package net.sxlver.jrpc.core.protocol.decoder;
+package net.sxlver.jrpc.core.protocol.codec;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import net.sxlver.jrpc.core.LogProvider;
+import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
+import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 
 import java.nio.charset.StandardCharsets;
@@ -22,7 +24,8 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
     }
 
     @Override
-    protected void decode(final ChannelHandlerContext context, final ByteBuf in, final List<Object> out) throws Exception {
+    protected void decode(final ChannelHandlerContext context, final ByteBuf in, final List<Object> out) {
+        if(MessageType.of(in.readInt()) != MessageType.MESSAGE) return;
         final int versionNumber = in.readInt();
         final ProtocolVersion version = ProtocolVersion.getByVersionNumber(versionNumber);
         if(version != provider.getProtocolVersion()) {
@@ -39,9 +42,7 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
         final byte[] data = new byte[length];
         in.readBytes(data);
 
-        final String json = new String(Base64.getDecoder().decode(data), StandardCharsets.UTF_8);
-        final Gson gson = CentralGson.PROTOCOL_INSTANCE.getGson();
-        final JRPCMessage message = gson.fromJson(json, JRPCMessage.class);
+        final JRPCMessage message = PacketDataSerializer.deserialize(data, JRPCMessage.class);
         out.add(message);
     }
 }

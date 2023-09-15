@@ -7,17 +7,16 @@ import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
-import net.sxlver.jrpc.core.protocol.impl.JRPCClientAuthMessage;
-import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
+import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
 
 import java.util.List;
 
-public class JRPCAuthDecoder<T extends ProtocolInformationProvider & LogProvider> extends ByteToMessageDecoder {
+public class JRPCHandshakeDecoder<T extends ProtocolInformationProvider & LogProvider> extends ByteToMessageDecoder {
 
     private final T provider;
 
-    public JRPCAuthDecoder(final T provider) {
+    public JRPCHandshakeDecoder(final T provider) {
         this.provider = provider;
     }
 
@@ -40,7 +39,7 @@ public class JRPCAuthDecoder<T extends ProtocolInformationProvider & LogProvider
         final byte[] data = new byte[length];
         in.readBytes(data);
 
-        final JRPCClientAuthMessage message = PacketDataSerializer.deserialize(data, JRPCClientAuthMessage.class);
+        final JRPCClientHandshakeMessage message = PacketDataSerializer.deserialize(data, JRPCClientHandshakeMessage.class);
         out.add(message);
     }
 }

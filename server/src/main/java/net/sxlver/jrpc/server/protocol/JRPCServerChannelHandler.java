@@ -1,18 +1,95 @@
-package net.sxlver.jrpc.server;
+package net.sxlver.jrpc.server.protocol;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import net.sxlver.jrpc.common.protocol.JRPCMessage;
+import lombok.NonNull;
+import net.sxlver.jrpc.core.protocol.Errors;
+import net.sxlver.jrpc.core.protocol.JRPCHandshake;
+import net.sxlver.jrpc.core.protocol.Message;
+import net.sxlver.jrpc.core.protocol.Packet;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
+import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.server.JRPCServer;
+import net.sxlver.jrpc.server.model.JRPCClientInstance;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.SocketAddress;
+
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
+
+    private final JRPCServer server;
+    private Channel channel;
+
+    private JRPCClientInstance client;
+
+    private boolean handshaked;
+    private String uniqueId;
+    private String type;
+
+    public JRPCServerChannelHandler(final JRPCServer server) {
+        this.server = server;
+    }
+
     @Override
-    public void channelRead0(final @NotNull ChannelHandlerContext context, final @NotNull JRPCMessage message) throws Exception {
+    public void channelRead0(final @NotNull ChannelHandlerContext context, final @NotNull JRPCMessage message) {
+        if(!handshaked) {
+            write(new ErrorResponsePacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
+            return;
+        }
+
 
     }
 
     @Override
-    public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) throws Exception {
+    public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
 
+    }
+
+    @Override
+    public void channelActive(final @NotNull ChannelHandlerContext context) {
+        this.channel = context.channel();
+        this.client = new JRPCClientInstance(this);
+        server.addConnected(client);
+    }
+
+    @Override
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        server.removeConnected(client);
+    }
+
+    private void write(final Packet packet) {
+        final JRPCMessage message = JRPCMessageBuilder.builder()
+                .source(server)
+                .target(uniqueId)
+                .targetType(Message.TargetType.DIRECT)
+                .data(PacketDataSerializer.serialize(packet))
+                .build();
+
+        write(message);
+    }
+
+    public void write(final @NonNull JRPCMessage message) {
+        channel.writeAndFlush(message);
+    }
+
+    public boolean handshake(final JRPCHandshake handshake) {
+        this.uniqueId = handshake.getUniqueId();
+        this.type = handshake.getType();
+        return (this.handshaked = handshake.getToken().equals(server.getConfig().getAuthenticationToken()));
+    }
+
+    public SocketAddress getRemoteAddress() {
+        return channel.remoteAddress();
+    }
+
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public String getType() {
+        return type;
     }
 }

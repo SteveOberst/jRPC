@@ -3,13 +3,12 @@ package net.sxlver.jrpc.core.protocol.impl;
 import net.sxlver.jrpc.core.protocol.Message;
 
 public class JRPCMessage implements Message {
-    private String source;
     private String target;
     private TargetType targetType;
-
+    private String source;
     private byte[] data;
 
-    public JRPCMessage(String source, String target, TargetType targetType, byte[] data) {
+    JRPCMessage(String target, TargetType targetType, String source, byte[] data) {
         this.source = source;
         this.target = target;
         this.targetType = targetType;
@@ -17,7 +16,7 @@ public class JRPCMessage implements Message {
     }
 
     @Override
-    public String getSource() {
+    public String source() {
         return source;
     }
 
@@ -32,7 +31,7 @@ public class JRPCMessage implements Message {
     }
 
     @Override
-    public byte[] getData() {
+    public byte[] data() {
         return data;
     }
 }
