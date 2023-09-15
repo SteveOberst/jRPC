@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/SteveOberst/jRPC")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv().get("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv().get("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+group properties.get("package")
+version properties.get("commonVersion")
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+
+}
+
+test {
+    useJUnitPlatform()
+}
