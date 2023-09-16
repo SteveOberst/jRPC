@@ -25,13 +25,18 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
 
     @Override
     protected void decode(final ChannelHandlerContext context, final ByteBuf in, final List<Object> out) {
-        if(MessageType.of(in.readInt()) != MessageType.MESSAGE) return;
+        if(MessageType.of(in.readInt()) != MessageType.MESSAGE) {
+            in.resetReaderIndex();
+            return;
+        }
+
         final int versionNumber = in.readInt();
         final ProtocolVersion version = ProtocolVersion.getByVersionNumber(versionNumber);
         if(version != provider.getProtocolVersion()) {
             final String message = "Message Protocol version mismatch! Received: {} Current Version: {}";
             if(!provider.isAllowVersionMismatch()) {
                 provider.getLogger().warn(message, version, provider.getProtocolVersion());
+                in.resetReaderIndex();
                 return;
             }else {
                 provider.getLogger().debug(message, version, provider.getProtocolVersion());

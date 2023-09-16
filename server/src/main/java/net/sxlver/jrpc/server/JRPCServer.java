@@ -15,13 +15,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.core.InternalLogger;
 import net.sxlver.jrpc.core.LogProvider;
-import net.sxlver.jrpc.core.protocol.DataSource;
-import net.sxlver.jrpc.core.protocol.JRPCHandshake;
-import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
-import net.sxlver.jrpc.core.protocol.ProtocolVersion;
+import net.sxlver.jrpc.core.protocol.*;
 import net.sxlver.jrpc.core.config.ConfigurationManager;
 import net.sxlver.jrpc.core.config.DataFolderProvider;
 import net.sxlver.jrpc.core.protocol.codec.JRPCHandshakeDecoder;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
+import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.server.config.JRPCServerConfig;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
@@ -29,14 +30,17 @@ import net.sxlver.jrpc.server.model.JRPCClientInstance;
 import net.sxlver.jrpc.server.protocol.JRPCServerChannelHandler;
 import net.sxlver.jrpc.server.protocol.JRPCServerHandshakeHandler;
 import net.sxlver.jrpc.server.util.LazyInitVar;
+import net.sxlver.jrpc.server.util.Loadbalanced;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
 
@@ -89,6 +93,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     public void shutdown() {
         listeningChannel.channel().closeFuture();
+        connected.stream().map(JRPCClientInstance::getNetHandler).forEach(JRPCServerChannelHandler::shutdown);
+
         try {
             logger.info("shutting down event loop group");
             loopGroup.shutdownGracefully().sync();
@@ -105,6 +111,18 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
                 .getLocation()
                 .toURI().getPath())
                 .getParent();
+    }
+
+    private Collection<JRPCClientInstance> getLoadBalancedServers(final String type) {
+        return connected.stream().filter(jrpcClientInstance -> jrpcClientInstance.getType().equals(type)).collect(Collectors.toList());
+    }
+
+    private JRPCClientInstance getLoadBalancedServer(final String type) {
+        return Loadbalanced.pick(getLoadBalancedServers(type));
+    }
+
+    private JRPCClientInstance getByUniqueId(final String uniqueId) {
+        return connected.stream().filter(client -> client.getUniqueId().equals(uniqueId)).findFirst().orElse(null);
     }
 
     public ChannelFuture getChannel() {
@@ -144,6 +162,37 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return client.getNetHandler().handshake(handshake);
     }
 
+    public void forward(final JRPCMessage message, final JRPCServerChannelHandler invoker) {
+        final Collection<JRPCClientInstance> sendTo = Lists.newArrayList();
+        switch(message.targetType()) {
+            case DIRECT -> sendTo.add(getByUniqueId(message.target()));
+            case LOAD_BALANCED -> sendTo.add(getLoadBalancedServer(message.target()));
+            case ALL -> sendTo.addAll(getLoadBalancedServers(message.target()));
+        }
+
+        if(sendTo.isEmpty()) {
+            final JRPCMessage errorMessage = buildDirectResponse(new ErrorResponsePacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source());
+            invoker.write(errorMessage);
+            logger.info("{} No suitable target found whilst forwarding message of type {} [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", message.targetType(), message.source(), message.target());
+            return;
+        }
+
+        for (final JRPCClientInstance jrpcClientInstance : sendTo) {
+            jrpcClientInstance.getNetHandler().write(message);
+        }
+
+        logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , message.targetType(), message.source(), message.target(), message.data().length);
+    }
+
+    public JRPCMessage buildDirectResponse(final Packet packet, final String target) {
+        return JRPCMessageBuilder.builder()
+                .source(this)
+                .targetType(Message.TargetType.DIRECT)
+                .target(target)
+                .data(PacketDataSerializer.serialize(packet))
+                .build();
+    }
+
     private class JRPCChannelInitializer extends ChannelInitializer<SocketChannel> {
 
         @Override
@@ -153,8 +202,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
             } catch (ChannelException exception) {
                 logger.fatal("Error whilst setting TCP_NODELAY option: {}", ExceptionUtils.getStackTrace(exception));
             }
-            channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCServer.this));
             channel.pipeline().addLast("auth_decoder", new JRPCHandshakeDecoder<>(JRPCServer.this));
+            channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCServer.this));
             channel.pipeline().addLast("handshake_handler", new JRPCServerHandshakeHandler(JRPCServer.this));
             channel.pipeline().addLast("message_handler", new JRPCServerChannelHandler(JRPCServer.this));
         }

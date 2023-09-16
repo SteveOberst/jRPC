@@ -18,7 +18,7 @@ public class JRPCClientConfig extends YamlConfiguration {
         super(path, properties);
     }
 
-    @Comment("The Clients unique identifier")
+    @Comment("The Clients unique identifier. Requires no specific format, it should just be unique between all connected clients.")
     private String uniqueId = UUID.randomUUID().toString();
 
     @Comment("Authentication token used to authenticate with the server")
@@ -32,5 +32,8 @@ public class JRPCClientConfig extends YamlConfiguration {
 
     @Comment("Whether the client will accept messages from a source with a different version number")
     private boolean allowVersionMismatch = false;
+
+    @Comment("The amount of time the client will wait for a response of the other side in ms")
+    private long conversationTimeOut = 5000;
 }
 

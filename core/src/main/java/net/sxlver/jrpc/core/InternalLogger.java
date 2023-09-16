@@ -1,7 +1,10 @@
 package net.sxlver.jrpc.core;
 
 
+import com.google.gson.internal.reflect.ReflectionHelper;
+import io.netty.util.internal.ReflectionUtil;
 import net.sxlver.jrpc.core.util.TimeUtil;
+import sun.reflect.ReflectionFactory;
 
 import java.util.logging.*;
 
@@ -18,25 +21,29 @@ public class InternalLogger {
     }
 
     public void info(final String message, final Object... args) {
-        logger.info(String.format(message.replace("{}", "%s"), args));
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        logger.info(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
     public void warn(final String message, final Object... args) {
-        logger.warning(String.format(message.replace("{}", "%s"), args));
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        logger.warning(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
     public void fatal(final String message, final Object... args) {
-        logger.severe(String.format(message.replace("{}", "%s"), args));
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        logger.severe(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
     public void debug(final String message, final Object... args) {
-        logger.fine(String.format(message.replace("{}", "%s"), args));
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        logger.fine(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
-    private Class<?> getCallerClass() {
-        return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-    }
+    private String prependCallerClass(final String message, final String callCls) {
 
+        return "[" + callCls + "] " + message;
+    }
     public enum AnsiColor {
         RED("\u001b[31m"),
         YELLOW("\u001b[33m"),
@@ -62,7 +69,9 @@ public class InternalLogger {
 
         public String format(LogRecord record) {
 
-            return "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" + Thread.currentThread().getName() + "/" + record.getLevel() +  "] " + formatMessage(record) + "\n";
+            return "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
+                    Thread.currentThread().getName() + "/" + record.getLevel() +  "] " +
+                    formatMessage(record) + "\n";
         }
 
         public String getHead(Handler h) {

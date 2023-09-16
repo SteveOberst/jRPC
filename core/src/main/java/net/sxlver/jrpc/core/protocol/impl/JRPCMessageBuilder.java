@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.core.protocol.impl;
 
 import lombok.NonNull;
+import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.DataSource;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageBuilder;
@@ -10,6 +11,7 @@ public class JRPCMessageBuilder implements MessageBuilder<JRPCMessage> {
     private String target;
     private Message.TargetType targetType;
     private DataSource dataSource;
+    private ConversationUID conversationUID;
     private byte[] data;
 
     private JRPCMessageBuilder() {}
@@ -35,6 +37,13 @@ public class JRPCMessageBuilder implements MessageBuilder<JRPCMessage> {
         this.dataSource = dataSource;
         return this;
     }
+
+    @Override
+    public MessageBuilder<JRPCMessage> conversationUid(final @NonNull ConversationUID uid) {
+        this.conversationUID = uid;
+        return this;
+    }
+
     @Override
     public MessageBuilder<JRPCMessage> data(final byte[] data) {
         this.data = data;

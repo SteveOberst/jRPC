@@ -13,6 +13,10 @@ public class JRPCClientInstance {
         return handler;
     }
 
+    public long getLastWrite() {
+        return handler.getLastWrite();
+    }
+
     public String getUniqueId() {
         return handler.getUniqueId();
     }

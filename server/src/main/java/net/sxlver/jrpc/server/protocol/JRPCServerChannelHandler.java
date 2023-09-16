@@ -14,6 +14,7 @@ import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
 import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
 import net.sxlver.jrpc.server.JRPCServer;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
@@ -29,6 +30,8 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     private String uniqueId;
     private String type;
 
+    private long lastWrite = System.currentTimeMillis();
+
     public JRPCServerChannelHandler(final JRPCServer server) {
         this.server = server;
     }
@@ -40,12 +43,13 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             return;
         }
 
-
+        server.forward(message, this);
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
-
+        server.getLogger().warn("An Exception has reached the end of pipeline: {}", cause.getMessage());
+        server.getLogger().debug(ExceptionUtils.getStackTrace(cause));
     }
 
     @Override
@@ -58,6 +62,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
         server.removeConnected(client);
+        server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
     }
 
     private void write(final Packet packet) {
@@ -72,6 +77,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     }
 
     public void write(final @NonNull JRPCMessage message) {
+        this.lastWrite = System.currentTimeMillis();
         channel.writeAndFlush(message);
     }
 
@@ -79,6 +85,10 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         this.uniqueId = handshake.getUniqueId();
         this.type = handshake.getType();
         return (this.handshaked = handshake.getToken().equals(server.getConfig().getAuthenticationToken()));
+    }
+
+    public void shutdown() {
+        channel.closeFuture().awaitUninterruptibly();
     }
 
     public SocketAddress getRemoteAddress() {
@@ -91,5 +101,9 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     public String getType() {
         return type;
+    }
+
+    public long getLastWrite() {
+        return lastWrite;
     }
 }

@@ -7,8 +7,9 @@ import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
-import net.sxlver.jrpc.core.protocol.packet.HandshakeFailedPacket;
+import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.server.JRPCServer;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
 
@@ -31,12 +32,16 @@ public class JRPCServerHandshakeHandler extends SimpleChannelInboundHandler<JRPC
                     .target(handler.getUniqueId())
                     .targetType(Message.TargetType.DIRECT)
                     .source(server)
-                    .data(PacketDataSerializer.serialize(new HandshakeFailedPacket()))
+                    .data(PacketDataSerializer.serialize(new HandshakeStatusPacket()))
                     .build();
 
             handler.write(packet);
             context.channel().closeFuture();
+            server.getLogger().info("Client failed authentication. Closing Connection... [Source: {}] [Auth Key: {}]", client.getUniqueId(), StringUtil.cypherString(auth.getToken()));
+        }else {
+            server.getLogger().info("Client {} successfully authenticated with the network.", message.source());
         }
         context.channel().pipeline().remove("handshake_handler");
+
     }
 }

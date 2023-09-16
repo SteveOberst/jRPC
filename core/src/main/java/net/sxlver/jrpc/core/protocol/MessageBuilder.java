@@ -9,6 +9,8 @@ public interface MessageBuilder<T extends Message> {
 
     MessageBuilder<T> source(final @NonNull DataSource dataSource);
 
+    MessageBuilder<T> conversationUid(final @NonNull ConversationUID uid);
+
     MessageBuilder<T> data(final byte[] data);
 
     T build();

@@ -6,9 +6,11 @@ public interface Message {
 
     String source();
 
-    String getTarget();
+    String target();
 
-    JRPCMessage.TargetType getTargetType();
+    JRPCMessage.TargetType targetType();
+
+    ConversationUID conversationId();
 
     byte[] data();
 
@@ -24,6 +26,11 @@ public interface Message {
          * Message is meant for a specific client. The given target should be
          * the server's unique identifier.
          */
-        DIRECT
+        DIRECT,
+
+        /**
+         * Forwards the message to every client instance matching the given type.
+         */
+        ALL
     }
 }
