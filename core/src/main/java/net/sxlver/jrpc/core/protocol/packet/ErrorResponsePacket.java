@@ -8,6 +8,6 @@ import net.sxlver.jrpc.core.protocol.Packet;
 @Getter
 @AllArgsConstructor
 public class ErrorResponsePacket extends Packet {
-    private @NonNull int errorCode;
+    private int errorCode;
     private @NonNull String errorDescription;
 }

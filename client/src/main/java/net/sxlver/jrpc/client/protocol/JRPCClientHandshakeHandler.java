@@ -27,7 +27,7 @@ public class JRPCClientHandshakeHandler extends SimpleChannelInboundHandler<JRPC
             final byte[] data = message.data();
             final HandshakeStatusPacket packet = PacketDataSerializer.deserialize(data, HandshakeStatusPacket.class);
             client.getNetHandler().setHandshaked(true);
-            if(!packet.getStatus()) {
+            if(!packet.isSuccess()) {
                 client.getLogger().fatal("Error authenticating with the server. Error: '{}' [Auth key: {}]", packet.getErrorMessage(), StringUtil.cypherString(client.getConfig().getAuthenticationToken()));
                 client.close();
                 return;

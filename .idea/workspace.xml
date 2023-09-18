@@ -155,7 +155,7 @@
       <recent name="net.sxlver.jrpc.server.config" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
       <module name="jRPC.server.main" />
@@ -281,10 +281,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:bukkit [shadowJar]" />
         <item itemvalue="Gradle.jRPC:example-client [shadowJar]" />
-        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:client [shadowJar]" />
       </list>
     </recent_temporary>
