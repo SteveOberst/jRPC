@@ -10,7 +10,7 @@ import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.*;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
-import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +63,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
             final @NonNull Request packet,
             final @NonNull MessageTarget target,
-            final @NonNull Class<Response> expectedResponse,
+            final @Nullable Class<Response> expectedResponse,
             final @Nullable ConversationUID conversationUID
     ) {
         final ConversationUID uid = conversationUID == null ? ConversationUID.newUid() : conversationUID;
@@ -83,12 +83,17 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     private <Request extends Packet, Response extends Packet> Conversation<Request, Response> getOrCreate(
             final @NonNull Request request,
             final @NonNull ConversationUID uid,
-            final @NonNull Class<? extends Packet> expectedResponse
+            final @Nullable Class<? extends Packet> expectedResponse
     ) {
+        if(expectedResponse == null) {
+            return Conversation.empty();
+        }
+
         Conversation<Request, Response> conversation;
         if((conversation = (Conversation<Request, Response>) conversationObservers.getIfPresent(uid)) != null) {
             return conversation;
         }
+
         conversation = new Conversation<>(request, uid, expectedResponse);
         this.conversationObservers.put(uid, conversation);
         return conversation;

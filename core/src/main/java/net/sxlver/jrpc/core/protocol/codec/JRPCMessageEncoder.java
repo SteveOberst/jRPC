@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
-import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 
 public abstract class JRPCMessageEncoder extends MessageToByteEncoder<JRPCMessage> {
     @Override

@@ -8,7 +8,7 @@ import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
-import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 

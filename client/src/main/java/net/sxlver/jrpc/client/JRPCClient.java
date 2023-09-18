@@ -11,7 +11,7 @@ import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
 import net.sxlver.jrpc.client.protocol.Conversation;
 import net.sxlver.jrpc.client.protocol.JRPCClientHandshakeHandler;
-import net.sxlver.jrpc.client.protocol.MessageReceiver;
+import net.sxlver.jrpc.client.protocol.DataReceiver;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeMessageEncoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.client.protocol.JRPCClientChannelHandler;
@@ -23,7 +23,8 @@ import net.sxlver.jrpc.core.config.DataFolderProvider;
 import net.sxlver.jrpc.core.protocol.*;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
-import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.util.StringUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -51,7 +52,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     private JRPCClientChannelHandler handler;
 
-    private final Set<MessageReceiver> messageReceivers = ConcurrentHashMap.newKeySet();
+    private final Set<DataReceiver> dataReceivers = ConcurrentHashMap.newKeySet();
 
     private final String dataFolder;
 
@@ -128,8 +129,15 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
             final @NonNull Request packet,
+            final @NonNull MessageTarget target
+    ) {
+        return write(packet, target, null);
+    }
+
+    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
+            final @NonNull Request packet,
             final @NonNull MessageTarget target,
-            final @NonNull Class<Response> expectedResponse
+            final @Nullable Class<Response> expectedResponse
     ) {
         return write(packet, target, expectedResponse, null);
     }
@@ -137,28 +145,27 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
             final @NonNull Request packet,
             final @NonNull MessageTarget target,
-            final @NonNull Class<Response> expectedResponse,
+            final @Nullable Class<Response> expectedResponse,
             final @Nullable ConversationUID conversationUID
     ) {
         if(!isChannelOpen()) throw new IllegalStateException("Channel not open");
         return handler.write(packet, target, expectedResponse, conversationUID);
     }
 
-    public void registerMessageReceiver(final @NonNull MessageReceiver receive) {
-        final Optional<MessageReceiver> registered = messageReceivers.stream()
-                .filter(target -> target.getClass() == receive.getClass())
-                .map(messageReceiver -> (MessageReceiver) messageReceiver).findAny();
+    public void registerMessageReceiver(final @NonNull DataReceiver receive) {
+        final Optional<DataReceiver> registered = dataReceivers.stream()
+                .filter(target -> target.getClass() == receive.getClass()).findAny();
 
-        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends MessageReceiver>) target.getClass()));
-        messageReceivers.add(receive);
+        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends DataReceiver>) target.getClass()));
+        dataReceivers.add(receive);
     }
 
-    public void unregisterMessageReceiver(final MessageReceiver receiver) {
+    public void unregisterMessageReceiver(final DataReceiver receiver) {
         unregisterMessageReceiver( receiver.getClass());
     }
 
-    public  void unregisterMessageReceiver(final @NonNull Class<? extends MessageReceiver> cls) {
-        messageReceivers.removeIf(receiver -> receiver.getClass() == cls);
+    public  void unregisterMessageReceiver(final @NonNull Class<? extends DataReceiver> cls) {
+        dataReceivers.removeIf(receiver -> receiver.getClass() == cls);
     }
 
     @Override
@@ -203,8 +210,8 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return config.getUniqueId();
     }
 
-    public Set<MessageReceiver> getMessageReceivers() {
-        return messageReceivers;
+    public Set<DataReceiver> getMessageReceivers() {
+        return dataReceivers;
     }
 
     public JRPCClientChannelHandler getNetHandler() {
@@ -220,9 +227,13 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public void publishMessage(final @NonNull JRPCMessage message) {
-        for (final MessageReceiver messageReceiver : messageReceivers) {
-            messageReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
+        for (final DataReceiver dataReceiver : dataReceivers) {
+            dataReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
         }
+    }
+
+    public void sendKeepAlive() {
+        write(new KeepAlivePacket(), new MessageTarget(Message.TargetType.SERVER, ""));
     }
 
     private class JRPCChannelInitializer extends ChannelInitializer<SocketChannel> {
@@ -238,7 +249,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             channel.pipeline().addLast("handshake_handler", new JRPCClientHandshakeHandler(JRPCClient.this));
             channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));
             channel.pipeline().addLast("message_encoder", new JRPCClientMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
-            channel.pipeline().addLast("auth_encoder", new JRPCClientHandshakeMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
+            channel.pipeline().addLast("handshake_encoder", new JRPCClientHandshakeMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
         }
     }
 }

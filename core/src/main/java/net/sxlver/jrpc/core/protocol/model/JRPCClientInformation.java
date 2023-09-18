@@ -1,20 +1,13 @@
 package net.sxlver.jrpc.core.protocol.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+
+@Getter
+@AllArgsConstructor
 public class JRPCClientInformation {
 
-    private final String uniqueId;
-    private final String type;
-
-    public JRPCClientInformation(String uniqueId, String type) {
-        this.uniqueId = uniqueId;
-        this.type = type;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public String getType() {
-        return type;
-    }
+    private @NonNull String uniqueId;
+    private @NonNull String type;
 }

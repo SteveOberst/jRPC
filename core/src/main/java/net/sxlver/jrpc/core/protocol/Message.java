@@ -31,6 +31,17 @@ public interface Message {
         /**
          * Forwards the message to every client instance matching the given type.
          */
-        ALL
+        ALL,
+
+        /**
+         * Forwards a message to every single client instance connected to the server.
+         * The target for this operation does not matter.
+         */
+        BROADCAST,
+
+        /**
+         * Message is only meant for the server and will not be redirected to any client.
+         */
+        SERVER;
     }
 }

@@ -8,7 +8,7 @@ import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
-import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 
 import java.util.List;
 

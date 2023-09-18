@@ -1,12 +1,24 @@
 package net.sxlver.jrpc.server.model;
 
+import io.netty.channel.ChannelHandlerContext;
+import lombok.Getter;
+import lombok.NonNull;
+import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
+import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.server.protocol.JRPCServerChannelHandler;
 
 public class JRPCClientInstance {
-    private JRPCServerChannelHandler handler;
+    private final JRPCServerChannelHandler handler;
 
-    public JRPCClientInstance(JRPCServerChannelHandler handler) {
+    @Getter
+    private final JRPCClientInformation information;
+
+    @Getter
+    private long ping;
+
+    public JRPCClientInstance(final @NonNull JRPCServerChannelHandler handler) {
         this.handler = handler;
+        this.information = new JRPCClientInformation(handler.getUniqueId(), handler.getType());
     }
 
     public JRPCServerChannelHandler getNetHandler() {
@@ -18,10 +30,14 @@ public class JRPCClientInstance {
     }
 
     public String getUniqueId() {
-        return handler.getUniqueId();
+        return information.getUniqueId();
     }
 
     public String getType() {
-        return handler.getType();
+        return information.getType();
+    }
+
+    public void onKeepAlive(final ChannelHandlerContext context, final KeepAlivePacket sent, final KeepAlivePacket received) {
+        this.ping = System.currentTimeMillis() - sent.getTimestamp();
     }
 }

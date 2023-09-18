@@ -27,4 +27,6 @@ public class ConversationUID {
     public static ConversationUID newUid() {
         return new ConversationUID(rand.nextLong());
     }
+
+    public static long next() { return rand.nextLong(); }
 }

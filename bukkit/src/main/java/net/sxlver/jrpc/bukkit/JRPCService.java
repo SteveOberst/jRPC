@@ -1,22 +1,29 @@
 package net.sxlver.jrpc.bukkit;
 
-import net.sxlver.jrpc.bukkit.JRPCBukkitPlugin;
-import net.sxlver.jrpc.bukkit.protocol.MessageHandler;
+import com.google.common.collect.Lists;
+import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.client.JRPCClient;
+import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class JRPCService {
 
     private final JRPCBukkitPlugin plugin;
-    private final MessageHandler messageHandler;
+    private MessageHandler messageHandler;
     private JRPCClient client;
+
+    private List<JRPCClientInformation> registeredClients = Lists.newArrayList();
 
     public JRPCService(final JRPCBukkitPlugin plugin) {
         this.plugin = plugin;
-        this.messageHandler = new MessageHandler(plugin);
     }
 
     boolean start() {
         this.client = new JRPCClient(plugin.getDataFolder().getPath());
+        this.messageHandler = new MessageHandler(this.client);
         try {
             client.open();
             client.registerMessageReceiver(messageHandler);
@@ -31,6 +38,12 @@ public class JRPCService {
         if(client != null) {
             client.close();
         }
+    }
+
+    @ApiStatus.Internal
+    public void updateRegisteredClients(final JRPCClientInformation[] clients) {
+        registeredClients.clear();
+        registeredClients.addAll(Arrays.asList(clients));
     }
 
     public JRPCClient getClient() {
