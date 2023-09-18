@@ -40,6 +40,10 @@ public class InternalLogger {
         logger.fine(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
+    public void setLogLevel(final Level logLevel) {
+        logger.setLevel(logLevel);
+    }
+
     private String prependCallerClass(final String message, final String callCls) {
 
         return "[" + callCls + "] " + message;
@@ -52,7 +56,7 @@ public class InternalLogger {
 
         private final String ansiColor;
 
-        private AnsiColor(final String ansiColor) {
+        AnsiColor(final String ansiColor) {
             this.ansiColor = ansiColor;
         }
 
@@ -60,6 +64,7 @@ public class InternalLogger {
             return this.ansiColor;
         }
 
+        @Override
         public String toString() {
             return this.ansiColor;
         }

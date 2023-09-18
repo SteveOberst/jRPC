@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.core.protocol;
 
 import lombok.NonNull;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 
 public interface MessageBuilder<T extends Message> {
     MessageBuilder<T> target(final @NonNull String target);

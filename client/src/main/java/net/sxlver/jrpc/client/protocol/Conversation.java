@@ -4,21 +4,26 @@ import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.Packet;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class Conversation<T extends Packet> {
-    private ResponseReceiver<T> responseReceiver = packet -> {};
-    private ConversationUID conversationUID;
+
+public class Conversation<Request extends Packet, Response extends Packet> {
+
+    private final Request request;
+    private final ConversationUID conversationUID;
+    private BiConsumer<Request, Response> responseConsumer;
     private Class<? extends Packet> expectedResponse;
 
-    public Conversation(final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse) {
-        this.conversationUID = conversationUID;
-        this.expectedResponse = expectedResponse;
+    public Conversation(final @NonNull Request request, final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse) {
+        this(request, conversationUID, expectedResponse, (req, res) -> {});
     }
 
-    public Conversation(final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse, final @NonNull ResponseReceiver<T> responseReceiver) {
+    public Conversation(final @NonNull Request request, final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse, final @NonNull BiConsumer<Request, Response> consumer) {
+        this.request = request;
         this.conversationUID = conversationUID;
         this.expectedResponse = expectedResponse;
-        this.responseReceiver = responseReceiver;
+        this.responseConsumer = consumer;
     }
 
     public ConversationUID getConversationUID() {
@@ -29,12 +34,12 @@ public class Conversation<T extends Packet> {
         return expectedResponse;
     }
 
-    void processResponse(final T response) {
-        responseReceiver.onReceive(response);
+    void onResponse(final Response response) {
+        responseConsumer.accept(request, response);
     }
 
-    public Conversation<T> onResponse(final ResponseReceiver<T> responseReceiver) {
-        this.responseReceiver = responseReceiver;
+    public Conversation<Request, Response> onResponse(final BiConsumer<Request, Response> consumer) {
+        this.responseConsumer = consumer;
         return this;
     }
 }

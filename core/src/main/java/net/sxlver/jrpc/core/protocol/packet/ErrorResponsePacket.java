@@ -2,7 +2,7 @@ package net.sxlver.jrpc.core.protocol.packet;
 
 import net.sxlver.jrpc.core.protocol.Packet;
 
-public class ErrorResponsePacket implements Packet {
+public class ErrorResponsePacket extends Packet {
     private final int errorCode;
     private final String errorDescription;
 

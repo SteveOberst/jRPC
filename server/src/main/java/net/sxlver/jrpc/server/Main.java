@@ -9,7 +9,7 @@ public class Main {
             System.out.println("Boot failed. A critical error occurred.");
             exception.printStackTrace();
         }finally {
-            server.shutdown();
+            server.close();
         }
     }
 }

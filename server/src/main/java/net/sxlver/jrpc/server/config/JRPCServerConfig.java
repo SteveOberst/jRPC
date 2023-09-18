@@ -4,11 +4,13 @@ package net.sxlver.jrpc.server.config;
 import de.exlll.configlib.annotation.Comment;
 import de.exlll.configlib.annotation.FileLocation;
 import de.exlll.configlib.configs.yaml.YamlConfiguration;
+import io.netty.handler.logging.LogLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Level;
 
 @Getter @Setter
 @FileLocation(path = "config", fileName = "config.yml")
@@ -17,6 +19,10 @@ public class JRPCServerConfig extends YamlConfiguration {
     public JRPCServerConfig(final Path path, final YamlConfiguration.YamlProperties properties) {
         super(path, properties);
     }
+
+    @Comment("The output level of the logger")
+    private String logLevel = Level.ALL.getName();//Level.INFO.getName();
+    public Level getLoggingLevel() { return Level.parse(logLevel); }
 
     private String serverId = UUID.randomUUID().toString();
 

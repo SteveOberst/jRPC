@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Level;
 
 @Getter
 @Setter
@@ -17,6 +18,10 @@ public class JRPCClientConfig extends YamlConfiguration {
     public JRPCClientConfig(final Path path, final YamlConfiguration.YamlProperties properties) {
         super(path, properties);
     }
+
+    @Comment("The output level of the logger")
+    private String logLevel = Level.ALL.getName();//Level.INFO.getName();
+    public Level getLoggingLevel() { return Level.parse(logLevel); }
 
     @Comment("The Clients unique identifier. Requires no specific format, it should just be unique between all connected clients.")
     private String uniqueId = UUID.randomUUID().toString();

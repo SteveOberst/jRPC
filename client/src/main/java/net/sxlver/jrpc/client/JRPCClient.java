@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
+import net.sxlver.jrpc.client.protocol.Conversation;
 import net.sxlver.jrpc.client.protocol.JRPCClientHandshakeHandler;
 import net.sxlver.jrpc.client.protocol.MessageReceiver;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeMessageEncoder;
@@ -50,13 +51,23 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     private JRPCClientChannelHandler handler;
 
-    private final Set<MessageReceiver<?>> messageReceivers = ConcurrentHashMap.newKeySet();
+    private final Set<MessageReceiver> messageReceivers = ConcurrentHashMap.newKeySet();
+
+    private final String dataFolder;
 
     public JRPCClient() {
+        this(null);
+    }
+
+    public JRPCClient(final String dataFolder) {
         this.logger = new InternalLogger(getClass());
+        this.dataFolder = dataFolder;
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCClientConfig.class, true);
+        this.logger.setLogLevel(config.getLoggingLevel());
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
     }
 
     @Nullable
@@ -64,7 +75,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         final String host = config.getServerAddress();
         final int port = config.getServerPort();
         this.remoteAddress = new InetSocketAddress(host, port);
-        loopGroup = new NioEventLoopGroup();
+        this.loopGroup = new NioEventLoopGroup();
         logger.info("Opening socket...");
         try {
             final Bootstrap bootstrap = new Bootstrap()
@@ -77,21 +88,19 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             this.connectedChannel = bootstrap.connect(host, port).sync();
             logger.info("Successfully opened connection.", host, port);
 
-            authenticate(new JRPCHandshake(config.getAuthenticationToken(), config.getUniqueId(), ""));
-
+            authenticate(new JRPCHandshake(config.getAuthenticationToken(), config.getUniqueId(), Message.TargetType.DIRECT.name()));
         } catch (final InterruptedException exception) {
             logger.fatal("A fatal error occurred whilst trying to open connection to server: {}", exception.getMessage());
             logger.info(ExceptionUtils.getStackTrace(exception));
-        } finally {
             loopGroup.shutdownGracefully();
         }
         return this.connectedChannel;
     }
 
-    public void shutdown() {
-        if(connectedChannel != null) {
-            connectedChannel.channel().closeFuture();
-            connectedChannel = null;
+    public void close() {
+        if(this.connectedChannel != null) {
+            connectedChannel.channel().close().syncUninterruptibly();
+            this.connectedChannel = null;
         }
 
         try {
@@ -117,37 +126,49 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         this.connectedChannel = null;
     }
 
-    public void write(final @NonNull Packet packet, final @NonNull MessageTarget target, final @NonNull Class<? extends Packet> expectedResponse) {
-        write(packet, target, expectedResponse, null);
+    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
+            final @NonNull Request packet,
+            final @NonNull MessageTarget target,
+            final @NonNull Class<Response> expectedResponse
+    ) {
+        return write(packet, target, expectedResponse, null);
     }
 
-    public void write(final @NonNull Packet packet, final @NonNull MessageTarget target, final @NonNull Class<? extends Packet> expectedResponse, final ConversationUID conversationUID) {
+    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
+            final @NonNull Request packet,
+            final @NonNull MessageTarget target,
+            final @NonNull Class<Response> expectedResponse,
+            final @Nullable ConversationUID conversationUID
+    ) {
         if(!isChannelOpen()) throw new IllegalStateException("Channel not open");
-        handler.write(packet, target, expectedResponse, conversationUID);
+        return handler.write(packet, target, expectedResponse, conversationUID);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Packet> void registerMessageReceiver(final @NonNull MessageReceiver<T> receive) {
-        final Optional<MessageReceiver<T>> registered = messageReceivers.stream()
+    public void registerMessageReceiver(final @NonNull MessageReceiver receive) {
+        final Optional<MessageReceiver> registered = messageReceivers.stream()
                 .filter(target -> target.getClass() == receive.getClass())
-                .map(messageReceiver -> (MessageReceiver<T>) messageReceiver).findAny();
+                .map(messageReceiver -> (MessageReceiver) messageReceiver).findAny();
 
-        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends MessageReceiver<T>>) target.getClass()));
+        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends MessageReceiver>) target.getClass()));
         messageReceivers.add(receive);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Packet> void unregisterMessageReceiver(final MessageReceiver<T> receiver) {
-        unregisterMessageReceiver((Class<? extends MessageReceiver<T>>) receiver.getClass());
+    public void unregisterMessageReceiver(final MessageReceiver receiver) {
+        unregisterMessageReceiver( receiver.getClass());
     }
 
-    public <T extends Packet> void unregisterMessageReceiver(final @NonNull Class<? extends MessageReceiver<T>> cls) {
+    public  void unregisterMessageReceiver(final @NonNull Class<? extends MessageReceiver> cls) {
         messageReceivers.removeIf(receiver -> receiver.getClass() == cls);
     }
 
     @Override
     @SneakyThrows
     public String getDataFolder() {
+        return this.dataFolder == null ? getRunningDir() : this.dataFolder;
+    }
+
+    @SneakyThrows
+    public String getRunningDir() {
         return new File(getClass().getProtectionDomain()
                 .getCodeSource()
                 .getLocation()
@@ -170,7 +191,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     @Override
     public boolean isAllowVersionMismatch() {
-        return false;
+        return config.isAllowVersionMismatch();
     }
 
     public Gson getGson() {
@@ -182,7 +203,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return config.getUniqueId();
     }
 
-    public Set<MessageReceiver<?>> getMessageReceivers() {
+    public Set<MessageReceiver> getMessageReceivers() {
         return messageReceivers;
     }
 
@@ -199,7 +220,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public void publishMessage(final @NonNull JRPCMessage message) {
-        for (MessageReceiver<?> messageReceiver : messageReceivers) {
+        for (final MessageReceiver messageReceiver : messageReceivers) {
             messageReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
         }
     }

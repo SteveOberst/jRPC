@@ -22,13 +22,16 @@ import net.sxlver.jrpc.core.protocol.codec.JRPCHandshakeDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
 import net.sxlver.jrpc.core.serialization.CentralGson;
+import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.server.config.JRPCServerConfig;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
 import net.sxlver.jrpc.server.protocol.JRPCServerChannelHandler;
 import net.sxlver.jrpc.server.protocol.JRPCServerHandshakeHandler;
+import net.sxlver.jrpc.server.protocol.codec.JRPCServerMessageEncoder;
 import net.sxlver.jrpc.server.util.LazyInitVar;
 import net.sxlver.jrpc.server.util.Loadbalanced;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -68,9 +71,9 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         this.config = configurationManager.getConfig(JRPCServerConfig.class, true);
         this.localAddress = new InetSocketAddress("localhost", config.getPort());
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
-        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
-            logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable));
-        });
+        this.logger.setLogLevel(config.getLoggingLevel());
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
     }
 
     public void run() throws Exception {
@@ -91,8 +94,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
-    public void shutdown() {
-        listeningChannel.channel().closeFuture();
+    public void close() {
+        listeningChannel.channel().close().syncUninterruptibly();
         connected.stream().map(JRPCClientInstance::getNetHandler).forEach(JRPCServerChannelHandler::shutdown);
 
         try {
@@ -121,8 +124,12 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return Loadbalanced.pick(getLoadBalancedServers(type));
     }
 
-    private JRPCClientInstance getByUniqueId(final String uniqueId) {
+    public JRPCClientInstance getByUniqueId(final String uniqueId) {
         return connected.stream().filter(client -> client.getUniqueId().equals(uniqueId)).findFirst().orElse(null);
+    }
+
+    public JRPCClientInstance getBySource(final SocketAddress address) {
+        return connected.stream().filter(client -> client.getNetHandler().getRemoteAddress().equals(address)).findFirst().orElse(null);
     }
 
     public ChannelFuture getChannel() {
@@ -156,10 +163,32 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return config.getServerId();
     }
 
-    public boolean handshake(final SocketAddress remoteAddress, final JRPCHandshake handshake) {
-        final JRPCClientInstance client = getBySource(remoteAddress);
-        if(client == null) return false;
-        return client.getNetHandler().handshake(handshake);
+    public HandshakeStatusPacket handshake(final ChannelPipeline pipeline, final JRPCHandshake handshake) {
+        return tryHandshake(pipeline, handshake);
+    }
+
+    private HandshakeStatusPacket tryHandshake(final ChannelPipeline pipeline, final JRPCHandshake handshake) {
+        final JRPCServerChannelHandler channelHandler = (JRPCServerChannelHandler) pipeline.get("message_handler");
+        if(!verifyHandshake(handshake)) {
+            logger.warn("Received invalid handshake. [Client: {}] [Token: {}]", handshake.getUniqueId(), StringUtil.cypherString(handshake.getToken()));
+            return new HandshakeStatusPacket(false, "Received invalid handshake packet.");
+        }
+
+        if(clientExists(handshake.getUniqueId())) {
+            logger.warn("Client {} tried to open connection but is already authenticated. Closing connection...", handshake.getUniqueId());
+            return new HandshakeStatusPacket(false, String.format("Client with unique id '%s' is already authenticated.", handshake.getUniqueId()));
+        }
+
+        final boolean success = channelHandler.onHandshakeSuccess(handshake);
+        return new HandshakeStatusPacket(success);
+    }
+
+    public boolean clientExists(final String uniqueId) {
+        return getByUniqueId(uniqueId) != null;
+    }
+
+    private boolean verifyHandshake(final JRPCHandshake handshake) {
+        return handshake.getToken() != null && handshake.getType() != null && handshake.getUniqueId() != null;
     }
 
     public void forward(final JRPCMessage message, final JRPCServerChannelHandler invoker) {
@@ -206,11 +235,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCServer.this));
             channel.pipeline().addLast("handshake_handler", new JRPCServerHandshakeHandler(JRPCServer.this));
             channel.pipeline().addLast("message_handler", new JRPCServerChannelHandler(JRPCServer.this));
+            channel.pipeline().addLast("message_encoder", new JRPCServerMessageEncoder(JRPCServer.this.getProtocolVersion().getVersionNumber()));
         }
-    }
-
-    public JRPCClientInstance getBySource(final SocketAddress address) {
-        return connected.stream().filter(client -> client.getNetHandler().getRemoteAddress().equals(address)).findFirst().orElse(null);
     }
 
     public void addConnected(final JRPCClientInstance instance) {

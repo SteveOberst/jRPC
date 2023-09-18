@@ -1,6 +1,5 @@
 package net.sxlver.jrpc.core.protocol.codec;
 
-import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -10,10 +9,7 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
 import net.sxlver.jrpc.core.protocol.packet.PacketDataSerializer;
-import net.sxlver.jrpc.core.serialization.CentralGson;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.List;
 
 public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvider> extends ByteToMessageDecoder {

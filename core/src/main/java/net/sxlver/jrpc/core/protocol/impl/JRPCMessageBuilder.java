@@ -16,8 +16,16 @@ public class JRPCMessageBuilder implements MessageBuilder<JRPCMessage> {
 
     private JRPCMessageBuilder() {}
 
+    private JRPCMessageBuilder(final Message request) {
+        this.conversationUID = request.conversationId();
+    }
+
     public static MessageBuilder<JRPCMessage> builder() {
         return new JRPCMessageBuilder();
+    }
+
+    public static MessageBuilder<JRPCMessage> builder(final Message request) {
+        return new JRPCMessageBuilder(request);
     }
 
     @Override

@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
-import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
@@ -27,14 +26,14 @@ public class JRPCClientHandshakeHandler extends SimpleChannelInboundHandler<JRPC
        try {
             final byte[] data = message.data();
             final HandshakeStatusPacket packet = PacketDataSerializer.deserialize(data, HandshakeStatusPacket.class);
-            if(!packet.status) {
-                client.getLogger().warn("Error authenticating with the server. [Auth key: {}]", StringUtil.cypherString(client.getConfig().getAuthenticationToken()));
-                client.shutdown();
+            client.getNetHandler().setHandshaked(true);
+            if(!packet.getStatus()) {
+                client.getLogger().fatal("Error authenticating with the server. Error: '{}' [Auth key: {}]", packet.getErrorMessage(), StringUtil.cypherString(client.getConfig().getAuthenticationToken()));
+                client.close();
                 return;
             }
 
             client.getLogger().info("Successfully authenticated with the server.");
-            client.getNetHandler().setHandshaked(true);
             channel.pipeline().remove("handshake_handler");
        }catch (final Exception exception) {
            client.getLogger().warn("Received data before successfull authentication. [Source: {}] [Target: {}] [Message Type: {}] [Conversation ID: {}] [Content Length: {}]",
@@ -47,6 +46,7 @@ public class JRPCClientHandshakeHandler extends SimpleChannelInboundHandler<JRPC
     public void channelActive(@NotNull ChannelHandlerContext context) {
         this.channel = context.channel();
         client.getLogger().info("Handshake Channel opened.");
+        context.fireChannelActive();
     }
 
     public void handshake(final @NonNull JRPCClientHandshakeMessage message) {

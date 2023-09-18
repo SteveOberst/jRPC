@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapterFactory;
 
+import java.lang.reflect.Modifier;
+
 public enum CentralGson {
     PROTOCOL_INSTANCE;
 
