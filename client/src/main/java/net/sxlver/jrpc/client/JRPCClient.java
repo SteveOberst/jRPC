@@ -6,6 +6,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
@@ -243,8 +245,9 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             try {
                 channel.config().setOption(ChannelOption.TCP_NODELAY, true);
             } catch (ChannelException exception) {
-                logger.fatal("Error whilst setting TCP_NODELAY option: {}", ExceptionUtils.getStackTrace(exception));
+                logger.fatal("Encountered error whilst settings options to channel: {}", ExceptionUtils.getStackTrace(exception));
             }
+            channel.pipeline().addLast("frame_decoder", new DelimiterBasedFrameDecoder(80960, Delimiters.lineDelimiter()));
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCClient.this));
             channel.pipeline().addLast("handshake_handler", new JRPCClientHandshakeHandler(JRPCClient.this));
             channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));

@@ -17,6 +17,7 @@ public class KeepAliveReceiver implements MessageReceiver {
 
     @Override
     public void onReceive(final @NonNull MessageContext context, final @NonNull Packet packet) {
+        // respond with a keep alive packet
         client.sendKeepAlive();
     }
 

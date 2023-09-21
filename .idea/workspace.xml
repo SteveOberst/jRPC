@@ -4,44 +4,54 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/event/SynchronizeClientInformationEvent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/processors/ClientInformationReceiver.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/DataReceiver.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/ErrorHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageContext.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/DefaultErrorHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/KeepAliveReceiver.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/KeepAlivePacket.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/UpdateClientStatusPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Successfully establish connection and authenticate with server">
+      <change afterPath="$PROJECT_DIR$/bukkit/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCBukkitPlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageContext.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageProcessor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bukkit/src/main/resources/plugin.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/model/JRPCClientInformation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/SyncRegisteredClientsPacket.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/exception/DeserializationException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/filter/FieldFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/filter/FieldFilters.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/codec/JRPCServerMessageEncoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCBukkitPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCBukkitPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/MessageProcessor.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientHandshakeHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCConversation.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/ConversationUID.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/ConversationUID.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Message.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCHandshakeDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCHandshakeDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCHandshakeEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCHandshakeEncoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/ResponseReceiver.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/JRPCHandshake.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/JRPCHandshake.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/MessageBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/MessageBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Packet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/model/JRPCClientInformation.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/model/JRPCClientInformation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/impl/JRPCMessageBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/impl/JRPCMessageBuilder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/ErrorResponsePacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/ErrorResponsePacket.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/HandshakeStatusPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/HandshakeStatusPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/PacketDataSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/PacketDataSerializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/SyncRegisteredClientsPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/SyncRegisteredClientsPacket.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/PacketDataSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/packet/PacketDataSerializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/CentralGson.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/CentralGson.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/SerializationExclusionStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/SerializationExclusionStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/example-client/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/HelloPacketRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/HelloPacketRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/HelloPacketResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/HelloPacketResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/config/JRPCServerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/config/JRPCServerConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/model/JRPCClientInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/model/JRPCClientInstance.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/sxlver/jrpc/exampleclient/server/Main.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +86,59 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="bukkit" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="bukkit" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="bukkit" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="example-client" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="example-client" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="jRPC" type="f1a62948:ProjectNode" />
+                <item name="example-client" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="shadow" type="c8890929:TasksNode$1" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -96,15 +158,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/764fbcf20fe348c23338b3f8a7373c9e7d206956/lombok-1.18.22-sources.jar!/lombok/Getter.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="wu6lfaam" />
@@ -112,36 +166,29 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
-}]]></component>
   <component name="ProjectId" id="2VLwBnA0XoaOPVDHklk8N2Uq6x7" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "jdk.selected.JAVA_MODULE": "corretto-17 (2)",
-    "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "corretto-17 (2)",
-    "last_opened_file_path": "C:/Users/steve/IdeaProjects/jRPC",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;corretto-17 (2)&quot;,
+    &quot;jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: &quot;corretto-17 (2)&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Steve Oberst/IdeaProjects/jRPC/core/src/main/java/net/sxlver/jrpc/core/serialization&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   },
-  "keyToStringList": {
-    "jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": [
-      "17=C:/Users/Steve Oberst/.jdks/corretto-17.0.8"
+  &quot;keyToStringList&quot;: {
+    &quot;jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: [
+      &quot;17=C:/Users/Steve Oberst/.jdks/corretto-17.0.8&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\core\src\main\java\net\sxlver\jrpc\core\serialization" />
@@ -155,7 +202,7 @@
       <recent name="net.sxlver.jrpc.server.config" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
       <module name="jRPC.server.main" />
@@ -281,10 +328,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:bukkit [shadowJar]" />
         <item itemvalue="Gradle.jRPC:example-client [shadowJar]" />
+        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:client [shadowJar]" />
       </list>
     </recent_temporary>
@@ -292,7 +339,7 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="" />
+      <changelist id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="" />
       <created>1694628535489</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />

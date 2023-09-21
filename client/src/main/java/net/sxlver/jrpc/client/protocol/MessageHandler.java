@@ -7,8 +7,10 @@ import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.client.protocol.processors.DefaultErrorHandler;
 import net.sxlver.jrpc.client.protocol.processors.KeepAliveReceiver;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
+import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.Packet;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 
 import java.util.Map;
@@ -29,14 +31,35 @@ public class MessageHandler implements DataReceiver {
     }
 
     @Override
+    @SuppressWarnings("Unchecked")
     public void onReceive(final @NonNull String source,
                           final @NonNull String target,
                           final @NonNull Message.TargetType targetType,
                           final @NonNull ConversationUID conversationUID,
                           final byte[] data
     ) {
+        final JRPCClientChannelHandler netHandler = client.getNetHandler();
         final MessageContext context = new MessageContext(source, target, targetType, conversationUID);
         final Packet packet = PacketDataSerializer.deserializePacket(data);
+
+        if(netHandler.isObserverPresent(conversationUID)) {
+            final Conversation<Packet, Packet> conversation = netHandler.getAndInvalidateObserver(conversationUID);
+            // Have we received an error from the other end?
+            if(packet instanceof ErrorInformationHolder errorPacket) {
+                // If the provided cause is null we just assign a new instance of Exception
+                final Throwable t = errorPacket.getCause() != null ? errorPacket.getCause() : new Exception();
+                // call the error handler
+                conversation.except(t, errorPacket);
+                return;
+            }
+
+            // notify handlers of the received packet
+            conversation.onResponse(packet);
+            // do not continue if overrideHandlers is true on the conversation
+            if(conversation.shouldOverrideHandlers()) {
+                return;
+            }
+        }
 
         for (final Map.Entry<Class<? extends MessageReceiver>, MessageReceiver> entry : registeredMessageReceivers.asMap().entrySet()) {
             final MessageReceiver receiver = entry.getValue();

@@ -15,6 +15,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -39,7 +40,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
         client.getLogger().warn("An Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
-        client.getLogger().debug(ExceptionUtils.getStackTrace(cause));
+        client.getLogger().fatal(ExceptionUtils.getStackTrace(cause));
     }
 
     @Override
@@ -90,7 +91,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         }
 
         Conversation<Request, Response> conversation;
-        if((conversation = (Conversation<Request, Response>) conversationObservers.getIfPresent(uid)) != null) {
+        if((conversation = getObserver(uid)) != null) {
             return conversation;
         }
 
@@ -104,6 +105,23 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
                 "Sent packet {} to target {}. [Conversation UID: {}] [Target Type: {}] [Content Length. {}]",
                 packet.getClass(), target.target(), uid.uid(), target.targetType().toString(), message.data().length
         );
+    }
+
+    public boolean isObserverPresent(final ConversationUID uid) {
+        return getObserver(uid) != null;
+    }
+
+    @Nullable
+    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> getObserver(final ConversationUID uid) {
+        return (Conversation<Request, Response>) conversationObservers.getIfPresent(uid);
+    }
+
+    @NotNull
+    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> getAndInvalidateObserver(final ConversationUID uid) {
+        final Conversation<Request, Response> conversation = getObserver(uid);
+        Objects.requireNonNull(conversation);
+        conversationObservers.invalidate(uid);
+        return conversation;
     }
 
     private long waitingSince;

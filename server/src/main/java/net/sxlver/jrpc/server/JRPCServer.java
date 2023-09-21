@@ -24,7 +24,7 @@ import net.sxlver.jrpc.core.protocol.codec.JRPCHandshakeDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.protocol.packet.UpdateClientStatusPacket;
@@ -47,6 +47,7 @@ import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -201,7 +202,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public void forward(final @NonNull JRPCMessage message, final @NonNull JRPCServerChannelHandler invoker) {
-        final Collection<JRPCClientInstance> sendTo = Lists.newArrayList();
+        Collection<JRPCClientInstance> sendTo = Lists.newArrayList();
         switch(message.targetType()) {
             case DIRECT -> sendTo.add(getByUniqueId(message.target()));
             case LOAD_BALANCED -> sendTo.add(getLoadBalancedServer(message.target()));
@@ -209,17 +210,14 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
             case BROADCAST -> sendTo.addAll(connected);
         }
 
-        if(sendTo.isEmpty()) {
-            final JRPCMessage errorMessage = buildDirectResponse(new ErrorResponsePacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source());
+        if(sendTo.isEmpty() || sendTo.stream().noneMatch(Objects::nonNull)) {
+            final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found.", null), message.source());
             invoker.write(errorMessage);
             logger.info("{} No suitable target found whilst forwarding message of type {} [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", message.targetType(), message.source(), message.target());
             return;
         }
 
-        for (final JRPCClientInstance jrpcClientInstance : sendTo) {
-            jrpcClientInstance.getNetHandler().write(message);
-        }
-
+        sendTo.stream().filter(Objects::nonNull).forEach(jrpcClientInstance -> jrpcClientInstance.getNetHandler().write(message));
         logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , message.targetType(), message.source(), message.target(), message.data().length);
     }
 

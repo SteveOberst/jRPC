@@ -8,7 +8,7 @@ import net.sxlver.jrpc.core.protocol.Packet;
 @Getter
 @AllArgsConstructor
 public class HandshakeStatusPacket extends Packet {
-    private @NonNull boolean success;
+    private boolean success;
     private @NonNull String errorMessage;
 
     public HandshakeStatusPacket(final boolean success) {

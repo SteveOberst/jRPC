@@ -9,7 +9,7 @@ import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.*;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
-import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.server.JRPCServer;
@@ -43,7 +43,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         // has the client authenticated yet?
         if(!handshaked) {
             // Client is not yet authenticated, ignore request and respond with an error
-            write(new ErrorResponsePacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
+            write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated.", null));
             return;
         }
 
@@ -52,7 +52,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         //
         // Preserve JsonObject in first step to save up on some I/O load
         final JsonObject jsonObject = PacketDataSerializer.deserializeJson(message.data());
-        if(PacketDataSerializer.extractClass(jsonObject) == KeepAlivePacket.class) {
+        if(PacketDataSerializer.extractClassPath(jsonObject).equals(KeepAlivePacket.class.getName())) {
             // Finally deserialize the JsonObject to the KeepAlivePacket class instance
             final KeepAlivePacket packet = PacketDataSerializer.deserialize(jsonObject, KeepAlivePacket.class);
             final JRPCClientInstance client = server.getByUniqueId(message.source());
@@ -60,8 +60,11 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             sendKeepAlive();
             return;
         }
-        // forward message to target client instance(s)
-        server.forward(message, this);
+
+        if(message.targetType() != Message.TargetType.SERVER) {
+            // forward message to target client instance(s)
+            server.forward(message, this);
+        }
     }
 
     @Override
@@ -71,7 +74,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             return;
         }
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
-        server.getLogger().debug(ExceptionUtils.getStackTrace(cause));
+        server.getLogger().fatal(ExceptionUtils.getStackTrace(cause));
     }
 
     @Override

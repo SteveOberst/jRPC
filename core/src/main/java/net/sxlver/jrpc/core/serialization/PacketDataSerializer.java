@@ -35,6 +35,14 @@ public class PacketDataSerializer {
         return (T) gson.fromJson(json.toString(), packetCls);
     }
 
+    public static String extractClassPath(final byte[] data) {
+        return deserializeJson(data).get("packetCls").getAsString();
+    }
+
+    public static String extractClassPath(final JsonObject json) {
+        return json.get("packetCls").getAsString();
+    }
+
     @SuppressWarnings("unchecked")
     public static Class<? extends Packet> extractClass(final JsonObject json) {
         final String packetCls = json.get("packetCls").getAsString();

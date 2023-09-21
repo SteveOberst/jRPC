@@ -2,10 +2,8 @@ package net.sxlver.jrpc.client.protocol;
 
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
-import net.sxlver.jrpc.client.protocol.MessageContext;
-import net.sxlver.jrpc.client.protocol.MessageReceiver;
 import net.sxlver.jrpc.core.protocol.Packet;
-import net.sxlver.jrpc.core.protocol.packet.ErrorResponsePacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 
 import java.util.function.BiConsumer;
 
@@ -21,7 +19,7 @@ public abstract class ErrorHandler implements MessageReceiver {
 
     @Override
     public void onReceive(final @NonNull MessageContext context, final @NonNull Packet packet) {
-        final ErrorResponsePacket errorPacket = (ErrorResponsePacket) packet;
+        final ErrorInformationPacket errorPacket = (ErrorInformationPacket) packet;
         client.getLogger().warn("Received error message from the server. Error code: {}, Description: {}", errorPacket.getErrorCode(), errorPacket.getErrorDescription());
     }
 
@@ -31,7 +29,7 @@ public abstract class ErrorHandler implements MessageReceiver {
 
     @Override
     public boolean shouldAccept(final @NonNull Packet packet) {
-        return packet instanceof ErrorResponsePacket;
+        return packet instanceof ErrorInformationPacket;
     }
 
     void raiseException(final MessageContext context, final Throwable cause) {
