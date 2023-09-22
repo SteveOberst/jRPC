@@ -16,5 +16,14 @@ public class Main {
         }).onExcept((throwable, errorInformationHolder) -> {}
                 ).overrideHandlers();
         client.close();
+
+        conversation.onResponse((helloPacket, packet) -> {
+                    
+                })
+                .onExcept((throwable, errorInformationHolder) -> {
+
+                })
+                .overrideHandlers()
+                .enableConcurrentResponseProcessing();
     }
 }

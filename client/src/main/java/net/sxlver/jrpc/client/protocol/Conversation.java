@@ -12,21 +12,21 @@ import java.util.function.BiConsumer;
 /**
  * The type Conversation.
  *
- * @param <Request>  the type parameter
- * @param <Response> the type parameter
+ * @param <TRequest>  the type parameter
+ * @param <TResponse> the type parameter
  */
-public class Conversation<Request extends Packet, Response extends Packet> {
+public final class Conversation<TRequest extends Packet, TResponse extends Packet> {
 
-    private final Request request;
+    private final TRequest request;
     private final ConversationUID conversationUID;
     private Class<? extends Packet> expectedResponse;
 
-    private BiConsumer<Request, Response> responseConsumer = (req, res) -> {};
+    private BiConsumer<TRequest, TResponse> responseConsumer = (req, res) -> {};
     private BiConsumer<Throwable, ErrorInformationHolder> errorHandler = (throwable, errorInformationPacket) -> {};
     private boolean overrideHandlers;
-    private boolean acceptMultiple;
+    private boolean concurrentResponseProcessing;
 
-    private final static Conversation<?, ?> EMPTY = new Conversation<>();
+    private static final Conversation<?, ?> EMPTY = new Conversation<>();
 
     private Conversation() {
         this.request = null;
@@ -40,7 +40,7 @@ public class Conversation<Request extends Packet, Response extends Packet> {
      * @param conversationUID  the conversation uid
      * @param expectedResponse the expected response type
      */
-    public Conversation(final @NonNull Request request, final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse) {
+    public Conversation(final @NonNull TRequest request, final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse) {
         this.request = request;
         this.conversationUID = conversationUID;
         this.expectedResponse = expectedResponse;
@@ -69,7 +69,7 @@ public class Conversation<Request extends Packet, Response extends Packet> {
      *
      * @param response the response
      */
-    void onResponse(final Response response) {
+    void onResponse(final TResponse response) {
         responseConsumer.accept(request, response);
     }
 
@@ -79,7 +79,7 @@ public class Conversation<Request extends Packet, Response extends Packet> {
      * @param consumer the consumer
      * @return the conversation
      */
-    public Conversation<Request, Response> onResponse(final @NonNull BiConsumer<Request, Response> consumer) {
+    public Conversation<TRequest, TResponse> onResponse(final @NonNull BiConsumer<TRequest, TResponse> consumer) {
         this.responseConsumer = consumer;
         return this;
     }
@@ -95,7 +95,7 @@ public class Conversation<Request extends Packet, Response extends Packet> {
      *
      * @return current instance of the Conversation Object
      */
-    public Conversation<Request, Response> overrideHandlers() {
+    public Conversation<TRequest, TResponse> overrideHandlers() {
         this.overrideHandlers = true;
         return this;
     }
@@ -109,24 +109,44 @@ public class Conversation<Request extends Packet, Response extends Packet> {
      * {@link ErrorInformationPacket}. Throwable might just be an empty exception if the
      * error wasn't raised by an exception or the other end simply didn't provide an exception.
      *
+     * @param <T>          the type parameter
      * @param errorHandler action to be run when an error response is received
      * @return current instance of the Conversation Object
      */
     @SuppressWarnings("unchecked")
-    public <T extends ErrorInformationHolder> Conversation<Request, Response> onExcept(final @NonNull BiConsumer<Throwable, T> errorHandler) {
+    public <T extends ErrorInformationHolder> Conversation<TRequest, TResponse> onExcept(final @NonNull BiConsumer<Throwable, T> errorHandler) {
         this.errorHandler = (BiConsumer<Throwable, ErrorInformationHolder>) errorHandler;
+        return this;
+    }
+
+    boolean isConcurrentResponseProcessing() {
+        return concurrentResponseProcessing;
+    }
+
+    /**
+     * Enable processing of concurrent responses for this conversation.
+     * One request could trigger many client instances to respond instead of just one.
+     *
+     * <p>setting this option to true will catch every response instead of unregistering
+     * the conversation after a response has been received and instead unregisters it
+     * after the conversation-timeout value in the configuration has been reached.
+     *
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> enableConcurrentResponseProcessing() {
+        this.concurrentResponseProcessing = true;
         return this;
     }
 
     /**
      * Returns an empty conversation.
      *
-     * @param <Request>  the type parameter
-     * @param <Response> the type parameter
+     * @param <TRequest>  the type parameter
+     * @param <TResponse> the type parameter
      * @return empty conversation object
      */
     @SuppressWarnings("unchecked")
-    public static <Request extends Packet, Response extends Packet> Conversation<Request, Response> empty() {
-        return (Conversation<Request, Response>) EMPTY;
+    public static <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> empty() {
+        return (Conversation<TRequest, TResponse>) EMPTY;
     }
 }

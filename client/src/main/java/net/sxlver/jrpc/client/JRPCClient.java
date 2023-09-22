@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
 import net.sxlver.jrpc.client.protocol.Conversation;
 import net.sxlver.jrpc.client.protocol.JRPCClientHandshakeHandler;
-import net.sxlver.jrpc.client.protocol.DataReceiver;
+import net.sxlver.jrpc.client.protocol.RawDataReceiver;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeMessageEncoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.client.protocol.JRPCClientChannelHandler;
@@ -54,7 +54,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     private JRPCClientChannelHandler handler;
 
-    private final Set<DataReceiver> dataReceivers = ConcurrentHashMap.newKeySet();
+    private final Set<RawDataReceiver> dataReceivers = ConcurrentHashMap.newKeySet();
 
     private final String dataFolder;
 
@@ -129,44 +129,44 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         this.connectedChannel = null;
     }
 
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
-            final @NonNull Request packet,
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
+            final @NonNull TRequest packet,
             final @NonNull MessageTarget target
     ) {
         return write(packet, target, null);
     }
 
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
-            final @NonNull Request packet,
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
+            final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<Response> expectedResponse
+            final @Nullable Class<TResponse> expectedTResponse
     ) {
-        return write(packet, target, expectedResponse, null);
+        return write(packet, target, expectedTResponse, null);
     }
 
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
-            final @NonNull Request packet,
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
+            final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<Response> expectedResponse,
+            final @Nullable Class<TResponse> expectedTResponse,
             final @Nullable ConversationUID conversationUID
     ) {
         if(!isChannelOpen()) throw new IllegalStateException("Channel not open");
-        return handler.write(packet, target, expectedResponse, conversationUID);
+        return handler.write(packet, target, expectedTResponse, conversationUID);
     }
 
-    public void registerMessageReceiver(final @NonNull DataReceiver receive) {
-        final Optional<DataReceiver> registered = dataReceivers.stream()
+    public void registerMessageReceiver(final @NonNull RawDataReceiver receive) {
+        final Optional<RawDataReceiver> registered = dataReceivers.stream()
                 .filter(target -> target.getClass() == receive.getClass()).findAny();
 
-        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends DataReceiver>) target.getClass()));
+        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends RawDataReceiver>) target.getClass()));
         dataReceivers.add(receive);
     }
 
-    public void unregisterMessageReceiver(final DataReceiver receiver) {
+    public void unregisterMessageReceiver(final RawDataReceiver receiver) {
         unregisterMessageReceiver( receiver.getClass());
     }
 
-    public  void unregisterMessageReceiver(final @NonNull Class<? extends DataReceiver> cls) {
+    public  void unregisterMessageReceiver(final @NonNull Class<? extends RawDataReceiver> cls) {
         dataReceivers.removeIf(receiver -> receiver.getClass() == cls);
     }
 
@@ -212,7 +212,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return config.getUniqueId();
     }
 
-    public Set<DataReceiver> getMessageReceivers() {
+    public Set<RawDataReceiver> getMessageReceivers() {
         return dataReceivers;
     }
 
@@ -229,7 +229,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public void publishMessage(final @NonNull JRPCMessage message) {
-        for (final DataReceiver dataReceiver : dataReceivers) {
+        for (final RawDataReceiver dataReceiver : dataReceivers) {
             dataReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
         }
     }

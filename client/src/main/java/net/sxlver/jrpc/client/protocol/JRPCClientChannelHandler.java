@@ -61,12 +61,12 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         this.handshaked = handshaked;
     }
 
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> write(
-            final @NonNull Request packet,
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
+            final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<Response> expectedResponse,
-            final @Nullable ConversationUID conversationUID
-    ) {
+            final @Nullable Class<TResponse> expectedTResponse,
+            final @Nullable ConversationUID conversationUID) {
+
         final ConversationUID uid = conversationUID == null ? ConversationUID.newUid() : conversationUID;
         final JRPCMessage message = JRPCMessageBuilder.builder()
                 .source(client)
@@ -78,19 +78,19 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
         channel.writeAndFlush(message);
         logPacketDispatch(packet, target, uid, message);
-        return getOrCreate(packet, message.conversationId(), expectedResponse);
+        return getOrCreate(packet, message.conversationId(), expectedTResponse);
     }
 
-    private <Request extends Packet, Response extends Packet> Conversation<Request, Response> getOrCreate(
-            final @NonNull Request request,
+    private <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getOrCreate(
+            final @NonNull TRequest request,
             final @NonNull ConversationUID uid,
-            final @Nullable Class<? extends Packet> expectedResponse
-    ) {
+            final @Nullable Class<? extends Packet> expectedResponse) {
+
         if(expectedResponse == null) {
             return Conversation.empty();
         }
 
-        Conversation<Request, Response> conversation;
+        Conversation<TRequest, TResponse> conversation;
         if((conversation = getObserver(uid)) != null) {
             return conversation;
         }
@@ -100,7 +100,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         return conversation;
     }
 
-    private <Request extends Packet> void logPacketDispatch(final Request packet, final MessageTarget target, final ConversationUID uid, final JRPCMessage message) {
+    private <TRequest extends Packet> void logPacketDispatch(final TRequest packet, final MessageTarget target, final ConversationUID uid, final JRPCMessage message) {
         client.getLogger().debug(
                 "Sent packet {} to target {}. [Conversation UID: {}] [Target Type: {}] [Content Length. {}]",
                 packet.getClass(), target.target(), uid.uid(), target.targetType().toString(), message.data().length
@@ -112,13 +112,17 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     }
 
     @Nullable
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> getObserver(final ConversationUID uid) {
-        return (Conversation<Request, Response>) conversationObservers.getIfPresent(uid);
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getObserver(final ConversationUID uid) {
+        return (Conversation<TRequest, TResponse>) conversationObservers.getIfPresent(uid);
+    }
+
+    public void invalidateConversation(final @NonNull ConversationUID id) {
+        conversationObservers.invalidate(id);
     }
 
     @NotNull
-    public <Request extends Packet, Response extends Packet> Conversation<Request, Response> getAndInvalidateObserver(final ConversationUID uid) {
-        final Conversation<Request, Response> conversation = getObserver(uid);
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getAndInvalidateObserver(final ConversationUID uid) {
+        final Conversation<TRequest, TResponse> conversation = getObserver(uid);
         Objects.requireNonNull(conversation);
         conversationObservers.invalidate(uid);
         return conversation;
