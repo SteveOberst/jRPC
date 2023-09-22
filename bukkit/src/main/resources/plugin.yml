@@ -1,4 +1,4 @@
 name: JRPCBukkit
 version: '${version}'
-main: net.sxlver.jrpc.bukkit.JRPCBukkit
+main: net.sxlver.jrpc.bukkit.JRPCBukkitPlugin
 api-version: 1.13

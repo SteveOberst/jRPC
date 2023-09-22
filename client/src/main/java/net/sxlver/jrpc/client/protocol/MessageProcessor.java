@@ -37,6 +37,7 @@ public class MessageProcessor implements RawDataReceiver {
                           final @NonNull Message.TargetType targetType,
                           final @NonNull ConversationUID conversationUID,
                           final byte[] data) {
+
         final JRPCClientChannelHandler netHandler = client.getNetHandler();
         final Packet packet = PacketDataSerializer.deserializePacket(data);
         final MessageContext<Packet> context = new MessageContext<>(client, packet, source, target, targetType, conversationUID);
@@ -59,7 +60,7 @@ public class MessageProcessor implements RawDataReceiver {
 
             if(packet.getClass() != conversation.getExpectedResponse()) {
                 // notify handler of the received packet
-                conversation.onResponse(packet);
+                conversation.onResponse(context);
                 // do not continue if overrideHandlers is true on the conversation
                 if(conversation.shouldOverrideHandlers()) {
                     return;

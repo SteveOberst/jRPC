@@ -11,12 +11,12 @@ import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.core.protocol.packet.SyncRegisteredClientsPacket;
 import org.bukkit.Bukkit;
 
-public class ClientInformationReceiver implements MessageHandler<SyncRegisteredClientsPacket> {
+public class ClientInformationHandler implements MessageHandler<SyncRegisteredClientsPacket> {
 
     private final JRPCBukkitPlugin plugin;
     private final JRPCService service;
 
-    public ClientInformationReceiver(final JRPCBukkitPlugin plugin) {
+    public ClientInformationHandler(final JRPCBukkitPlugin plugin) {
         this.plugin = plugin;
         this.service = Bukkit.getServicesManager().getRegistration(JRPCService.class).getProvider();
     }

@@ -5,7 +5,12 @@ import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
+import net.sxlver.jrpc.core.util.TimedCache;
+import org.jetbrains.annotations.ApiStatus;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 
@@ -15,18 +20,24 @@ import java.util.function.BiConsumer;
  * @param <TRequest>  the type parameter
  * @param <TResponse> the type parameter
  */
-public final class Conversation<TRequest extends Packet, TResponse extends Packet> {
+public final class Conversation<TRequest extends Packet, TResponse extends Packet> implements TimedCache.NotifyOnExpire {
 
     private final TRequest request;
     private final ConversationUID conversationUID;
     private Class<? extends Packet> expectedResponse;
 
-    private BiConsumer<TRequest, TResponse> responseConsumer = (req, res) -> {};
+    private BiConsumer<TRequest, MessageContext<TResponse>> responseConsumer = (req, res) -> {};
     private BiConsumer<Throwable, ErrorInformationHolder> errorHandler = (throwable, errorInformationPacket) -> {};
+    private BiConsumer<TRequest, Set<MessageContext<TResponse>>> timeoutHandler = (tRequest, messageContexts) -> {};
     private boolean overrideHandlers;
     private boolean concurrentResponseProcessing;
 
     private static final Conversation<?, ?> EMPTY = new Conversation<>();
+
+    private boolean alwaysNotifyTimeout;
+    private volatile boolean handlerCalled;
+
+    private Set<MessageContext<TResponse>> responses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private Conversation() {
         this.request = null;
@@ -69,7 +80,9 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      *
      * @param response the response
      */
-    void onResponse(final TResponse response) {
+    void onResponse(final MessageContext<TResponse> response) {
+        this.handlerCalled = true;
+        this.responses.add(response);
         responseConsumer.accept(request, response);
     }
 
@@ -79,7 +92,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * @param consumer the consumer
      * @return the conversation
      */
-    public Conversation<TRequest, TResponse> onResponse(final @NonNull BiConsumer<TRequest, TResponse> consumer) {
+    public Conversation<TRequest, TResponse> onResponse(final @NonNull BiConsumer<TRequest, MessageContext<TResponse>> consumer) {
         this.responseConsumer = consumer;
         return this;
     }
@@ -139,6 +152,36 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     /**
+     * Settings this option to true will invoke {@link #onTimeout()} when the Conversation
+     * expired, regardless of whether the handler has been called already.
+     *
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> alwaysNotifyTimeout() {
+        this.alwaysNotifyTimeout = true;
+        return this;
+    }
+
+    /**
+     * Called when the Conversation is marked as expired and removed from the cache.
+     *
+     * <p>The time span before Conversations are marked as expired depends on the
+     * conversation-time-out value set in the configuration file. if this threshold
+     * is reached and no response has been received the timeoutHandler will be called.
+     *
+     * <p>If {@link #alwaysNotifyTimeout()} has been set, the handler will be called
+     * regardless of whether a response has been received after the conversation has
+     * been marked as expired.
+     *
+     * @param timeoutHandler the handler that should be notified on timeout
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> onTimeout(final BiConsumer<TRequest, Set<MessageContext<TResponse>>> timeoutHandler) {
+        this.timeoutHandler = timeoutHandler;
+        return this;
+    }
+
+    /**
      * Returns an empty conversation.
      *
      * @param <TRequest>  the type parameter
@@ -148,5 +191,17 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     @SuppressWarnings("unchecked")
     public static <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> empty() {
         return (Conversation<TRequest, TResponse>) EMPTY;
+    }
+
+    @Override
+    @ApiStatus.Internal
+    public void notifyExpired() {
+        if(!handlerCalled || alwaysNotifyTimeout) {
+            expire();
+        }
+    }
+
+    void expire() {
+        timeoutHandler.accept(request, responses);
     }
 }

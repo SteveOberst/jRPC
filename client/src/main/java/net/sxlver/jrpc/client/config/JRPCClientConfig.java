@@ -39,6 +39,6 @@ public class JRPCClientConfig extends YamlConfiguration {
     private boolean allowVersionMismatch = false;
 
     @Comment("The amount of time the client will wait for a response of the other side in ms")
-    private long conversationTimeOut = 5000;
+    private long conversationTimeOut = 1000;
 }
 

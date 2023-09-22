@@ -5,6 +5,7 @@ import lombok.NonNull;
 import net.sxlver.jrpc.client.protocol.Conversation;
 import net.sxlver.jrpc.client.protocol.MessageProcessor;
 import net.sxlver.jrpc.client.JRPCClient;
+import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
@@ -42,6 +43,14 @@ public class JRPCService {
         if(client != null) {
             client.close();
         }
+    }
+
+    public void broadcast(final @NonNull Packet packet) {
+        publish(packet, new MessageTarget(Message.TargetType.BROADCAST));
+    }
+
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet, final Class<TResponse> expectedResponse) {
+         return publish(packet, new MessageTarget(Message.TargetType.BROADCAST), expectedResponse);
     }
 
     public void publish(final @NonNull Packet packet, final MessageTarget target) {

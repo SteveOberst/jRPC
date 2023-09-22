@@ -1,6 +1,6 @@
 package net.sxlver.jrpc.bukkit;
 
-import net.sxlver.jrpc.bukkit.protocol.processors.ClientInformationReceiver;
+import net.sxlver.jrpc.bukkit.protocol.processors.ClientInformationHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +32,6 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
     }
 
     private void registerMessageReceiver() {
-        service.getMessageProcessor().registerHandler(new ClientInformationReceiver(this));
+        service.getMessageProcessor().registerHandler(new ClientInformationHandler(this));
     }
 }

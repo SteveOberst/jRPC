@@ -29,7 +29,7 @@ public abstract class ErrorHandler<T extends ErrorInformationHolder> implements 
 
     @Override
     public boolean shouldAccept(final @NonNull Packet packet) {
-        return packet instanceof ErrorInformationPacket;
+        return packet instanceof ErrorInformationHolder;
     }
 
 

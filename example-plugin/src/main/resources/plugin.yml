@@ -1,0 +1,20 @@
+name: JRPCExamplePlugin
+version: '${version}'
+main: net.sxlver.jrpc.bukkit.exampleplugin.JRPCExamplePlugin
+api-version: 1.13
+
+depend:
+  - JRPCBukkit
+
+commands:
+  locateplayer:
+    description: locates a player across the network
+    aliases:
+      - locate
+      - findplayer
+  playerlist:
+    description: lists online players on the target server
+    aliases:
+      - online
+
+

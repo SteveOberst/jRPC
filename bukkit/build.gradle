@@ -2,8 +2,10 @@ plugins {
     id 'java'
 }
 
-group = 'net.sxlver.jrpc'
+group = 'net.sxlver.jrpc.bukkit'
 version = '0.1-alpha'
+
+archivesBaseName = 'JRPC-Bukkit'
 
 repositories {
     mavenCentral()

@@ -4,18 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="better error handling, Conversation functionality">
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="refactoring">
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/TimedCache.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/JRPCExamplePlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/LocatePlayerCommand.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/PlayerListCommand.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/FetchPlayerListConversation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/LocatePlayerConversation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/model/PlayerDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/resources/plugin.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/todo.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/event/SynchronizeClientInformationEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/event/SynchronizeClientInformationEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/processors/ClientInformationReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/processors/ClientInformationReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCBukkitPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCBukkitPlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/processors/ClientInformationReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/protocol/processors/ClientInformationHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/resources/plugin.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/ErrorHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/ErrorHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageContext.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/DefaultErrorHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/DefaultErrorHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/KeepAliveReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/processors/KeepAliveReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/MessageTarget.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/MessageTarget.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +39,13 @@
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+    <projectState path="$PROJECT_DIR$/JRPCExamplePlugin">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/bukkit">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/example-plugin">
       <ProjectState />
     </projectState>
   </component>
@@ -50,59 +69,7 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="shadow" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="bukkit" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="bukkit" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="bukkit" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="shadow" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="example-client" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="example-client" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="jRPC" type="f1a62948:ProjectNode" />
-                <item name="example-client" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="shadow" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
+            <expand />
             <select />
           </tree_state>
         </projects_view>
@@ -142,26 +109,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;corretto-17 (2)&quot;,
-    &quot;jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: &quot;corretto-17 (2)&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Steve Oberst/IdeaProjects/jRPC/core/src/main/java/net/sxlver/jrpc/core/serialization&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "jdk.selected.JAVA_MODULE": "jbr-17",
+    "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "jbr-17",
+    "last_opened_file_path": "C:/Users/Steve Oberst/IdeaProjects/jRPC/example-plugin/src/main/resources",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: [
-      &quot;17=C:/Users/Steve Oberst/.jdks/corretto-17.0.8&quot;
+  "keyToStringList": {
+    "jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": [
+      "17=C:/Program Files/JetBrains/IntelliJ IDEA Community Edition 2023.2.2/jbr"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin\src\main\resources" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\core\src\main\java\net\sxlver\jrpc\core\serialization" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\server\src\main\resources" />
     </key>
@@ -190,7 +158,7 @@
     <configuration name="bukkit build" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" value="bukkit build" />
-        <option name="externalProjectPath" value="C:\Users\Steve Oberst\IdeaProjects\jRPC\bukkit" />
+        <option name="externalProjectPath" value="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -346,7 +314,15 @@
       <option name="project" value="LOCAL" />
       <updated>1695360191239</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1695396121659</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1695396121659</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -365,7 +341,8 @@
     <MESSAGE value="Successfully establish connection and authenticate with server" />
     <MESSAGE value="added Conversation functionality, other improvements and fixes" />
     <MESSAGE value="better error handling, Conversation functionality" />
-    <option name="LAST_COMMIT_MESSAGE" value="better error handling, Conversation functionality" />
+    <MESSAGE value="refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactoring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

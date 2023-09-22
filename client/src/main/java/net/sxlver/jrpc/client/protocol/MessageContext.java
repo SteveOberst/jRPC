@@ -11,7 +11,6 @@ import net.sxlver.jrpc.core.protocol.Packet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Getter
 public class MessageContext<T extends Packet> {
 
     private final JRPCClient client;
@@ -21,7 +20,7 @@ public class MessageContext<T extends Packet> {
     private final Message.TargetType targetType;
     private final ConversationUID conversationUID;
 
-    private T request;
+    private final T request;
     private @Nullable Packet response;
 
     public MessageContext(final @NonNull JRPCClient client,
@@ -54,6 +53,11 @@ public class MessageContext<T extends Packet> {
 
     public T getRequest() {
         return request;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <TResponse extends Packet> TResponse getResponse() {
+        return (TResponse) response;
     }
 
     @NotNull

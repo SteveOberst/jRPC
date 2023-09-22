@@ -71,17 +71,17 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         final JRPCMessage message = JRPCMessageBuilder.builder()
                 .source(client)
                 .target(target.target())
-                .targetType(target.targetType())
+                .targetType(target.type())
                 .conversationUid(uid)
                 .data(PacketDataSerializer.serialize(packet))
                 .build();
 
         channel.writeAndFlush(message);
         logPacketDispatch(packet, target, uid, message);
-        return getOrCreate(packet, message.conversationId(), expectedTResponse);
+        return newConversation(packet, message.conversationId(), expectedTResponse);
     }
 
-    private <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getOrCreate(
+    private <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> newConversation(
             final @NonNull TRequest request,
             final @NonNull ConversationUID uid,
             final @Nullable Class<? extends Packet> expectedResponse) {
@@ -90,12 +90,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             return Conversation.empty();
         }
 
-        Conversation<TRequest, TResponse> conversation;
-        if((conversation = getObserver(uid)) != null) {
-            return conversation;
-        }
-
-        conversation = new Conversation<>(request, uid, expectedResponse);
+        Conversation<TRequest, TResponse> conversation = new Conversation<>(request, uid, expectedResponse);
         this.conversationObservers.put(uid, conversation);
         return conversation;
     }
@@ -103,7 +98,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     private <TRequest extends Packet> void logPacketDispatch(final TRequest packet, final MessageTarget target, final ConversationUID uid, final JRPCMessage message) {
         client.getLogger().debug(
                 "Sent packet {} to target {}. [Conversation UID: {}] [Target Type: {}] [Content Length. {}]",
-                packet.getClass(), target.target(), uid.uid(), target.targetType().toString(), message.data().length
+                packet.getClass(), target.target(), uid.uid(), target.type().toString(), message.data().length
         );
     }
 
