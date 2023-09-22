@@ -1,8 +1,12 @@
 package net.sxlver.jrpc.bukkit;
 
 import com.google.common.collect.Lists;
-import net.sxlver.jrpc.client.protocol.MessageHandler;
+import lombok.NonNull;
+import net.sxlver.jrpc.client.protocol.Conversation;
+import net.sxlver.jrpc.client.protocol.MessageProcessor;
 import net.sxlver.jrpc.client.JRPCClient;
+import net.sxlver.jrpc.core.protocol.MessageTarget;
+import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -12,7 +16,7 @@ import java.util.List;
 public class JRPCService {
 
     private final JRPCBukkitPlugin plugin;
-    private MessageHandler messageHandler;
+    private MessageProcessor messageProcessor;
     private JRPCClient client;
 
     private List<JRPCClientInformation> registeredClients = Lists.newArrayList();
@@ -23,10 +27,10 @@ public class JRPCService {
 
     boolean start() {
         this.client = new JRPCClient(plugin.getDataFolder().getPath());
-        this.messageHandler = new MessageHandler(this.client);
+        this.messageProcessor = new MessageProcessor(this.client);
         try {
             client.open();
-            client.registerMessageReceiver(messageHandler);
+            client.registerMessageReceiver(messageProcessor);
             return true;
         }catch(final Exception exception) {
             plugin.getLogger().severe("Error whilst initializing " + JRPCClient.class + ". This error is non-recoverable.");
@@ -40,6 +44,14 @@ public class JRPCService {
         }
     }
 
+    public void publish(final @NonNull Packet packet, final MessageTarget target) {
+        client.write(packet, target);
+    }
+
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(final TRequest packet, final MessageTarget target, final Class<TResponse> expectedResponse) {
+        return client.write(packet, target, expectedResponse);
+    }
+
     @ApiStatus.Internal
     public void updateRegisteredClients(final JRPCClientInformation[] clients) {
         registeredClients.clear();
@@ -50,7 +62,7 @@ public class JRPCService {
         return client;
     }
 
-    public MessageHandler getMessageHandler() {
-        return messageHandler;
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
     }
 }

@@ -32,6 +32,6 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
     }
 
     private void registerMessageReceiver() {
-        service.getMessageHandler().registerMessageReceiver(new ClientInformationReceiver(this));
+        service.getMessageProcessor().registerHandler(new ClientInformationReceiver(this));
     }
 }

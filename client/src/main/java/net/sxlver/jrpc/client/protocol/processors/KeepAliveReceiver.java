@@ -3,11 +3,11 @@ package net.sxlver.jrpc.client.protocol.processors;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.client.protocol.MessageContext;
-import net.sxlver.jrpc.client.protocol.MessageReceiver;
+import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 
-public class KeepAliveReceiver implements MessageReceiver {
+public class KeepAliveReceiver<T extends KeepAlivePacket> implements MessageHandler<T> {
 
     private final JRPCClient client;
 
@@ -16,7 +16,7 @@ public class KeepAliveReceiver implements MessageReceiver {
     }
 
     @Override
-    public void onReceive(final @NonNull MessageContext context, final @NonNull Packet packet) {
+    public void onReceive(final @NonNull MessageContext<T> context) {
         // respond with a keep alive packet
         client.sendKeepAlive();
     }

@@ -131,34 +131,34 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
-            final @NonNull MessageTarget target
-    ) {
+            final @NonNull MessageTarget target) {
+
         return write(packet, target, null);
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedTResponse
-    ) {
-        return write(packet, target, expectedTResponse, null);
+            final @Nullable Class<TResponse> expectedResponse) {
+
+        return write(packet, target, expectedResponse, null);
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedTResponse,
-            final @Nullable ConversationUID conversationUID
-    ) {
+            final @Nullable Class<TResponse> expectedResponse,
+            final @Nullable ConversationUID conversationUID) {
+
         if(!isChannelOpen()) throw new IllegalStateException("Channel not open");
-        return handler.write(packet, target, expectedTResponse, conversationUID);
+        return handler.write(packet, target, expectedResponse, conversationUID);
     }
 
     public void registerMessageReceiver(final @NonNull RawDataReceiver receive) {
         final Optional<RawDataReceiver> registered = dataReceivers.stream()
                 .filter(target -> target.getClass() == receive.getClass()).findAny();
 
-        registered.ifPresent(target -> unregisterMessageReceiver((Class<? extends RawDataReceiver>) target.getClass()));
+        registered.ifPresent(target -> unregisterMessageReceiver(target.getClass()));
         dataReceivers.add(receive);
     }
 
@@ -166,7 +166,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         unregisterMessageReceiver( receiver.getClass());
     }
 
-    public  void unregisterMessageReceiver(final @NonNull Class<? extends RawDataReceiver> cls) {
+    public void unregisterMessageReceiver(final @NonNull Class<? extends RawDataReceiver> cls) {
         dataReceivers.removeIf(receiver -> receiver.getClass() == cls);
     }
 

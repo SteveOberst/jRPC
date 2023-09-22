@@ -18,7 +18,7 @@ public class SynchronizeClientInformationEvent extends Event {
     private static final HandlerList handlerList = new HandlerList();
 
     private @NonNull JRPCClientInformation[] clients;
-    private @NonNull MessageContext context;
+    private @NonNull MessageContext<?>context;
 
     @Override
     public @NotNull HandlerList getHandlers() {

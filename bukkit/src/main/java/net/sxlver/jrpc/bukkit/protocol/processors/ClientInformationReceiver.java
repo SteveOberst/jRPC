@@ -5,13 +5,13 @@ import net.sxlver.jrpc.bukkit.JRPCBukkitPlugin;
 import net.sxlver.jrpc.bukkit.JRPCService;
 import net.sxlver.jrpc.bukkit.event.SynchronizeClientInformationEvent;
 import net.sxlver.jrpc.client.protocol.MessageContext;
-import net.sxlver.jrpc.client.protocol.MessageReceiver;
+import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.core.protocol.packet.SyncRegisteredClientsPacket;
 import org.bukkit.Bukkit;
 
-public class ClientInformationReceiver implements MessageReceiver {
+public class ClientInformationReceiver implements MessageHandler<SyncRegisteredClientsPacket> {
 
     private final JRPCBukkitPlugin plugin;
     private final JRPCService service;
@@ -22,8 +22,8 @@ public class ClientInformationReceiver implements MessageReceiver {
     }
 
     @Override
-    public void onReceive(final @NonNull MessageContext context, final @NonNull Packet packet) {
-        final SyncRegisteredClientsPacket registeredClientsPacket = (SyncRegisteredClientsPacket) packet;
+    public void onReceive(final @NonNull MessageContext<SyncRegisteredClientsPacket> context) {
+        final SyncRegisteredClientsPacket registeredClientsPacket = context.getRequest();
         final JRPCClientInformation[] clients = registeredClientsPacket.getRegisteredClients();
         final SynchronizeClientInformationEvent event = new SynchronizeClientInformationEvent(clients, context);
         Bukkit.getPluginManager().callEvent(event);
