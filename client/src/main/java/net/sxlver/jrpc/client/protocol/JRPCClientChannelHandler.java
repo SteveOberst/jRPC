@@ -11,6 +11,7 @@ import net.sxlver.jrpc.core.protocol.*;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
+import net.sxlver.jrpc.core.util.TimedCache;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,18 +19,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("UnstableApiUsage")
 public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
 
     private final JRPCClient client;
     private Channel channel;
 
-    private Cache<ConversationUID, Conversation<? extends Packet, ? extends Packet>> conversationObservers;
+    private final TimedCache<ConversationUID, Conversation<? extends Packet, ? extends Packet>> conversationObservers;
     private volatile boolean handshaked;
 
     public JRPCClientChannelHandler(final JRPCClient client) {
         this.client = client;
-        this.conversationObservers = CacheBuilder.newBuilder().expireAfterWrite(client.getConfig().getConversationTimeOut(), TimeUnit.MILLISECONDS).build();
+        this.conversationObservers = new TimedCache<>();
     }
 
     @Override
@@ -108,18 +108,18 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     @Nullable
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getObserver(final ConversationUID uid) {
-        return (Conversation<TRequest, TResponse>) conversationObservers.getIfPresent(uid);
+        return (Conversation<TRequest, TResponse>) conversationObservers.get(uid);
     }
 
     public void invalidateConversation(final @NonNull ConversationUID id) {
-        conversationObservers.invalidate(id);
+        conversationObservers.remove(id);
     }
 
     @NotNull
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> getAndInvalidateObserver(final ConversationUID uid) {
         final Conversation<TRequest, TResponse> conversation = getObserver(uid);
         Objects.requireNonNull(conversation);
-        conversationObservers.invalidate(uid);
+        conversationObservers.remove(uid);
         return conversation;
     }
 

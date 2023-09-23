@@ -2,6 +2,7 @@ package net.sxlver.jrpc.core;
 
 
 import com.google.gson.internal.reflect.ReflectionHelper;
+import io.netty.handler.logging.LogLevel;
 import io.netty.util.internal.ReflectionUtil;
 import net.sxlver.jrpc.core.util.TimeUtil;
 import sun.reflect.ReflectionFactory;
@@ -52,7 +53,8 @@ public class InternalLogger {
         RED("\u001b[31m"),
         YELLOW("\u001b[33m"),
         BLUE("\u001b[34m"),
-        RESET("\u001b[0m");
+        RESET("\u001b[0m"),
+        WHITE("\u001B[37m");
 
         private final String ansiColor;
 
@@ -68,13 +70,33 @@ public class InternalLogger {
         public String toString() {
             return this.ansiColor;
         }
+
+        public static AnsiColor getByLevel(final Level logLevel) {
+            switch(logLevel.getName()) {
+                case "DEBUG" -> {
+                    return BLUE;
+                }
+                case "INFO" -> {
+                    return WHITE;
+                }
+                case "WARN" -> {
+                    return YELLOW;
+                }
+                case "SEVERE" -> {
+                    return RED;
+                }
+                default -> {
+                    return RESET;
+                }
+            }
+        }
     }
 
     static class LogFormatter extends Formatter {
 
         public String format(LogRecord record) {
 
-            return "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
+            return AnsiColor.getByLevel(record.getLevel()) + "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
                     Thread.currentThread().getName() + "/" + record.getLevel() +  "] " +
                     formatMessage(record) + "\n";
         }

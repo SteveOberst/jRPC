@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+import java.util.concurrent.TimeUnit;
+
 public class LocatePlayerCommand implements CommandExecutor {
 
     private final JRPCExamplePlugin plugin;
@@ -35,6 +37,7 @@ public class LocatePlayerCommand implements CommandExecutor {
                 .onTimeout((request, messageContexts) -> {
                     sender.sendMessage(String.format("%s could not be located on any client across the network.", target));
                 })
+                .waitFor(1000, TimeUnit.MILLISECONDS)
                 .overrideHandlers()
                 .enableConcurrentResponseProcessing();
 

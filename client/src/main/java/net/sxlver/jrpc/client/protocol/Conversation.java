@@ -11,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 
@@ -31,6 +32,8 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     private BiConsumer<TRequest, Set<MessageContext<TResponse>>> timeoutHandler = (tRequest, messageContexts) -> {};
     private boolean overrideHandlers;
     private boolean concurrentResponseProcessing;
+
+    private volatile long timeout;
 
     private static final Conversation<?, ?> EMPTY = new Conversation<>();
 
@@ -151,8 +154,25 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
         return this;
     }
 
+    @Override
+    public long timeout() {
+        return timeout;
+    }
+
     /**
-     * Settings this option to true will invoke {@link #onTimeout()} when the Conversation
+     * Sets a duration on how long to wait for a response.
+     *
+     * @param duration the length of time after an entry is created that it should be automatically removed unit
+     * @param timeUnit the unit that duration is expressed in
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> waitFor(final long duration, final TimeUnit timeUnit) {
+        this.timeout = timeUnit.toMillis(duration);
+        return this;
+    }
+
+    /**
+     * Settings this option to true will invoke {@link #onTimeout(BiConsumer)} when the Conversation
      * expired, regardless of whether the handler has been called already.
      *
      * @return current instance of the Conversation Object
@@ -166,8 +186,9 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * Called when the Conversation is marked as expired and removed from the cache.
      *
      * <p>The time span before Conversations are marked as expired depends on the
-     * conversation-time-out value set in the configuration file. if this threshold
-     * is reached and no response has been received the timeoutHandler will be called.
+     * conversation-time-out value set in the configuration file or is case dependent.
+     * if this threshold is reached and no response has been received the timeoutHandler
+     * will be called.
      *
      * <p>If {@link #alwaysNotifyTimeout()} has been set, the handler will be called
      * regardless of whether a response has been received after the conversation has

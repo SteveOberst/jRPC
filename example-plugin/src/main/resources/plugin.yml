@@ -1,6 +1,6 @@
 name: JRPCExamplePlugin
 version: '${version}'
-main: net.sxlver.jrpc.bukkit.exampleplugin.JRPCExamplePlugin
+main: net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin
 api-version: 1.13
 
 depend:

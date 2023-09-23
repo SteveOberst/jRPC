@@ -53,6 +53,7 @@ public class JRPCServerHandshakeHandler extends SimpleChannelInboundHandler<JRPC
         // send handshake succeeded first in order to not cause any errors on the client
         handler.write(response);
         handler.write(synClients);
+        handler.sendKeepAlive();
 
         // remove handshake handler from the pipeline and let message_handler
         // process any more incoming messages

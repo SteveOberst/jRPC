@@ -20,7 +20,7 @@ public class JRPCClientConfig extends YamlConfiguration {
     }
 
     @Comment("The output level of the logger")
-    private String logLevel = Level.ALL.getName();//Level.INFO.getName();
+    private String logLevel = Level.INFO.getName();
     public Level getLoggingLevel() { return Level.parse(logLevel); }
 
     @Comment("The Clients unique identifier. Requires no specific format, it should just be unique between all connected clients.")
@@ -38,7 +38,10 @@ public class JRPCClientConfig extends YamlConfiguration {
     @Comment("Whether the client will accept messages from a source with a different version number")
     private boolean allowVersionMismatch = false;
 
-    @Comment("The amount of time the client will wait for a response of the other side in ms")
+    @Comment({
+            "The amount of time the client will wait for a response of the other side in ms.",
+            "This is solely a default value and may be overridden within the code."
+    })
     private long conversationTimeOut = 1000;
 }
 

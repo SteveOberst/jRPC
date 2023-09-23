@@ -11,6 +11,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PlayerListCommand implements CommandExecutor {
     private final JRPCExamplePlugin plugin;
@@ -39,6 +40,7 @@ public class PlayerListCommand implements CommandExecutor {
                 .onTimeout((request, messageContexts) -> {
                     sender.sendMessage(String.format("%sTarget server did not respond.", ChatColor.RED));
                 })
+                .waitFor(1000, TimeUnit.MILLISECONDS)
                 .overrideHandlers();
 
         return true;

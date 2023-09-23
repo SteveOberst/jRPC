@@ -25,6 +25,10 @@ dependencies {
     implementation project(':core')
 }
 
+tasks.shadowJar {
+    relocate("org.yaml.snakeyaml", "net.sxlver.snakeyaml")
+}
+
 processResources {
     def props = [version: version]
     inputs.properties props

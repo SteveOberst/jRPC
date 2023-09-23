@@ -95,7 +95,6 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         this.type = handshake.getType();
         this.client = new JRPCClientInstance(this);
         server.addConnected(client);
-        sendKeepAlive();
         return (this.handshaked = handshake.getToken().equals(server.getConfig().getAuthenticationToken()));
     }
 
