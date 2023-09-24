@@ -3,12 +3,17 @@ package net.sxlver.jrpc.core.protocol.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.DecoderException;
 import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
+import net.sxlver.jrpc.core.protocol.impl.HeaderData;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
+import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
+import net.sxlver.jrpc.core.serialization.exception.DeserializationException;
 
 import java.util.List;
 
@@ -22,7 +27,41 @@ public class JRPCHandshakeDecoder<T extends ProtocolInformationProvider & LogPro
 
     @Override
     protected void decode(final ChannelHandlerContext context, final ByteBuf in, final List<Object> out) throws Exception {
-        if(MessageType.of(in.readInt()) != MessageType.HANDSHAKE) {
+        final int length = in.readInt();
+        final byte[] data = new byte[length];
+        in.readBytes(data);
+
+        final HeaderData header = PacketDataSerializer.deserialize(data, HeaderData.class);
+        if(MessageType.of(header.getMessageType()) != MessageType.HANDSHAKE) {
+            in.resetReaderIndex();
+            return;
+        }
+
+        final int versionNumber = header.getProtocolVersion();
+        final ProtocolVersion version = ProtocolVersion.getByVersionNumber(versionNumber);
+        if(version != provider.getProtocolVersion()) {
+            final String message = "Message Protocol version mismatch whilst authenticating! Received: {} Current Version: {}";
+            if(!provider.isAllowVersionMismatch()) {
+                provider.getLogger().warn(message, version, provider.getProtocolVersion());
+                in.resetReaderIndex();
+                return;
+            }else {
+                provider.getLogger().debug(message, version, provider.getProtocolVersion());
+            }
+        }
+
+        final JRPCMessage message;
+        if(header.getMessageType() == MessageType.HANDSHAKE.getId()) {
+            message = PacketDataSerializer.deserialize(data, JRPCClientHandshakeMessage.class);
+        }else if (header.getMessageType() == MessageType.MESSAGE.getId()) {
+            message = PacketDataSerializer.deserialize(data, JRPCMessage.class);
+        }else {
+            provider.getLogger().warn("Invalid message format.");
+            return;
+        }
+        out.add(message);
+
+        /*if(MessageType.of(in.readInt()) != MessageType.HANDSHAKE) {
             in.resetReaderIndex();
             return;
         }
@@ -45,6 +84,6 @@ public class JRPCHandshakeDecoder<T extends ProtocolInformationProvider & LogPro
         in.readBytes(data);
 
         final JRPCClientHandshakeMessage message = PacketDataSerializer.deserialize(data, JRPCClientHandshakeMessage.class);
-        out.add(message);
+        out.add(message);*/
     }
 }

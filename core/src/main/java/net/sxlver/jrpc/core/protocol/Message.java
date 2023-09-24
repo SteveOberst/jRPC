@@ -4,6 +4,8 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 
 public interface Message {
 
+    int MAX_PACKET_LENGTH = 2097152;
+
     String source();
 
     String target();

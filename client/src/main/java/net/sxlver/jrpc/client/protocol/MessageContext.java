@@ -1,7 +1,5 @@
 package net.sxlver.jrpc.client.protocol;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
@@ -39,11 +37,11 @@ public class MessageContext<T extends Packet> {
     }
 
 
-    public <TRequest extends Packet> void respond(final @NonNull TRequest response) {
-        respond(response, null);
+    public <TRequest extends Packet> void reply(final @NonNull TRequest response) {
+        reply(response, null);
     }
 
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> respond(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> reply(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
         return client.write(message, new MessageTarget(targetType, source), expectedResponse, null);
     }
 

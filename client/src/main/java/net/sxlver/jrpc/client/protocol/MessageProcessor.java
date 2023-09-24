@@ -5,11 +5,12 @@ import com.google.common.cache.CacheBuilder;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.client.protocol.processors.DefaultErrorHandler;
-import net.sxlver.jrpc.client.protocol.processors.KeepAliveReceiver;
+import net.sxlver.jrpc.client.protocol.processors.KeepAliveHandler;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.Packet;
+import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.TriConsumer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -115,7 +116,7 @@ public class MessageProcessor implements RawDataReceiver {
     }
 
     private void populateDefaultHandlers() {
-        registerHandler(new KeepAliveReceiver<>(client));
+        registerHandler(new KeepAliveHandler<>(client));
         setErrorHandler(new DefaultErrorHandler<>(client, (messageHandler, messageContext, throwable) -> {
             client.getLogger().warn("{} received error message from the other end. [Source: {}] {}", messageContext.getSource(), throwable.getMessage());
             client.getLogger().debug("Exception thrown: {}", ExceptionUtils.getStackTrace(throwable));

@@ -1,7 +1,6 @@
 package net.sxlver.jrpc.server.protocol.codec;
 
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageEncoder;
-import net.sxlver.jrpc.server.JRPCServer;
 
 public class JRPCServerMessageEncoder extends JRPCMessageEncoder {
 

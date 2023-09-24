@@ -8,10 +8,12 @@ import net.sxlver.jrpc.client.protocol.MessageContext;
 import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import net.sxlver.jrpc.core.protocol.packet.SyncRegisteredClientsPacket;
+import net.sxlver.jrpc.core.protocol.packet.SyncRegisteredClientsConversation;
 import org.bukkit.Bukkit;
 
-public class ClientInformationHandler implements MessageHandler<SyncRegisteredClientsPacket> {
+import java.util.Arrays;
+
+public class ClientInformationHandler implements MessageHandler<SyncRegisteredClientsConversation.Response> {
 
     private final JRPCBukkitPlugin plugin;
     private final JRPCService service;
@@ -22,16 +24,17 @@ public class ClientInformationHandler implements MessageHandler<SyncRegisteredCl
     }
 
     @Override
-    public void onReceive(final @NonNull MessageContext<SyncRegisteredClientsPacket> context) {
-        final SyncRegisteredClientsPacket registeredClientsPacket = context.getRequest();
+    public void onReceive(final @NonNull MessageContext<SyncRegisteredClientsConversation.Response> context) {
+        final SyncRegisteredClientsConversation.Response registeredClientsPacket = context.getRequest();
         final JRPCClientInformation[] clients = registeredClientsPacket.getRegisteredClients();
         final SynchronizeClientInformationEvent event = new SynchronizeClientInformationEvent(clients, context);
         Bukkit.getPluginManager().callEvent(event);
-        service.updateRegisteredClients(clients);
+        Bukkit.getLogger().info("clients: " + Arrays.toString(clients));
+       // service.updateRegisteredClients(clients);
     }
 
     @Override
     public boolean shouldAccept(final @NonNull Packet packet) {
-        return packet instanceof SyncRegisteredClientsPacket;
+        return packet instanceof SyncRegisteredClientsConversation.Response;
     }
 }

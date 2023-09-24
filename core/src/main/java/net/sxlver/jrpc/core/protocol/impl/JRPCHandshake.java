@@ -1,6 +1,6 @@
-package net.sxlver.jrpc.core.protocol;
+package net.sxlver.jrpc.core.protocol.impl;
 
-public class JRPCHandshake {
+public class JRPCHandshake  {
     private String token;
     private String uniqueId;
     private String type;

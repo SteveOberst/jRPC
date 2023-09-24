@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
 import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
 import net.sxlver.jrpc.exampleplugin.conversation.FetchPlayerListConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.model.PlayerDTO;
@@ -35,7 +36,7 @@ public class PlayerListCommand implements CommandExecutor {
                 .onResponse((request, context) -> {
                     final FetchPlayerListConversation.Response response = context.getResponse();
                     final List<PlayerDTO> players = response.players;
-                    sender.sendMessage(String.format("%s Player online on %s: %s", ChatColor.GREEN, response.server, Arrays.toString(players.toArray())));
+                    sender.sendMessage(String.format("%s Players online on %s: %s", ChatColor.GREEN, response.request.server, Arrays.toString(players.toArray())));
                 })
                 .onTimeout((request, messageContexts) -> {
                     sender.sendMessage(String.format("%sTarget server did not respond.", ChatColor.RED));

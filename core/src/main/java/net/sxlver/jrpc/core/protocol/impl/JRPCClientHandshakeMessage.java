@@ -4,27 +4,19 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.Message;
+import net.sxlver.jrpc.core.protocol.MessageType;
+import net.sxlver.jrpc.core.protocol.ProtocolVersion;
 
 @NoArgsConstructor
-public class JRPCClientHandshakeMessage implements Message {
+public class JRPCClientHandshakeMessage extends JRPCMessage {
 
-    private String source;
-    private byte[] data;
+    //private String source;
+    //private byte[] data;
 
     public JRPCClientHandshakeMessage(final @NonNull String source, final byte[] data) {
-        this.source = source;
-        this.data = data;
+       super("", TargetType.SERVER, source, data, ProtocolVersion.V0_1.getVersionNumber(), MessageType.HANDSHAKE.getId());
     }
 
-    @Override
-    public String source() {
-        return source;
-    }
-
-    @Override
-    public byte[] data() {
-        return data;
-    }
 
     @Override
     public String target() {
@@ -32,7 +24,7 @@ public class JRPCClientHandshakeMessage implements Message {
     }
 
     @Override
-    public TargetType targetType() {
+    public Message.TargetType targetType() {
         throw new UnsupportedOperationException();
     }
 

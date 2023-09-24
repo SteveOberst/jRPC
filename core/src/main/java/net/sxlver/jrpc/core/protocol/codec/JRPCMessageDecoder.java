@@ -3,8 +3,11 @@ package net.sxlver.jrpc.core.protocol.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.stream.ChunkedStream;
 import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.protocol.MessageType;
+import net.sxlver.jrpc.core.protocol.impl.HeaderData;
+import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.ProtocolInformationProvider;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
@@ -21,15 +24,27 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
 
     @Override
     protected void decode(final ChannelHandlerContext context, final ByteBuf in, final List<Object> out) {
-        if(MessageType.of(in.readInt()) != MessageType.MESSAGE) {
-            in.resetReaderIndex();
+        final int length = in.readableBytes();
+
+        if(!(length > 0)) {
+            provider.getLogger().fatal("Malformed packet received from {}. Closing connection.", context.channel().remoteAddress());
+            context.close();
             return;
         }
 
-        final int versionNumber = in.readInt();
+        final byte[] data = new byte[length];
+        in.readBytes(data);
+
+        final HeaderData header = PacketDataSerializer.deserialize(data, HeaderData.class);
+        if(header == null) {
+            provider.getLogger().warn("Error whilst deserializing header. Closing connection to {}.", context.channel().remoteAddress());
+            return;
+        }
+
+        final int versionNumber = header.getProtocolVersion();
         final ProtocolVersion version = ProtocolVersion.getByVersionNumber(versionNumber);
         if(version != provider.getProtocolVersion()) {
-            final String message = "Message Protocol version mismatch! Received: {} Current Version: {}";
+            final String message = "Message Protocol version mismatch whilst authenticating! Received: {} Current Version: {}";
             if(!provider.isAllowVersionMismatch()) {
                 provider.getLogger().warn(message, version, provider.getProtocolVersion());
                 in.resetReaderIndex();
@@ -39,11 +54,15 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
             }
         }
 
-        final int length = in.readInt();
-        final byte[] data = new byte[length];
-        in.readBytes(data);
-
-        final JRPCMessage message = PacketDataSerializer.deserialize(data, JRPCMessage.class);
+        final JRPCMessage message;
+        if(header.getMessageType() == MessageType.HANDSHAKE.getId()) {
+            message = PacketDataSerializer.deserialize(data, JRPCClientHandshakeMessage.class);
+        }else if (header.getMessageType() == MessageType.MESSAGE.getId()) {
+            message = PacketDataSerializer.deserialize(data, JRPCMessage.class);
+        }else {
+            provider.getLogger().warn("Invalid message format.");
+            return;
+        }
         out.add(message);
     }
 }

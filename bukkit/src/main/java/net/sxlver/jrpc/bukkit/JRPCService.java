@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.bukkit;
 
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.protocol.Conversation;
 import net.sxlver.jrpc.client.protocol.MessageProcessor;
@@ -19,8 +20,6 @@ public class JRPCService {
     private final JRPCBukkitPlugin plugin;
     private MessageProcessor messageProcessor;
     private JRPCClient client;
-
-    private List<JRPCClientInformation> registeredClients = Lists.newArrayList();
 
     public JRPCService(final JRPCBukkitPlugin plugin) {
         this.plugin = plugin;
@@ -61,10 +60,8 @@ public class JRPCService {
         return client.write(packet, target, expectedResponse);
     }
 
-    @ApiStatus.Internal
-    public void updateRegisteredClients(final JRPCClientInformation[] clients) {
-        registeredClients.clear();
-        registeredClients.addAll(Arrays.asList(clients));
+    public String getUniqueId() {
+        return client.getConfig().getUniqueId();
     }
 
     public JRPCClient getClient() {

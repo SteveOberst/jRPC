@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 public enum MessageType {
-    HANDSHAKE(0),
-    MESSAGE(1);
+    HANDSHAKE(1),
+    MESSAGE(2);
 
     private final int id;
 

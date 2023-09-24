@@ -7,12 +7,14 @@ import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 
-public abstract class JRPCMessageEncoder extends MessageToByteEncoder<JRPCMessage> {
-
+public abstract class LegacyJRPCMessageEncoder extends MessageToByteEncoder<JRPCMessage> {
     @Override
     protected void encode(final ChannelHandlerContext context, final JRPCMessage message, ByteBuf out) throws Exception {
         final byte[] data = PacketDataSerializer.serialize(message);
-        out.writeInt(data.length).writeBytes(data);
+        out.writeInt(MessageType.MESSAGE.getId())
+                .writeInt(getVersionNumber())
+                .writeInt(data.length)
+                .writeBytes(data);
     }
 
     protected abstract int getVersionNumber();

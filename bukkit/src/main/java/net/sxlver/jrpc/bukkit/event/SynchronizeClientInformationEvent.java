@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
  *
  */
 @Getter @Setter
-@AllArgsConstructor
 public class SynchronizeClientInformationEvent extends Event {
 
     @Getter
@@ -19,6 +18,12 @@ public class SynchronizeClientInformationEvent extends Event {
 
     private @NonNull JRPCClientInformation[] clients;
     private @NonNull MessageContext<?>context;
+
+    public SynchronizeClientInformationEvent(final @NonNull JRPCClientInformation[] clients, final @NonNull MessageContext<?> context) {
+        super(true);
+        this.clients = clients;
+        this.context = context;
+    }
 
     @Override
     public @NotNull HandlerList getHandlers() {

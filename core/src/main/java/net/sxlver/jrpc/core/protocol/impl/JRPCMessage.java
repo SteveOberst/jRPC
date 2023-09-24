@@ -4,9 +4,11 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.Message;
+import net.sxlver.jrpc.core.protocol.MessageType;
+import net.sxlver.jrpc.core.protocol.ProtocolVersion;
 
 @NoArgsConstructor
-public class JRPCMessage implements Message {
+public class JRPCMessage extends HeaderData implements Message {
     private String target;
     private TargetType targetType;
     private String source;
@@ -18,6 +20,15 @@ public class JRPCMessage implements Message {
     }
 
     JRPCMessage(final @NonNull String target, final @NonNull TargetType targetType, final @NonNull String source, final ConversationUID conversationUID, final byte[] data) {
+        this(target, targetType, source, conversationUID, data, ProtocolVersion.V0_1.getVersionNumber(), MessageType.MESSAGE.getId()); // TODO: fetch right protocol version number
+    }
+
+    JRPCMessage(final @NonNull String target, final @NonNull TargetType targetType, final @NonNull String source, final byte[] data, final int protocolVersion, final int messageType) {
+        this(target, targetType, source, ConversationUID.newUid(), data, protocolVersion, messageType);
+    }
+
+    JRPCMessage(final @NonNull String target, final @NonNull TargetType targetType, final @NonNull String source, final ConversationUID conversationUID, final byte[] data, final int protocolVersion, final int messageType) {
+        super(protocolVersion, messageType);
         this.source = source;
         this.target = target;
         this.targetType = targetType;

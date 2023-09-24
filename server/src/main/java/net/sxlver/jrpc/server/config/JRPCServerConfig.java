@@ -21,13 +21,13 @@ public class JRPCServerConfig extends YamlConfiguration {
     }
 
     @Comment("The output level of the logger")
-    private String logLevel = Level.ALL.getName();//Level.INFO.getName();
+    private String logLevel = Level.INFO.getName();
     public Level getLoggingLevel() { return Level.parse(logLevel); }
 
     private String serverId = UUID.randomUUID().toString();
 
     @Comment("Authentication token required for clients in order to authenticate with the server")
-    private String authenticationToken = "3e9cdaa8-0f53-4f28-85d4-1f4d03a45e6c";
+    private String authenticationToken = UUID.randomUUID().toString();;
 
     @Comment("Port the server will be running on")
     private int port = 2777;

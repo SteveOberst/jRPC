@@ -2,6 +2,9 @@ package net.sxlver.jrpc.exampleplugin;
 
 import net.sxlver.jrpc.bukkit.JRPCService;
 import net.sxlver.jrpc.exampleplugin.command.LocatePlayerCommand;
+import net.sxlver.jrpc.exampleplugin.command.PlayerListCommand;
+import net.sxlver.jrpc.exampleplugin.conversation.FetchPlayerListConversation;
+import net.sxlver.jrpc.exampleplugin.conversation.LocatePlayerConversation;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -32,8 +35,13 @@ public class JRPCExamplePlugin extends JavaPlugin {
     }
 
     private void registerContent() {
+        // commands
         getCommand("locateplayer").setExecutor(new LocatePlayerCommand(this));
-        getCommand("playerlist").setExecutor(new LocatePlayerCommand(this));
+        getCommand("playerlist").setExecutor(new PlayerListCommand(this));
+
+        // Message handler
+        service.getMessageProcessor().registerHandler(new LocatePlayerConversation.LocatePlayerConversationHandler(this));
+        service.getMessageProcessor().registerHandler(new FetchPlayerListConversation.FetchPlayerListConversationHandler(this));
     }
 
     public JRPCService getService() {

@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.*;
+import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
+import java.net.SocketException;
 
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
 
@@ -69,8 +71,14 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
+        if(client == null) return;
+
         if(cause instanceof ReadTimeoutException) {
             server.getLogger().info("Connection to client with id {} has timed out.", client.getUniqueId());
+            return;
+        }
+        if(cause instanceof SocketException) {
+            server.getLogger().info("Client '{}' has unexpectedly closed the connection.", client.getUniqueId());
             return;
         }
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
@@ -84,11 +92,13 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+        if(client == null || !handshaked) {
+            server.getLogger().info("An unauthenticated client has closed the connection. Remote address: {}", getRemoteAddress());
+            return;
+        }
         server.removeConnected(client);
         server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
     }
-
-
 
     public boolean onHandshakeSuccess(final JRPCHandshake handshake) {
         this.uniqueId = handshake.getUniqueId();

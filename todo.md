@@ -7,6 +7,7 @@
 # Examples
 ### Example Bukkit Plugin
 - [ ] Locate Player across network
+- [ ] List Registered clients
 - [ ] Complex Object Conversation/Showcase usage of DTOs
 ### Example Client
 - [ ] Initialization 

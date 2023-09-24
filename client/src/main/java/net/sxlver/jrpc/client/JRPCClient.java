@@ -6,28 +6,28 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.Delimiters;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
 import net.sxlver.jrpc.client.protocol.Conversation;
+import net.sxlver.jrpc.client.protocol.JRPCClientChannelHandler;
 import net.sxlver.jrpc.client.protocol.JRPCClientHandshakeHandler;
 import net.sxlver.jrpc.client.protocol.RawDataReceiver;
-import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeMessageEncoder;
-import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
-import net.sxlver.jrpc.client.protocol.JRPCClientChannelHandler;
+import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeEncoder;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientMessageEncoder;
 import net.sxlver.jrpc.core.InternalLogger;
 import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.config.ConfigurationManager;
 import net.sxlver.jrpc.core.config.DataFolderProvider;
 import net.sxlver.jrpc.core.protocol.*;
-import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
+import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
+import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
+import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
-import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.serialization.CentralGson;
+import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.StringUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class JRPCClient implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
-
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final ConfigurationManager configurationManager;
     private final JRPCClientConfig config;
@@ -247,12 +246,13 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             } catch (ChannelException exception) {
                 logger.fatal("Encountered error whilst settings options to channel: {}", ExceptionUtils.getStackTrace(exception));
             }
-            channel.pipeline().addLast("frame_decoder", new DelimiterBasedFrameDecoder(80960, Delimiters.lineDelimiter()));
+            channel.pipeline().addLast("frame_decoder", new LengthFieldBasedFrameDecoder(Message.MAX_PACKET_LENGTH, 0, 4,0,4));
+            //channel.pipeline().addLast("length_field_prepender", new LengthFieldPrepender(4));
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCClient.this));
             channel.pipeline().addLast("handshake_handler", new JRPCClientHandshakeHandler(JRPCClient.this));
             channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));
             channel.pipeline().addLast("message_encoder", new JRPCClientMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
-            channel.pipeline().addLast("handshake_encoder", new JRPCClientHandshakeMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
+            channel.pipeline().addLast("handshake_encoder", new JRPCClientHandshakeEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
         }
     }
 }

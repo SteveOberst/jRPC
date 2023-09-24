@@ -7,11 +7,11 @@ import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 
-public class KeepAliveReceiver<T extends KeepAlivePacket> implements MessageHandler<T> {
+public class KeepAliveHandler<T extends KeepAlivePacket> implements MessageHandler<T> {
 
     private final JRPCClient client;
 
-    public KeepAliveReceiver(final @NonNull JRPCClient client) {
+    public KeepAliveHandler(final @NonNull JRPCClient client) {
         this.client = client;
     }
 

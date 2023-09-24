@@ -2,10 +2,10 @@ package net.sxlver.jrpc.client.protocol.codec;
 
 import net.sxlver.jrpc.core.protocol.codec.JRPCHandshakeEncoder;
 
-public class JRPCClientHandshakeMessageEncoder extends JRPCHandshakeEncoder {
+public class JRPCClientHandshakeEncoder extends JRPCHandshakeEncoder {
     private final int versionNumber;
 
-    public JRPCClientHandshakeMessageEncoder(int versionNumber) {
+    public JRPCClientHandshakeEncoder(int versionNumber) {
         this.versionNumber = versionNumber;
     }
 

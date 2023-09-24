@@ -27,7 +27,7 @@ public class JRPCClientConfig extends YamlConfiguration {
     private String uniqueId = UUID.randomUUID().toString();
 
     @Comment("Authentication token used to authenticate with the server")
-    private String authenticationToken = "3e9cdaa8-0f53-4f28-85d4-1f4d03a45e6c";
+    private String authenticationToken = UUID.randomUUID().toString();
 
     @Comment("IP-Address the server is running on")
     private String serverAddress = "localhost";
@@ -37,6 +37,9 @@ public class JRPCClientConfig extends YamlConfiguration {
 
     @Comment("Whether the client will accept messages from a source with a different version number")
     private boolean allowVersionMismatch = false;
+
+    @Comment("Whether to try and continue if no handshake information have been received from the server")
+    private boolean ignoreHandshakeResult = false;
 
     @Comment({
             "The amount of time the client will wait for a response of the other side in ms.",

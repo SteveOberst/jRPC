@@ -130,8 +130,13 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
                 this.waitingSince = System.currentTimeMillis();
                 while (!handshaked) {
                     if(System.currentTimeMillis() - waitingSince > client.getConfig().getConversationTimeOut()) {
-                        client.getLogger().fatal("Didn't receive a handshake response. Trying to continue anyways...");
-                        break;
+                        client.getLogger().fatal("Didn't receive a handshake response.");
+                        if(!client.getConfig().isIgnoreHandshakeResult()) {
+                            break;
+                        }
+                        client.getLogger().info("Trying to continue anyways...");
+                        ((JRPCClientHandshakeHandler) channel.pipeline().get("handshake_handler")).finish();
+                        handshaked = true;
                     }
                 }
             }, "Handshake-Daemon");
