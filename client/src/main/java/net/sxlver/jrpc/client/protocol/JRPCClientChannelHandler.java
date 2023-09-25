@@ -64,7 +64,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedTResponse,
+            final @Nullable Class<TResponse> expectedResponse,
             final @Nullable ConversationUID conversationUID) {
 
         final ConversationUID uid = conversationUID == null ? ConversationUID.newUid() : conversationUID;
@@ -78,7 +78,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
         channel.writeAndFlush(message);
         logPacketDispatch(packet, target, uid, message);
-        return newConversation(packet, message.conversationId(), expectedTResponse);
+        return newConversation(packet, message.conversationId(), expectedResponse);
     }
 
     private <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> newConversation(

@@ -35,6 +35,9 @@ public class JRPCServerConfig extends YamlConfiguration {
     @Comment("Whether the server will accept messages sent from a client with a different version number")
     private boolean allowVersionMismatch = false;
 
+    @Comment("Whether a client can send a message to themselves")
+    private boolean allowSelfForward = false;
+
     @Comment("Time span before a timeout will be triggered in seconds")
     private long readTimeout = 30;
 }

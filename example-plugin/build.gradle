@@ -2,10 +2,10 @@ plugins {
     id 'java'
 }
 
-group = 'net.sxlver.jrpc.bukkit'
+group = 'net.sxlver.jrpc.exampleplugin'
 version = '0.1-alpha'
 
-archivesBaseName = 'JRPC-Bukkit'
+archivesBaseName = 'ExamplePlugin'
 
 repositories {
     mavenCentral()
@@ -20,14 +20,10 @@ repositories {
 }
 
 dependencies {
-    implementation project(':client')
-    implementation project(':core')
     compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
-    implementation 'io.netty:netty-all:4.1.97.Final'
-}
-
-tasks.shadowJar {
-    relocate("org.yaml.snakeyaml", "net.sxlver.snakeyaml")
+    compileOnly project(':bukkit')
+    compileOnly project(':client')
+    compileOnly project(':core')
 }
 
 processResources {

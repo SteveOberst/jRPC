@@ -4,6 +4,8 @@
 - [ ] Fix keepalives (client times out after a while due to keep alive packets being handled improperly)
 # Core
 - [ ] Better logging - maybe colorize logging output
+- [x] Rewrite protocol codec
+- [x] Fix JRPCMessageBuilder not passing conversation parameter to JRPCMessage constructor
 # Examples
 ### Example Bukkit Plugin
 - [ ] Locate Player across network

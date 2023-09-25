@@ -10,15 +10,15 @@ import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.Packet;
-import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.TriConsumer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
-public class MessageProcessor implements RawDataReceiver {
+public class DefaultMessageProcessor implements RawDataReceiver {
 
     private final Cache<Class<? extends MessageHandler<?>>, MessageHandler<?>> registeredMessageReceivers = CacheBuilder.newBuilder().build();
     private final JRPCClient client;
@@ -26,7 +26,7 @@ public class MessageProcessor implements RawDataReceiver {
     private ErrorHandler<? extends ErrorInformationHolder> errorHandler;
     private TriConsumer<MessageHandler<Packet>, MessageContext<Packet>, Throwable> internalErrorHandler;
 
-    public MessageProcessor(final @NonNull JRPCClient client) {
+    public DefaultMessageProcessor(final @NonNull JRPCClient client) {
         this.client = client;
         populateDefaultHandlers();
     }
@@ -41,10 +41,15 @@ public class MessageProcessor implements RawDataReceiver {
 
         final JRPCClientChannelHandler netHandler = client.getNetHandler();
         final Packet packet = PacketDataSerializer.deserializePacket(data);
-        final MessageContext<Packet> context = new MessageContext<>(client, packet, source, target, targetType, conversationUID);
+        if(packet == null) {
+            client.getLogger().warn("Error whilst deserializing data from {} [Data Length: {}]", source, data.length);
+            return;
+        }
 
-        if(netHandler.isObserverPresent(conversationUID)) {
+        final MessageContext<Packet> context = new MessageContext<>(client, packet, null, source, target, targetType, conversationUID);
+        if(!source.equals(client.getSource()) /* nobody wants to talk to themselves, right?*/ && netHandler.isObserverPresent(conversationUID)) {
             final Conversation<Packet, Packet> conversation = netHandler.getObserver(conversationUID);
+            final MessageContext<Packet> conversationContext = new MessageContext<>(client, conversation.getRequest(), packet, source, target, targetType, conversationUID);
             if(!conversation.isConcurrentResponseProcessing()) {
                 // we don't expect more than one response, so we can unregister the conversation at this point
                 netHandler.invalidateConversation(conversationUID);
@@ -59,9 +64,9 @@ public class MessageProcessor implements RawDataReceiver {
                 return;
             }
 
-            if(packet.getClass() != conversation.getExpectedResponse()) {
+            if(packet.getClass() == conversation.getExpectedResponse()) {
                 // notify handler of the received packet
-                conversation.onResponse(context);
+                conversation.onResponse(conversationContext);
                 // do not continue if overrideHandlers is true on the conversation
                 if(conversation.shouldOverrideHandlers()) {
                     return;
@@ -82,17 +87,17 @@ public class MessageProcessor implements RawDataReceiver {
         }
     }
 
-    public <T extends ErrorInformationHolder> MessageProcessor setErrorHandler(final @NonNull TriConsumer<MessageHandler<T>, MessageContext<T>, Throwable> handler) {
+    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull TriConsumer<MessageHandler<T>, MessageContext<T>, Throwable> handler) {
         return setErrorHandler(new DefaultErrorHandler<>(client, handler));
     }
 
-    public <T extends ErrorInformationHolder> MessageProcessor setErrorHandler(final @NonNull ErrorHandler<T> errorHandler) {
+    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull ErrorHandler<T> errorHandler) {
         registerHandler(errorHandler);
         this.errorHandler = errorHandler;
         return this;
     }
 
-    public MessageProcessor setInternalErrorHandler(TriConsumer<MessageHandler<Packet>, MessageContext<Packet>, Throwable> handler) {
+    public DefaultMessageProcessor setInternalErrorHandler(TriConsumer<MessageHandler<Packet>, MessageContext<Packet>, Throwable> handler) {
         this.internalErrorHandler = handler;
         return this;
     }
@@ -103,13 +108,13 @@ public class MessageProcessor implements RawDataReceiver {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Packet> MessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
+    public <T extends Packet> DefaultMessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
         registeredMessageReceivers.put((Class<? extends MessageHandler<?>>) handler.getClass(), handler);
         client.getLogger().debug("Registered message receiver {}", handler.getClass());
         return this;
     }
 
-    public <T extends MessageHandler<?>> MessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
+    public <T extends MessageHandler<?>> DefaultMessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
         registeredMessageReceivers.invalidate(handlerCls);
         client.getLogger().debug("Unregistered message receiver {}", handlerCls);
         return this;

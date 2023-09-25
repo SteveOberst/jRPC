@@ -7,6 +7,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.*;
+import net.sxlver.jrpc.core.protocol.Errors;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
@@ -45,7 +46,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         // has the client authenticated yet?
         if(!handshaked) {
             // Client is not yet authenticated, ignore request and respond with an error
-            write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated.", null));
+            write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
             return;
         }
 
@@ -75,10 +76,12 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
         if(cause instanceof ReadTimeoutException) {
             server.getLogger().info("Connection to client with id {} has timed out.", client.getUniqueId());
+            close();
             return;
         }
         if(cause instanceof SocketException) {
             server.getLogger().info("Client '{}' has unexpectedly closed the connection.", client.getUniqueId());
+            close();
             return;
         }
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
@@ -96,6 +99,11 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             server.getLogger().info("An unauthenticated client has closed the connection. Remote address: {}", getRemoteAddress());
             return;
         }
+        close();
+    }
+
+    private void close() {
+        channel.close();
         server.removeConnected(client);
         server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
     }

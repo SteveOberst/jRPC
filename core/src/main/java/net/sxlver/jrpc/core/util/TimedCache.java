@@ -54,6 +54,11 @@ public class TimedCache<K, V extends TimedCache.NotifyOnExpire> {
         scheduler.shutdown();
     }
 
+    @Override
+    public String toString() {
+        return cache.toString();
+    }
+
     public interface NotifyOnExpire {
         void notifyExpired();
 

@@ -38,8 +38,7 @@ public class LocatePlayerCommand implements CommandExecutor {
                     sender.sendMessage(String.format("%s Did not respond.", target));
                 })
                 .waitFor(1000, TimeUnit.MILLISECONDS)
-                .overrideHandlers()
-                .enableConcurrentResponseProcessing();
+                .overrideHandlers();
 
         return true;
     }

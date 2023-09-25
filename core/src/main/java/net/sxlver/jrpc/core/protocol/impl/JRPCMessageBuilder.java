@@ -60,7 +60,7 @@ public class JRPCMessageBuilder implements MessageBuilder<JRPCMessage> {
 
     public JRPCMessage build() {
         if(!canBuild()) throw new IllegalStateException("Builder incomplete");
-        return new JRPCMessage(target, targetType, dataSource.getSource(), data);
+        return new JRPCMessage(target, targetType, dataSource.getSource(), conversationUID, data);
     }
 
     private boolean canBuild() {

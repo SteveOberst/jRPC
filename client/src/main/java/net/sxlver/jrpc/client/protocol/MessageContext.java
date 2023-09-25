@@ -23,6 +23,7 @@ public class MessageContext<T extends Packet> {
 
     public MessageContext(final @NonNull JRPCClient client,
                           final @NonNull T request,
+                          final @Nullable Packet response,
                           final @NonNull String source,
                           final @NonNull String target,
                           final @NonNull Message.TargetType targetType,
@@ -30,6 +31,7 @@ public class MessageContext<T extends Packet> {
 
         this.client = client;
         this.request = request;
+        this.response = response;
         this.source = source;
         this.target = target;
         this.targetType = targetType;
@@ -42,7 +44,7 @@ public class MessageContext<T extends Packet> {
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> reply(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
-        return client.write(message, new MessageTarget(targetType, source), expectedResponse, null);
+        return client.write(message, new MessageTarget(targetType, source), expectedResponse, conversationUID);
     }
 
     public JRPCClient getClient() {
@@ -56,6 +58,10 @@ public class MessageContext<T extends Packet> {
     @SuppressWarnings("unchecked")
     public <TResponse extends Packet> TResponse getResponse() {
         return (TResponse) response;
+    }
+
+    public <TResponse extends Packet> void setResponse(final TResponse response) {
+        this.response = response;
     }
 
     @NotNull

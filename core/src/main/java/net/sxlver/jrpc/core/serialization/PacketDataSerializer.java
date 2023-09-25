@@ -19,7 +19,6 @@ public class PacketDataSerializer {
             return Base64.getEncoder().encode(json.getBytes(StandardCharsets.UTF_8));
         } catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }
@@ -31,7 +30,6 @@ public class PacketDataSerializer {
             return gson.fromJson(json, cls);
         }catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }
@@ -43,7 +41,6 @@ public class PacketDataSerializer {
             return gson.fromJson(json, cls);
         }catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }
@@ -56,7 +53,6 @@ public class PacketDataSerializer {
             return (T) gson.fromJson(json.toString(), packetCls);
         }catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }

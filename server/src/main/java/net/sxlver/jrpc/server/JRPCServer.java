@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.server;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import io.netty.bootstrap.ServerBootstrap;
@@ -13,7 +14,6 @@ import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.core.InternalLogger;
@@ -21,6 +21,7 @@ import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.config.ConfigurationManager;
 import net.sxlver.jrpc.core.config.DataFolderProvider;
 import net.sxlver.jrpc.core.protocol.*;
+import net.sxlver.jrpc.core.protocol.Errors;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
@@ -45,11 +46,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
@@ -70,7 +68,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     private EventLoopGroup loopGroup;
     private SocketAddress localAddress;
 
-    private final List<JRPCClientInstance> connected = Collections.synchronizedList(Lists.newArrayList());
+    private final Set<JRPCClientInstance> connected = Sets.newSetFromMap(new ConcurrentHashMap<>());
 
     public JRPCServer() {
         this.logger = new InternalLogger(getClass());
@@ -215,21 +213,36 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
         final String target = (targetType == Message.TargetType.ALL || targetType == Message.TargetType.BROADCAST) ? "*" : message.target();
         if(sendTo.isEmpty() || sendTo.stream().noneMatch(Objects::nonNull)) {
-            final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found.", null), message.source());
+            final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source(), message.conversationId());
             invoker.write(errorMessage);
             logger.info("{} No suitable target found whilst forwarding message of type {} [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", targetType, message.source(), target);
             return;
         }
 
+        if(!config.isAllowSelfForward()) {
+            sendTo.removeIf(jrpcClientInstance -> jrpcClientInstance.getUniqueId().equals(message.source()));
+            if(targetType == Message.TargetType.DIRECT && sendTo.isEmpty()) {
+                logger.warn("Client {} tried to forward a message to themselves but allow-self-forward is set to false.", target);
+                final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_SELF_REFERENCE, "Clients are not allowed to directly reference themselves."), message.source(), message.conversationId());
+                invoker.write(errorMessage);
+                return;
+            }
+        }
+
         sendTo.stream().filter(Objects::nonNull).forEach(jrpcClientInstance -> jrpcClientInstance.getNetHandler().write(message));
-        logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , targetType, message.source(), target, message.data().length);
+        logForward(targetType, message.source(), target, message.data().length);
     }
 
-    public JRPCMessage buildDirectResponse(final @NonNull Packet packet, @NonNull final String target) {
+    private void logForward(final Message.TargetType targetType, final String source, final String target, final int dataLen) {
+        logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , targetType, source, target, dataLen);
+    }
+
+    public JRPCMessage buildDirectResponse(final @NonNull Packet packet, final @NonNull String target, final @NonNull ConversationUID uid) {
         return JRPCMessageBuilder.builder()
                 .source(this)
                 .targetType(Message.TargetType.DIRECT)
                 .target(target)
+                .conversationUid(uid)
                 .data(PacketDataSerializer.serialize(packet))
                 .build();
     }
@@ -244,10 +257,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
                 logger.fatal("Error whilst setting TCP_NODELAY option: {}", ExceptionUtils.getStackTrace(exception));
             }
             channel.pipeline().addLast("frame_decoder", new LengthFieldBasedFrameDecoder(Message.MAX_PACKET_LENGTH, 0, 4,0,4));
-            //channel.pipeline().addLast("length_field_prepender", new LengthFieldPrepender(4));
-           // channel.pipeline().addLast("handshake_decoder", new JRPCHandshakeDecoder<>(JRPCServer.this));
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCServer.this));
-            channel.pipeline().addLast("timeout_handler", new ReadTimeoutHandler(config.getReadTimeout(), TimeUnit.SECONDS));
+            //channel.pipeline().addLast("timeout_handler", new ReadTimeoutHandler(config.getReadTimeout(), TimeUnit.SECONDS));
             channel.pipeline().addLast("handshake_handler", new JRPCServerHandshakeHandler(JRPCServer.this));
             channel.pipeline().addLast("message_handler", new JRPCServerChannelHandler(JRPCServer.this));
             channel.pipeline().addLast("message_encoder", new JRPCServerMessageEncoder(JRPCServer.this.getProtocolVersion().getVersionNumber()));
@@ -258,6 +269,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         updateClientStatus(instance, UpdateClientStatusPacket.Operation.REGISTER);
         connected.add(instance);
     }
+
 
     public void removeConnected(final @NonNull JRPCClientInstance instance) {
         updateClientStatus(instance, UpdateClientStatusPacket.Operation.UNREGISTER);

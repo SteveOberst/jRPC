@@ -1,24 +1,17 @@
 package net.sxlver.jrpc.bukkit;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.protocol.Conversation;
-import net.sxlver.jrpc.client.protocol.MessageProcessor;
+import net.sxlver.jrpc.client.protocol.DefaultMessageProcessor;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.core.protocol.Packet;
-import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class JRPCService {
 
     private final JRPCBukkitPlugin plugin;
-    private MessageProcessor messageProcessor;
+    private DefaultMessageProcessor messageProcessor;
     private JRPCClient client;
 
     public JRPCService(final JRPCBukkitPlugin plugin) {
@@ -27,7 +20,7 @@ public class JRPCService {
 
     boolean start() {
         this.client = new JRPCClient(plugin.getDataFolder().getPath());
-        this.messageProcessor = new MessageProcessor(this.client);
+        this.messageProcessor = new DefaultMessageProcessor(this.client);
         try {
             client.open();
             client.registerMessageReceiver(messageProcessor);
@@ -49,14 +42,14 @@ public class JRPCService {
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet, final Class<TResponse> expectedResponse) {
-         return publish(packet, new MessageTarget(Message.TargetType.BROADCAST), expectedResponse);
+         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.BROADCAST));
     }
 
     public void publish(final @NonNull Packet packet, final MessageTarget target) {
         client.write(packet, target);
     }
 
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(final TRequest packet, final MessageTarget target, final Class<TResponse> expectedResponse) {
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(final TRequest packet, final Class<TResponse> expectedResponse, final MessageTarget target) {
         return client.write(packet, target, expectedResponse);
     }
 
@@ -68,7 +61,7 @@ public class JRPCService {
         return client;
     }
 
-    public MessageProcessor getMessageProcessor() {
+    public DefaultMessageProcessor getMessageProcessor() {
         return messageProcessor;
     }
 }

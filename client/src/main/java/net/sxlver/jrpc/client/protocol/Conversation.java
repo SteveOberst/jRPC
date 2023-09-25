@@ -7,8 +7,10 @@ import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 import net.sxlver.jrpc.core.util.TimedCache;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -212,6 +214,12 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     @SuppressWarnings("unchecked")
     public static <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> empty() {
         return (Conversation<TRequest, TResponse>) EMPTY;
+    }
+
+    @NotNull
+    public TRequest getRequest() {
+        Objects.requireNonNull(request);
+        return request;
     }
 
     @Override
