@@ -44,7 +44,7 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
         final int versionNumber = header.getProtocolVersion();
         final ProtocolVersion version = ProtocolVersion.getByVersionNumber(versionNumber);
         if(version != provider.getProtocolVersion()) {
-            final String message = "Message Protocol version mismatch whilst authenticating! Received: {} Current Version: {}";
+            final String message = "Message Protocol version mismatch! Received: {} Current Version: {}";
             if(!provider.isAllowVersionMismatch()) {
                 provider.getLogger().warn(message, version, provider.getProtocolVersion());
                 in.resetReaderIndex();
@@ -60,7 +60,8 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
         }else if (header.getMessageType() == MessageType.MESSAGE.getId()) {
             message = PacketDataSerializer.deserialize(data, JRPCMessage.class);
         }else {
-            provider.getLogger().warn("Invalid message format.");
+            provider.getLogger().warn("Invalid message format. Closing connection to {}", context.channel().remoteAddress());
+            context.close();
             return;
         }
         out.add(message);

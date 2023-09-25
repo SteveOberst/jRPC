@@ -21,7 +21,7 @@ public class PacketDataSerializer {
             exception.printStackTrace();
             //throw new DeserializationException(exception);
         }
-        return null;
+        return new byte[0];
     }
 
     public static <T> T deserialize(final JsonObject jsonObject, final Class<T> cls) {
@@ -43,7 +43,6 @@ public class PacketDataSerializer {
             return gson.fromJson(json, cls);
         }catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }
@@ -56,7 +55,6 @@ public class PacketDataSerializer {
             return (T) gson.fromJson(json.toString(), packetCls);
         }catch(final Exception exception) {
             exception.printStackTrace();
-            //throw new DeserializationException(exception);
         }
         return null;
     }
