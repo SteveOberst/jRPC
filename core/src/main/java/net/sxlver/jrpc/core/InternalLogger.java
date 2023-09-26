@@ -5,6 +5,7 @@ import com.google.gson.internal.reflect.ReflectionHelper;
 import io.netty.handler.logging.LogLevel;
 import io.netty.util.internal.ReflectionUtil;
 import net.sxlver.jrpc.core.util.TimeUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import sun.reflect.ReflectionFactory;
 
 import java.util.logging.*;
@@ -34,6 +35,12 @@ public class InternalLogger {
     public void fatal(final String message, final Object... args) {
         final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
         logger.severe(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
+    }
+
+    public void fatal(final Throwable throwable) {
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        final String message = ExceptionUtils.getStackTrace(throwable);
+        logger.severe(String.format(prependCallerClass(message, callCls)));
     }
 
     public void debug(final String message, final Object... args) {

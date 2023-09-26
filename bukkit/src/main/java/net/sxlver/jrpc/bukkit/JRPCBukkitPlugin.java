@@ -1,6 +1,5 @@
 package net.sxlver.jrpc.bukkit;
 
-import net.sxlver.jrpc.bukkit.protocol.processors.ClientInformationHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;

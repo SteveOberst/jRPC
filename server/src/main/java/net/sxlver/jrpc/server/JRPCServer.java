@@ -1,5 +1,7 @@
 package net.sxlver.jrpc.server;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -35,11 +37,12 @@ import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.server.config.JRPCServerConfig;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
-import net.sxlver.jrpc.server.protocol.JRPCServerChannelHandler;
-import net.sxlver.jrpc.server.protocol.JRPCServerHandshakeHandler;
+import net.sxlver.jrpc.server.protocol.*;
 import net.sxlver.jrpc.server.protocol.codec.JRPCServerMessageEncoder;
+import net.sxlver.jrpc.server.selector.TargetSelector;
+import net.sxlver.jrpc.server.selector.TargetSelectors;
 import net.sxlver.jrpc.server.util.LazyInitVar;
-import net.sxlver.jrpc.server.util.Loadbalanced;
+import net.sxlver.jrpc.server.util.Loadbalancer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,12 +51,16 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
 
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final InternalLogger logger;
+
+    private Collection<ServerMessageHandler<Packet>> defaultServerMessageHandler;
 
     private static final LazyInitVar<NioEventLoopGroup> nioLazyVar = new LazyInitVar<>(()
             -> new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty JRPC IO #%d").setDaemon(true).build()));
@@ -79,6 +86,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
+        this.defaultServerMessageHandler = DefaultHandlerRegistry.getMessageHandlers();
     }
 
     public void run() throws Exception {
@@ -122,22 +130,6 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
                 .getParent();
     }
 
-    private Collection<JRPCClientInstance> getLoadBalancedServers(final String type) {
-        return connected.stream().filter(jrpcClientInstance -> jrpcClientInstance.getType().equals(type)).collect(Collectors.toList());
-    }
-
-    private JRPCClientInstance getLoadBalancedServer(final String type) {
-        return Loadbalanced.pick(getLoadBalancedServers(type));
-    }
-
-    public JRPCClientInstance getByUniqueId(final String uniqueId) {
-        return connected.stream().filter(client -> client.getUniqueId().equals(uniqueId)).findFirst().orElse(null);
-    }
-
-    public JRPCClientInstance getBySource(final SocketAddress address) {
-        return connected.stream().filter(client -> client.getNetHandler().getRemoteAddress().equals(address)).findFirst().orElse(null);
-    }
-
     public ChannelFuture getChannel() {
         return listeningChannel;
     }
@@ -173,6 +165,18 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return connected.stream().map(JRPCClientInstance::getInformation).collect(Collectors.toList());
     }
 
+    public Collection<JRPCClientInstance> getRegisteredClientsRaw() {
+        return connected;
+    }
+
+    public void onReceive(final JRPCServerChannelHandler source, JRPCMessage sourceMessage, final Packet packet) {
+        for (final ServerMessageHandler<Packet> handler : defaultServerMessageHandler) {
+            if(!handler.getTarget().isAssignableFrom(packet.getClass())) continue;
+            final ServerMessageContext<Packet> context = new ServerMessageContext<>(packet, source, sourceMessage);
+            handler.handle(this, context);
+        }
+    }
+
     public HandshakeStatusPacket handshake(final ChannelPipeline pipeline, final JRPCHandshake handshake) {
         return tryHandshake(pipeline, handshake);
     }
@@ -194,7 +198,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public boolean clientExists(final String uniqueId) {
-        return getByUniqueId(uniqueId) != null;
+        return !selectDirect(uniqueId).isEmpty();
     }
 
     private boolean verifyHandshake(final JRPCHandshake handshake) {
@@ -202,20 +206,15 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     public void forward(final @NonNull JRPCMessage message, final @NonNull JRPCServerChannelHandler invoker) {
-        Collection<JRPCClientInstance> sendTo = Lists.newArrayList();
         final Message.TargetType targetType = message.targetType();
-        switch(targetType) {
-            case DIRECT -> sendTo.add(getByUniqueId(message.target()));
-            case LOAD_BALANCED -> sendTo.add(getLoadBalancedServer(message.target()));
-            case ALL -> sendTo.addAll(getLoadBalancedServers(message.target()));
-            case BROADCAST -> sendTo.addAll(connected);
-        }
+        final TargetSelector targetSelector = TargetSelectors.getByTargetType(targetType);
+        Collection<JRPCClientInstance> sendTo = targetSelector.select(message.target(), getRegisteredClientsRaw());
 
         final String target = (targetType == Message.TargetType.ALL || targetType == Message.TargetType.BROADCAST) ? "*" : message.target();
         if(sendTo.isEmpty() || sendTo.stream().noneMatch(Objects::nonNull)) {
             final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source(), message.conversationId());
             invoker.write(errorMessage);
-            logger.info("{} No suitable target found whilst forwarding message of type {} [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", targetType, message.source(), target);
+            logger.info("{} No suitable target found whilst forwarding message. [Type: {}] [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", targetType, message.source(), target);
             return;
         }
 
@@ -231,6 +230,10 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
         sendTo.stream().filter(Objects::nonNull).forEach(jrpcClientInstance -> jrpcClientInstance.getNetHandler().write(message));
         logForward(targetType, message.source(), target, message.data().length);
+    }
+
+    public Collection<JRPCClientInstance> selectDirect(final String uniqueId) {
+        return TargetSelectors.TARGET_SELECTOR_DIRECT.select(uniqueId, getRegisteredClientsRaw());
     }
 
     private void logForward(final Message.TargetType targetType, final String source, final String target, final int dataLen) {

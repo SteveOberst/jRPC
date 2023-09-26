@@ -19,7 +19,7 @@ public class JRPCService {
     }
 
     boolean start() {
-        this.client = new JRPCClient(plugin.getDataFolder().getPath());
+        this.client = new JRPCClient(plugin.getDataFolder().getPath(), false);
         this.messageProcessor = new DefaultMessageProcessor(this.client);
         try {
             client.open();
@@ -53,7 +53,12 @@ public class JRPCService {
         return client.write(packet, target, expectedResponse);
     }
 
-    public String getUniqueId() {
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publishLoadBalanced(final TRequest packet, final Class<TResponse> expectedResponse, final String target) {
+        return client.write(packet, new MessageTarget(Message.TargetType.LOAD_BALANCED, target), expectedResponse);
+    }
+
+
+    public String getLocalUniqueId() {
         return client.getConfig().getUniqueId();
     }
 

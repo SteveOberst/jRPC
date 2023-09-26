@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.util.Collections;
 
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
 
@@ -47,21 +48,14 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         if(!handshaked) {
             // Client is not yet authenticated, ignore request and respond with an error
             write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
+            channel.close();
+            server.getLogger().warn("Remote client {} has sent data before authenticating, closing connection...", channel.remoteAddress());
             return;
         }
 
-        // TODO: think of another solution than extracting the class path every time as this
-        //       is a little I/O heavy
-        //
-        // Preserve JsonObject in first step to save up on some I/O load
-        final JsonObject jsonObject = PacketDataSerializer.deserializeJson(message.data());
-        if(PacketDataSerializer.extractClassPath(jsonObject).equals(KeepAlivePacket.class.getName())) {
-            // Finally deserialize the JsonObject to the KeepAlivePacket class instance
-            final KeepAlivePacket packet = PacketDataSerializer.deserialize(jsonObject, KeepAlivePacket.class);
-            final JRPCClientInstance client = server.getByUniqueId(message.source());
-            client.onKeepAlive(context, lastKeepAlive, packet);
-            sendKeepAlive();
-            return;
+        if(message.targetType() == Message.TargetType.SERVER) {
+            final Packet packet = PacketDataSerializer.deserializePacket(message.data());
+            server.onReceive(this, message, packet);
         }
 
         if(message.targetType() != Message.TargetType.SERVER) {
@@ -85,7 +79,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             return;
         }
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
-        server.getLogger().fatal(ExceptionUtils.getStackTrace(cause));
+        server.getLogger().fatal(cause);
     }
 
     @Override
@@ -117,9 +111,14 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     }
 
     public void write(final Packet packet) {
+        write(packet, ConversationUID.newUid());
+    }
+
+    public void write(final Packet packet, final @NonNull ConversationUID sourceConversation) {
         final JRPCMessage message = JRPCMessageBuilder.builder()
                 .source(server)
                 .target(uniqueId)
+                .conversationUid(sourceConversation)
                 .targetType(Message.TargetType.DIRECT)
                 .data(PacketDataSerializer.serialize(packet))
                 .build();

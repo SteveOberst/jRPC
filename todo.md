@@ -1,19 +1,26 @@
 # Client
 - [ ] Replace google.commons.Cache in net handler with custom cache to notify elements of timeouts
 - [ ] Handle timeouts appropriately (schedule reconnect, notify api)
-- [ ] Fix keepalives (client times out after a while due to keep alive packets being handled improperly)
+- [ ] Fix keep alives (client times out after a while due to keep alive packets being handled improperly)
+- [ ] Test getLoadBalancedServer, getServersOfType and getAllServers methods in JRPCClient
+
 # Core
 - [ ] Better logging - maybe colorize logging output
 - [x] Rewrite protocol codec
 - [x] Fix JRPCMessageBuilder not passing conversation parameter to JRPCMessage constructor
+
 # Examples
 ### Example Bukkit Plugin
 - [ ] Locate Player across network
 - [ ] List Registered clients
 - [ ] Complex Object Conversation/Showcase usage of DTOs
+
 ### Example Client
-- [ ] Initialization 
+- [ ] Initialization
 
 # Documentation
 - [ ] Bukkit Api Docs
 - [ ] Client Api Docs
+
+# GitHub
+- [ ] Issue template

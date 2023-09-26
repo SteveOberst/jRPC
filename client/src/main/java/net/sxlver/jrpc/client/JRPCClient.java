@@ -25,9 +25,12 @@ import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
+import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
+import net.sxlver.jrpc.core.protocol.packet.ClusterInformationConversation;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
+import net.sxlver.jrpc.core.util.Callback;
 import net.sxlver.jrpc.core.util.StringUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +38,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
 public class JRPCClient implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
@@ -58,10 +63,10 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     private final String dataFolder;
 
     public JRPCClient() {
-        this(null);
+        this(null, true);
     }
 
-    public JRPCClient(final String dataFolder) {
+    public JRPCClient(final String dataFolder, final boolean setUncaughtExceptionHandler) {
         this.logger = new InternalLogger(getClass());
         this.dataFolder = dataFolder;
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
@@ -69,7 +74,9 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         this.config = configurationManager.getConfig(JRPCClientConfig.class, true);
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
-        Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
+        if(setUncaughtExceptionHandler) {
+            Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
+        }
     }
 
     @Nullable
@@ -122,6 +129,30 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         handler.awaitHandshakeResponse();
     }
 
+    public void getServersOfType(final String type, final Callback<ClusterInformationConversation.Response> responseCallback) {
+        requestClusterInformation(Message.TargetType.ALL, type, responseCallback);
+    }
+
+    public void getLoadBalancedServer(final String type, final Callback<ClusterInformationConversation.Response> responseCallback) {
+        requestClusterInformation(Message.TargetType.LOAD_BALANCED, type, responseCallback);
+    }
+
+    public void getAllServers(final Callback<ClusterInformationConversation.Response> responseCallback) {
+        requestClusterInformation(Message.TargetType.BROADCAST, "", responseCallback);
+    }
+
+    private void requestClusterInformation(final Message.TargetType target, final String identifier, final Callback<ClusterInformationConversation.Response> responseCallback) {
+        final ClusterInformationConversation.Request request = buildClusterInformationRequest(target, identifier);
+        write(request, new MessageTarget(Message.TargetType.SERVER, ""), ClusterInformationConversation.Response.class, null)
+                .onResponse((req, context) -> Callback.Internal.complete(responseCallback, context.getResponse()))
+                .onExcept((throwable, errorInformationHolder) -> Callback.Internal.except(responseCallback, throwable))
+                .onTimeout((req, contexts) -> Callback.Internal.except(responseCallback, new TimeoutException("Server has taken too long to respond")))
+                .overrideHandlers();
+    }
+
+    private ClusterInformationConversation.Request buildClusterInformationRequest(final Message.TargetType type, final String identifier) {
+        return new ClusterInformationConversation.Request(type, identifier);
+    }
 
     public void onChannelClose(final ChannelHandlerContext context) {
         logger.warn("Channel has been closed! Communication with the server will no longer be possible.");
@@ -229,7 +260,12 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     public void publishMessage(final @NonNull JRPCMessage message) {
         for (final RawDataReceiver dataReceiver : dataReceivers) {
-            dataReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
+            try {
+                dataReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
+            }catch(final Exception exception) {
+                logger.fatal("Encountered error whilst publishing message to processor {}.", dataReceiver.getClass());
+                logger.fatal(exception);
+            }
         }
     }
 

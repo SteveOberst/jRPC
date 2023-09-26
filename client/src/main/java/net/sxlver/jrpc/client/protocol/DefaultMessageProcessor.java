@@ -131,7 +131,7 @@ public class DefaultMessageProcessor implements RawDataReceiver {
             client.getLogger().warn("Class {} has encountered an error whilst processing a request from '{}'. [Packet Type: {}]",
                     handler.getClass(), messageContext.getSource(), throwable.getMessage()
             );
-            client.getLogger().fatal(ExceptionUtils.getStackTrace(throwable));
+            client.getLogger().fatal(throwable);
         };
     }
 }

@@ -40,7 +40,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
         client.getLogger().warn("An Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
-        client.getLogger().fatal(ExceptionUtils.getStackTrace(cause));
+        client.getLogger().fatal(cause);
     }
 
     @Override
