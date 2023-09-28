@@ -1,3 +1,6 @@
+# General
+- [ ] Unit Tests
+
 # Client
 - [ ] Replace google.commons.Cache in net handler with custom cache to notify elements of timeouts
 - [ ] Handle timeouts appropriately (schedule reconnect, notify api)
@@ -5,14 +8,14 @@
 - [ ] Test getLoadBalancedServer, getServersOfType and getAllServers methods in JRPCClient
 
 # Core
-- [ ] Better logging - maybe colorize logging output
+- [x] Better logging - maybe colorize logging output
 - [x] Rewrite protocol codec
 - [x] Fix JRPCMessageBuilder not passing conversation parameter to JRPCMessage constructor
 
 # Examples
 ### Example Bukkit Plugin
 - [ ] Locate Player across network
-- [ ] List Registered clients
+- [ ] List Registered client instances (LOAD_BALANCED, TYPE, ALL)
 - [ ] Complex Object Conversation/Showcase usage of DTOs
 
 ### Example Client
@@ -24,3 +27,4 @@
 
 # GitHub
 - [ ] Issue template
+- [ ] CI Runner

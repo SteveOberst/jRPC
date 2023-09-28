@@ -38,11 +38,11 @@ public class JRPCService {
     }
 
     public void broadcast(final @NonNull Packet packet) {
-        publish(packet, new MessageTarget(Message.TargetType.BROADCAST));
+        publish(packet, new MessageTarget(Message.TargetType.ALL));
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet, final Class<TResponse> expectedResponse) {
-         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.BROADCAST));
+         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.ALL));
     }
 
     public void publish(final @NonNull Packet packet, final MessageTarget target) {

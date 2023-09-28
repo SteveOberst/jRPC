@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.client.protocol;
 
 import lombok.NonNull;
+import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Packet;
@@ -9,6 +10,7 @@ import net.sxlver.jrpc.core.util.TimedCache;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
@@ -18,12 +20,15 @@ import java.util.function.BiConsumer;
 
 
 /**
- * The type Conversation.
+ * Represents a Conversation with a Request and a Response between two partners.
  *
  * @param <TRequest>  the type parameter
  * @param <TResponse> the type parameter
  */
+@ThreadSafe
 public final class Conversation<TRequest extends Packet, TResponse extends Packet> implements TimedCache.NotifyOnExpire {
+
+    private final JRPCClient client;
 
     private final TRequest request;
     private final ConversationUID conversationUID;
@@ -39,7 +44,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
 
     private static final Conversation<?, ?> EMPTY = new Conversation<>();
 
-    private boolean alwaysNotifyTimeout;
+    private volatile boolean alwaysNotifyTimeout;
     private volatile boolean handlerCalled;
 
     private Set<MessageContext<TResponse>> responses = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -47,19 +52,27 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     private Conversation() {
         this.request = null;
         this.conversationUID = null;
+        this.client = null;
     }
 
     /**
      * Instantiates a new Conversation.
      *
+     * @param client           the client instance
      * @param request          the request
      * @param conversationUID  the conversation uid
      * @param expectedResponse the expected response type
      */
-    public Conversation(final @NonNull TRequest request, final @NonNull ConversationUID conversationUID, final @NonNull Class<? extends Packet> expectedResponse) {
+    public Conversation(final @NonNull JRPCClient client,
+                        final @NonNull TRequest request,
+                        final @NonNull ConversationUID conversationUID,
+                        final @NonNull Class<? extends Packet> expectedResponse) {
+
+        this.client = client;
         this.request = request;
         this.conversationUID = conversationUID;
         this.expectedResponse = expectedResponse;
+        this.timeout = client.getConfig().getConversationTimeOut();
     }
 
     /**
@@ -164,12 +177,25 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     /**
      * Sets a duration on how long to wait for a response.
      *
-     * @param duration the length of time after an entry is created that it should be automatically removed unit
-     * @param timeUnit the unit that duration is expressed in
-     * @return current instance of the Conversation Object
+     * @param duration               the length of time after an entry is created that it should be automatically removed unit
+     * @param timeUnit               the unit that duration is expressed in
+     * @return                       current instance of the Conversation Object
      */
     public Conversation<TRequest, TResponse> waitFor(final long duration, final TimeUnit timeUnit) {
+        return waitFor(duration, timeUnit, false);
+    }
+
+    /**
+     * Sets a duration on how long to wait for a response.
+     *
+     * @param duration               the length of time after an entry is created that it should be automatically removed unit
+     * @param timeUnit               the unit that duration is expressed in
+     * @param keepCachedUntilTimeout whether the conversation should be kept running until the timeout has been reached
+     * @return                       current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> waitFor(final long duration, final TimeUnit timeUnit, final boolean keepCachedUntilTimeout) {
         this.timeout = timeUnit.toMillis(duration);
+        this.concurrentResponseProcessing = keepCachedUntilTimeout;
         return this;
     }
 
@@ -231,6 +257,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     void expire() {
+        client.getLogger().debugFinest("Conversation timed out after {}ms with {} response(s) [Request: {}] [Expected Response: {}]", timeout, responses.size(), request.getClass(), expectedResponse);
         timeoutHandler.accept(request, responses);
     }
 }

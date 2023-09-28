@@ -1,8 +1,5 @@
 package net.sxlver.jrpc.server;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
@@ -23,7 +20,6 @@ import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.config.ConfigurationManager;
 import net.sxlver.jrpc.core.config.DataFolderProvider;
 import net.sxlver.jrpc.core.protocol.*;
-import net.sxlver.jrpc.core.protocol.Errors;
 import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
@@ -31,7 +27,6 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
-import net.sxlver.jrpc.core.protocol.packet.UpdateClientStatusPacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.StringUtil;
@@ -42,21 +37,24 @@ import net.sxlver.jrpc.server.protocol.codec.JRPCServerMessageEncoder;
 import net.sxlver.jrpc.server.selector.TargetSelector;
 import net.sxlver.jrpc.server.selector.TargetSelectors;
 import net.sxlver.jrpc.server.util.LazyInitVar;
-import net.sxlver.jrpc.server.util.Loadbalancer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.*;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("UnstableApiUsage")
+/**
+ * The type Jrpc server.
+ */
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
-
+    
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final InternalLogger logger;
 
@@ -77,8 +75,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     private final Set<JRPCClientInstance> connected = Sets.newSetFromMap(new ConcurrentHashMap<>());
 
+    /**
+     * Instantiates a new Jrpc server.
+     */
     public JRPCServer() {
-        this.logger = new InternalLogger(getClass());
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCServerConfig.class, true);
         this.localAddress = new InetSocketAddress("localhost", config.getPort());
@@ -89,6 +90,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         this.defaultServerMessageHandler = DefaultHandlerRegistry.getMessageHandlers();
     }
 
+    /**
+     * Run.
+     *
+     * @throws Exception the exception
+     */
     public void run() throws Exception {
         Class<? extends ServerSocketChannel> channelClass;
         LazyInitVar<? extends MultithreadEventLoopGroup> loopGroup;
@@ -108,6 +114,9 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    /**
+     * Close.
+     */
     public void close() {
         listeningChannel.channel().close().syncUninterruptibly();
         connected.stream().map(JRPCClientInstance::getNetHandler).forEach(JRPCServerChannelHandler::shutdown);
@@ -130,6 +139,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
                 .getParent();
     }
 
+    /**
+     * Gets channel.
+     *
+     * @return the channel
+     */
     public ChannelFuture getChannel() {
         return listeningChannel;
     }
@@ -144,6 +158,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return config.isAllowVersionMismatch();
     }
 
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
     public JRPCServerConfig getConfig() {
         return config;
     }
@@ -152,6 +171,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return logger;
     }
 
+    /**
+     * Gets gson.
+     *
+     * @return the gson
+     */
     public Gson getGson() {
         return centralGson.getGson();
     }
@@ -161,14 +185,31 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return config.getServerId();
     }
 
+    /**
+     * Gets registered clients.
+     *
+     * @return the registered clients
+     */
     public Collection<JRPCClientInformation> getRegisteredClients() {
         return connected.stream().map(JRPCClientInstance::getInformation).collect(Collectors.toList());
     }
 
+    /**
+     * Gets registered clients raw.
+     *
+     * @return the registered clients raw
+     */
     public Collection<JRPCClientInstance> getRegisteredClientsRaw() {
         return connected;
     }
 
+    /**
+     * On receive.
+     *
+     * @param source        the source
+     * @param sourceMessage the source message
+     * @param packet        the packet
+     */
     public void onReceive(final JRPCServerChannelHandler source, JRPCMessage sourceMessage, final Packet packet) {
         for (final ServerMessageHandler<Packet> handler : defaultServerMessageHandler) {
             if(!handler.getTarget().isAssignableFrom(packet.getClass())) continue;
@@ -177,6 +218,13 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    /**
+     * Handshake handshake status packet.
+     *
+     * @param pipeline  the pipeline
+     * @param handshake the handshake
+     * @return the handshake status packet
+     */
     public HandshakeStatusPacket handshake(final ChannelPipeline pipeline, final JRPCHandshake handshake) {
         return tryHandshake(pipeline, handshake);
     }
@@ -197,6 +245,12 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return new HandshakeStatusPacket(success);
     }
 
+    /**
+     * Client exists boolean.
+     *
+     * @param uniqueId the unique id
+     * @return the boolean
+     */
     public boolean clientExists(final String uniqueId) {
         return !selectDirect(uniqueId).isEmpty();
     }
@@ -205,12 +259,18 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         return handshake.getToken() != null && handshake.getType() != null && handshake.getUniqueId() != null;
     }
 
+    /**
+     * Forward.
+     *
+     * @param message the message
+     * @param invoker the invoker
+     */
     public void forward(final @NonNull JRPCMessage message, final @NonNull JRPCServerChannelHandler invoker) {
         final Message.TargetType targetType = message.targetType();
         final TargetSelector targetSelector = TargetSelectors.getByTargetType(targetType);
         Collection<JRPCClientInstance> sendTo = targetSelector.select(message.target(), getRegisteredClientsRaw());
 
-        final String target = (targetType == Message.TargetType.ALL || targetType == Message.TargetType.BROADCAST) ? "*" : message.target();
+        final String target = (targetType == Message.TargetType.TYPE || targetType == Message.TargetType.ALL) ? "*" : message.target();
         if(sendTo.isEmpty() || sendTo.stream().noneMatch(Objects::nonNull)) {
             final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source(), message.conversationId());
             invoker.write(errorMessage);
@@ -232,6 +292,12 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         logForward(targetType, message.source(), target, message.data().length);
     }
 
+    /**
+     * Select direct collection.
+     *
+     * @param uniqueId the unique id
+     * @return the collection
+     */
     public Collection<JRPCClientInstance> selectDirect(final String uniqueId) {
         return TargetSelectors.TARGET_SELECTOR_DIRECT.select(uniqueId, getRegisteredClientsRaw());
     }
@@ -240,6 +306,14 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , targetType, source, target, dataLen);
     }
 
+    /**
+     * Build direct response jrpc message.
+     *
+     * @param packet the packet
+     * @param target the target
+     * @param uid    the uid
+     * @return the jrpc message
+     */
     public JRPCMessage buildDirectResponse(final @NonNull Packet packet, final @NonNull String target, final @NonNull ConversationUID uid) {
         return JRPCMessageBuilder.builder()
                 .source(this)
@@ -268,23 +342,22 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    /**
+     * Add connected.
+     *
+     * @param instance the instance
+     */
     public void addConnected(final @NonNull JRPCClientInstance instance) {
-        updateClientStatus(instance, UpdateClientStatusPacket.Operation.REGISTER);
         connected.add(instance);
     }
 
 
+    /**
+     * Remove connected.
+     *
+     * @param instance the instance
+     */
     public void removeConnected(final @NonNull JRPCClientInstance instance) {
-        updateClientStatus(instance, UpdateClientStatusPacket.Operation.UNREGISTER);
         connected.remove(instance);
-    }
-
-    private void updateClientStatus(final JRPCClientInstance client, final UpdateClientStatusPacket.Operation operation) {
-        final UpdateClientStatusPacket packet = new UpdateClientStatusPacket(operation, client.getInformation());
-        // inform connected client instances before adding the client to the cache
-        // in order to not inform the newly registered client of its own registration
-        for (final JRPCClientInstance jrpcClientInstance : connected) {
-            jrpcClientInstance.getNetHandler().write(packet);
-        }
     }
 }

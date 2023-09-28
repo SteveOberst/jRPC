@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         final JRPCClient client = new JRPCClient();
         client.open();
-        final Conversation<HelloPacket, Packet> conversation = client.write(new HelloPacket(), new MessageTarget(Message.TargetType.BROADCAST, ""), Packet.class);
+        final Conversation<HelloPacket, Packet> conversation = client.write(new HelloPacket(), new MessageTarget(Message.TargetType.ALL, ""), Packet.class);
         conversation.onResponse((request, response) -> {
                     client.getLogger().info("received response. [Request Content: {}] [Response type: {}]", request.request, response.getClass());
                 })

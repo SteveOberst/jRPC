@@ -25,7 +25,6 @@ import net.sxlver.jrpc.core.protocol.codec.JRPCMessageDecoder;
 import net.sxlver.jrpc.core.protocol.impl.JRPCClientHandshakeMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
-import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.core.protocol.packet.ClusterInformationConversation;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
@@ -33,18 +32,27 @@ import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.Callback;
 import net.sxlver.jrpc.core.util.StringUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * The type Jrpc client.
+ */
 public class JRPCClient implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
+    /**
+     * The constant PROTOCOL_VERSION.
+     */
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final ConfigurationManager configurationManager;
     private final JRPCClientConfig config;
@@ -62,16 +70,25 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     private final String dataFolder;
 
+    /**
+     * Instantiates a new Jrpc client.
+     */
     public JRPCClient() {
         this(null, true);
     }
 
+    /**
+     * Instantiates a new Jrpc client.
+     *
+     * @param dataFolder                  the data folder
+     * @param setUncaughtExceptionHandler the set uncaught exception handler
+     */
     public JRPCClient(final String dataFolder, final boolean setUncaughtExceptionHandler) {
-        this.logger = new InternalLogger(getClass());
         this.dataFolder = dataFolder;
-        this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCClientConfig.class, true);
+        this.logger = new InternalLogger(getClass(), Path.of(dataFolder, "logs").toFile());
+        this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
         if(setUncaughtExceptionHandler) {
@@ -79,7 +96,13 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    /**
+     * Open channel future.
+     *
+     * @return the channel future
+     */
     @Nullable
+    @Blocking
     public ChannelFuture open() {
         final String host = config.getServerAddress();
         final int port = config.getServerPort();
@@ -106,6 +129,10 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return this.connectedChannel;
     }
 
+    /**
+     * Close.
+     */
+    @Blocking
     public void close() {
         if(this.connectedChannel != null) {
             connectedChannel.channel().close().syncUninterruptibly();
@@ -120,6 +147,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    @Blocking
     private void authenticate(final @NonNull JRPCHandshake handshake) {
         logger.info("Attempting to handshake server {}:{}. [Auth Token: {}]", remoteAddress.getHostName(), remoteAddress.getPort(), StringUtil.cypherString(config.getAuthenticationToken()));
         final JRPCClientHandshakeMessage message = new JRPCClientHandshakeMessage(getSource(), PacketDataSerializer.serialize(handshake));
@@ -129,16 +157,36 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         handler.awaitHandshakeResponse();
     }
 
+    /**
+     * Gets servers of type.
+     *
+     * @param type             the type
+     * @param responseCallback the response callback
+     */
+    @NonBlocking
     public void getServersOfType(final String type, final Callback<ClusterInformationConversation.Response> responseCallback) {
-        requestClusterInformation(Message.TargetType.ALL, type, responseCallback);
+        requestClusterInformation(Message.TargetType.TYPE, type, responseCallback);
     }
 
+    /**
+     * Gets load balanced server.
+     *
+     * @param type             the type
+     * @param responseCallback the response callback
+     */
+    @NonBlocking
     public void getLoadBalancedServer(final String type, final Callback<ClusterInformationConversation.Response> responseCallback) {
         requestClusterInformation(Message.TargetType.LOAD_BALANCED, type, responseCallback);
     }
 
+    /**
+     * Gets all servers.
+     *
+     * @param responseCallback the response callback
+     */
+    @NonBlocking
     public void getAllServers(final Callback<ClusterInformationConversation.Response> responseCallback) {
-        requestClusterInformation(Message.TargetType.BROADCAST, "", responseCallback);
+        requestClusterInformation(Message.TargetType.ALL, "", responseCallback);
     }
 
     private void requestClusterInformation(final Message.TargetType target, final String identifier, final Callback<ClusterInformationConversation.Response> responseCallback) {
@@ -154,11 +202,26 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return new ClusterInformationConversation.Request(type, identifier);
     }
 
+    /**
+     * On channel close.
+     *
+     * @param context the context
+     */
     public void onChannelClose(final ChannelHandlerContext context) {
         logger.warn("Channel has been closed! Communication with the server will no longer be possible.");
         this.connectedChannel = null;
     }
 
+    /**
+     * Write conversation.
+     *
+     * @param <TRequest>  the type parameter
+     * @param <TResponse> the type parameter
+     * @param packet      the packet
+     * @param target      the target
+     * @return the conversation
+     */
+    @NonBlocking
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target) {
@@ -166,6 +229,17 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return write(packet, target, null);
     }
 
+    /**
+     * Write conversation.
+     *
+     * @param <TRequest>       the type parameter
+     * @param <TResponse>      the type parameter
+     * @param packet           the packet
+     * @param target           the target
+     * @param expectedResponse the expected response
+     * @return the conversation
+     */
+    @NonBlocking
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
@@ -174,6 +248,18 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return write(packet, target, expectedResponse, null);
     }
 
+    /**
+     * Write conversation.
+     *
+     * @param <TRequest>       the type parameter
+     * @param <TResponse>      the type parameter
+     * @param packet           the packet
+     * @param target           the target
+     * @param expectedResponse the expected response
+     * @param conversationUID  the conversation uid
+     * @return the conversation
+     */
+    @NonBlocking
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
             final @NonNull TRequest packet,
             final @NonNull MessageTarget target,
@@ -184,18 +270,33 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return handler.write(packet, target, expectedResponse, conversationUID);
     }
 
-    public void registerMessageReceiver(final @NonNull RawDataReceiver receive) {
+    /**
+     * Register a message receiver.
+     *
+     * @param receiver the receiver
+     */
+    public void registerMessageReceiver(final @NonNull RawDataReceiver receiver) {
         final Optional<RawDataReceiver> registered = dataReceivers.stream()
-                .filter(target -> target.getClass() == receive.getClass()).findAny();
+                .filter(target -> target.getClass() == receiver.getClass()).findAny();
 
         registered.ifPresent(target -> unregisterMessageReceiver(target.getClass()));
-        dataReceivers.add(receive);
+        dataReceivers.add(receiver);
     }
 
+    /**
+     * Unregister a message receiver.
+     *
+     * @param receiver the receiver
+     */
     public void unregisterMessageReceiver(final RawDataReceiver receiver) {
         unregisterMessageReceiver( receiver.getClass());
     }
 
+    /**
+     * Unregister a message receiver.
+     *
+     * @param cls the cls
+     */
     public void unregisterMessageReceiver(final @NonNull Class<? extends RawDataReceiver> cls) {
         dataReceivers.removeIf(receiver -> receiver.getClass() == cls);
     }
@@ -206,6 +307,11 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return this.dataFolder == null ? getRunningDir() : this.dataFolder;
     }
 
+    /**
+     * Gets running dir.
+     *
+     * @return the running dir
+     */
     @SneakyThrows
     public String getRunningDir() {
         return new File(getClass().getProtectionDomain()
@@ -215,6 +321,11 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
                 .getParent();
     }
 
+    /**
+     * Gets config.
+     *
+     * @return the config
+     */
     public JRPCClientConfig getConfig() {
         return config;
     }
@@ -233,6 +344,11 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return config.isAllowVersionMismatch();
     }
 
+    /**
+     * Gets gson.
+     *
+     * @return the gson
+     */
     public Gson getGson() {
         return centralGson.getGson();
     }
@@ -242,14 +358,29 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return config.getUniqueId();
     }
 
+    /**
+     * Gets message receivers.
+     *
+     * @return the message receivers
+     */
     public Set<RawDataReceiver> getMessageReceivers() {
         return dataReceivers;
     }
 
+    /**
+     * Gets net handler.
+     *
+     * @return the net handler
+     */
     public JRPCClientChannelHandler getNetHandler() {
         return handler;
     }
 
+    /**
+     * Gets connected channel.
+     *
+     * @return the connected channel
+     */
     public ChannelFuture getConnectedChannel() {
         return connectedChannel;
     }
@@ -258,6 +389,11 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         return connectedChannel != null;
     }
 
+    /**
+     * Publish message.
+     *
+     * @param message the message
+     */
     public void publishMessage(final @NonNull JRPCMessage message) {
         for (final RawDataReceiver dataReceiver : dataReceivers) {
             try {
@@ -269,6 +405,9 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         }
     }
 
+    /**
+     * Send keep alive.
+     */
     public void sendKeepAlive() {
         write(new KeepAlivePacket(), new MessageTarget(Message.TargetType.SERVER, ""));
     }

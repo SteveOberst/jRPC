@@ -2,22 +2,22 @@ package net.sxlver.jrpc.server.selector;
 
 import com.google.common.collect.Lists;
 import net.sxlver.jrpc.core.protocol.Message;
-import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
 import net.sxlver.jrpc.server.util.Loadbalancer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
 
 public enum TargetSelectors implements TargetSelector {
-    TARGET_SELECTOR_ALL(Message.TargetType.ALL, (target, jrpcClientInstances) -> {
+    TARGET_SELECTOR_ALL(Message.TargetType.TYPE, (target, jrpcClientInstances) -> {
         return jrpcClientInstances.stream().filter(jrpcClientInstance -> jrpcClientInstance.getType().equals(target)).toList();
     }),
     TARGET_SELECTOR_LOAD_BALANCED(Message.TargetType.LOAD_BALANCED, (target, jrpcClientInstances) -> {
         return Lists.newArrayList(Loadbalancer.pick(jrpcClientInstances, target));
     }),
-    TARGET_SELECTOR_BROADCAST(Message.TargetType.BROADCAST, (target, jrpcClientInstances) -> jrpcClientInstances),
+    TARGET_SELECTOR_BROADCAST(Message.TargetType.ALL, (target, jrpcClientInstances) -> new ArrayList<>(jrpcClientInstances)),
     TARGET_SELECTOR_DIRECT(Message.TargetType.DIRECT, (target, jrpcClientInstances) -> {
         return jrpcClientInstances.stream().filter(jrpcClientInstance -> jrpcClientInstance.getUniqueId().equals(target)).toList();
     });

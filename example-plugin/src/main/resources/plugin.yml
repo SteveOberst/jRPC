@@ -16,5 +16,9 @@ commands:
     description: lists online players on the target server
     aliases:
       - online
+  broadcast:
+    description: broadcasts a message across the network to players with the specified permission
+  listservers:
+    description: lists servers in the network
 
 

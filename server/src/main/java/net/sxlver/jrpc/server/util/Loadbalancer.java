@@ -15,6 +15,7 @@ public class Loadbalancer {
                 .filter(jrpcClientInstance -> jrpcClientInstance.getType().equals(type))
                 .min(Comparator.comparingLong(JRPCClientInstance::getLastWrite))
                 .ifPresentOrElse(res -> server.set(Lists.newArrayList(res)), () -> server.set(new ArrayList<>()));
+
         return server.get();
     }
 }

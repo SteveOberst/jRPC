@@ -3,7 +3,6 @@ package net.sxlver.jrpc.core.protocol.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.handler.stream.ChunkedStream;
 import net.sxlver.jrpc.core.LogProvider;
 import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.impl.HeaderData;
@@ -50,7 +49,7 @@ public class JRPCMessageDecoder<T extends ProtocolInformationProvider & LogProvi
                 in.resetReaderIndex();
                 return;
             }else {
-                provider.getLogger().debug(message, version, provider.getProtocolVersion());
+                provider.getLogger().debugFine(message, version, provider.getProtocolVersion());
             }
         }
 

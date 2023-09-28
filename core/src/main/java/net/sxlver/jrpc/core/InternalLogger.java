@@ -1,25 +1,47 @@
 package net.sxlver.jrpc.core;
 
 
-import com.google.gson.internal.reflect.ReflectionHelper;
-import io.netty.handler.logging.LogLevel;
-import io.netty.util.internal.ReflectionUtil;
+import lombok.NonNull;
 import net.sxlver.jrpc.core.util.TimeUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import sun.reflect.ReflectionFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.*;
 
 public class InternalLogger {
-    private Logger logger;
+    private final Logger logger;
+    private ConsoleHandler consoleHandler;
+    private FileHandler fileHandler;
 
-    public InternalLogger(Class<?> cls) {
+    private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy_hh-mm-ss");
+
+    public InternalLogger(final Class<?> cls, final @NonNull File logFolder) {
         this.logger = Logger.getLogger(cls.getSimpleName());
 
-        this.logger.setUseParentHandlers(false);
-        final ConsoleHandler handler = new ConsoleHandler();
-        handler.setFormatter(new LogFormatter());
-        this.logger.addHandler(handler);
+        if(logFolder.exists() && !logFolder.isDirectory()) {
+            throw new IllegalArgumentException(String.format("%s isn't a directory", logFolder.getAbsolutePath()));
+        }
+
+        if(!logFolder.exists()){
+            logFolder.mkdir();
+        }
+
+        final LogFormatter formatter = new LogFormatter();
+        try {
+            this.logger.setUseParentHandlers(false);
+            this.fileHandler = new FileHandler(Path.of(logFolder.getAbsolutePath(), "log_" + df.format(LocalDateTime.now())) + ".txt");
+            this.consoleHandler = new ConsoleHandler();
+            consoleHandler.setFormatter(formatter);
+            fileHandler.setFormatter(formatter);
+            this.logger.addHandler(consoleHandler);
+            this.logger.addHandler(fileHandler);
+        }catch(IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     public void info(final String message, final Object... args) {
@@ -43,23 +65,35 @@ public class InternalLogger {
         logger.severe(String.format(prependCallerClass(message, callCls)));
     }
 
-    public void debug(final String message, final Object... args) {
+    public void debugFine(final String message, final Object... args) {
+        log(Level.FINE, String.format("%s %s", "[DEBUG]", message), args);
+    }
+
+    public void debugFiner(final String message, final Object... args) {
+        log(Level.FINER, String.format("%s %s", "[DEBUG]", message), args);
+    }
+    public void debugFinest(final String message, final Object... args) {
+        log(Level.FINEST, String.format("%s %s", "[DEBUG]", message), args);
+    }
+    public void log(final Level level, final String message, final Object... args) {
         final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
-        logger.fine(String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
+        logger.log(level, String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
     }
 
     public void setLogLevel(final Level logLevel) {
         logger.setLevel(logLevel);
+        consoleHandler.setLevel(logLevel);
+        fileHandler.setLevel(logLevel);
     }
 
     private String prependCallerClass(final String message, final String callCls) {
-
         return "[" + callCls + "] " + message;
     }
+
     public enum AnsiColor {
         RED("\u001b[31m"),
         YELLOW("\u001b[33m"),
-        BLUE("\u001b[34m"),
+        BLUE("\u001B[34m"),
         RESET("\u001b[0m"),
         WHITE("\u001B[37m");
 
@@ -80,7 +114,7 @@ public class InternalLogger {
 
         public static AnsiColor getByLevel(final Level logLevel) {
             switch(logLevel.getName()) {
-                case "DEBUG" -> {
+                case "FINE", "FINER", "FINEST" -> {
                     return BLUE;
                 }
                 case "INFO" -> {

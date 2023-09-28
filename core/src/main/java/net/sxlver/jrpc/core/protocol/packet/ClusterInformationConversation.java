@@ -13,7 +13,7 @@ public class ClusterInformationConversation {
     public static class Request extends Packet {
         public Message.TargetType type;
         /**
-         * the identifier, dependent on the {@link #type}, see {@link Message.TargetType} for more information.
+         * the identifier, dependents on the {@link #type}, see {@link Message.TargetType} for more information.
          *
          * @see net.sxlver.jrpc.core.protocol.Message.TargetType
          */

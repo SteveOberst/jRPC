@@ -14,7 +14,6 @@ import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.TriConsumer;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -46,9 +45,12 @@ public class DefaultMessageProcessor implements RawDataReceiver {
             return;
         }
 
+        client.getLogger().debugFiner("Received {} packet from {} [Conversation ID: {}] [Target: {}] [Target Type: {}]", packet.getClass(), source, conversationUID, target, targetType);
         final MessageContext<Packet> context = new MessageContext<>(client, packet, null, source, target, targetType, conversationUID);
         if(!source.equals(client.getSource()) /* nobody wants to talk to themselves, right?*/ && netHandler.isObserverPresent(conversationUID)) {
             final Conversation<Packet, Packet> conversation = netHandler.getObserver(conversationUID);
+
+            @SuppressWarnings("all")
             final MessageContext<Packet> conversationContext = new MessageContext<>(client, conversation.getRequest(), packet, source, target, targetType, conversationUID);
             if(!conversation.isConcurrentResponseProcessing()) {
                 // we don't expect more than one response, so we can unregister the conversation at this point
@@ -67,8 +69,10 @@ public class DefaultMessageProcessor implements RawDataReceiver {
             if(packet.getClass() == conversation.getExpectedResponse()) {
                 // notify handler of the received packet
                 conversation.onResponse(conversationContext);
+                client.getLogger().debugFinest("Invoking Conversation#onResponse for conversation id {}", conversationUID);
                 // do not continue if overrideHandlers is true on the conversation
                 if(conversation.shouldOverrideHandlers()) {
+                    client.getLogger().debugFinest("Overriding handlers for conversation id {}", conversationUID);
                     return;
                 }
             }else {
@@ -110,13 +114,13 @@ public class DefaultMessageProcessor implements RawDataReceiver {
     @SuppressWarnings("unchecked")
     public <T extends Packet> DefaultMessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
         registeredMessageReceivers.put((Class<? extends MessageHandler<?>>) handler.getClass(), handler);
-        client.getLogger().debug("Registered message receiver {}", handler.getClass());
+        client.getLogger().debugFine("Registered message receiver {}", handler.getClass().getSimpleName());
         return this;
     }
 
     public <T extends MessageHandler<?>> DefaultMessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
         registeredMessageReceivers.invalidate(handlerCls);
-        client.getLogger().debug("Unregistered message receiver {}", handlerCls);
+        client.getLogger().debugFine("Unregistered message receiver {}", handlerCls.getSimpleName());
         return this;
     }
 
@@ -124,7 +128,7 @@ public class DefaultMessageProcessor implements RawDataReceiver {
         registerHandler(new KeepAliveHandler<>(client));
         setErrorHandler(new DefaultErrorHandler<>(client, (messageHandler, messageContext, throwable) -> {
             client.getLogger().warn("{} received error message from the other end. [Source: {}] {}", messageContext.getSource(), throwable.getMessage());
-            client.getLogger().debug("Exception thrown: {}", ExceptionUtils.getStackTrace(throwable));
+            client.getLogger().debugFine("Exception thrown: {}", ExceptionUtils.getStackTrace(throwable));
         }));
 
         this.internalErrorHandler = (handler, messageContext, throwable) -> {

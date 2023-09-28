@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.core.util;
 
 import lombok.NonNull;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Consumer;
 
@@ -50,6 +51,7 @@ public class Callback<T> {
         return new Callback<>(onComplete, onExcept);
     }
 
+    @ApiStatus.Internal
     public static class Internal {
         public static <T> void complete(final Callback<T> callback, T result) {
             callback.complete(result);

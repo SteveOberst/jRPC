@@ -11,7 +11,6 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         registerService();
-        registerMessageReceiver();
     }
 
     @Override
@@ -28,9 +27,5 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
         }
 
         Bukkit.getServicesManager().register(JRPCService.class, service, this, ServicePriority.Highest);
-    }
-
-    private void registerMessageReceiver() {
-        //service.getMessageProcessor().registerHandler(new ClientInformationHandler (this));
     }
 }

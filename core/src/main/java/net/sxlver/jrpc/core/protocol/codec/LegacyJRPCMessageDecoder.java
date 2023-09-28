@@ -36,7 +36,7 @@ public class LegacyJRPCMessageDecoder <T extends ProtocolInformationProvider & L
                 in.resetReaderIndex();
                 return;
             }else {
-                provider.getLogger().debug(message, version, provider.getProtocolVersion());
+                provider.getLogger().debugFine(message, version, provider.getProtocolVersion());
             }
         }
 

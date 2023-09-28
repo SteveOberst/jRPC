@@ -1,7 +1,5 @@
 package net.sxlver.jrpc.client.protocol;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -12,12 +10,10 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.core.util.TimedCache;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
 
@@ -90,13 +86,13 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             return Conversation.empty();
         }
 
-        Conversation<TRequest, TResponse> conversation = new Conversation<>(request, uid, expectedResponse);
+        Conversation<TRequest, TResponse> conversation = new Conversation<>(client, request, uid, expectedResponse);
         this.conversationObservers.put(uid, conversation);
         return conversation;
     }
 
     private <TRequest extends Packet> void logPacketDispatch(final TRequest packet, final MessageTarget target, final ConversationUID uid, final JRPCMessage message) {
-        client.getLogger().debug(
+        client.getLogger().debugFine(
                 "Sent packet {} to target {}. [Conversation UID: {}] [Target Type: {}] [Content Length. {}]",
                 packet.getClass(), target.target(), uid.uid(), target.type().toString(), message.data().length
         );
