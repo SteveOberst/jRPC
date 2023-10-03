@@ -1,8 +1,8 @@
 package net.sxlver.jrpc.client.config;
 
-import de.exlll.configlib.annotation.Comment;
-import de.exlll.configlib.annotation.FileLocation;
-import de.exlll.configlib.configs.yaml.YamlConfiguration;
+import net.sxlver.configlib.annotation.Comment;
+import net.sxlver.configlib.annotation.FileLocation;
+import net.sxlver.configlib.configs.yaml.YamlConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +26,13 @@ public class JRPCClientConfig extends YamlConfiguration {
     @Comment("The Clients unique identifier. Requires no specific format, it should just be unique between all connected clients.")
     private String uniqueId = UUID.randomUUID().toString();
 
+    @Comment({
+            "This value defines the type of server in the network.",
+            "It's used for load-balancing between clients and to group up multiple client instances",
+            "in order to cherry-pick message targets."
+    })
+    private String type = "client";
+
     @Comment("Authentication token used to authenticate with the server")
     private String authenticationToken = UUID.randomUUID().toString();
 
@@ -40,6 +47,18 @@ public class JRPCClientConfig extends YamlConfiguration {
 
     @Comment("Whether to try and continue if no handshake information have been received from the server")
     private boolean ignoreHandshakeResult = false;
+
+    @Comment("If set to true, the client will schedule a reconnect if the connection to the server has been lost")
+    private boolean autoReconnect = true;
+
+    @Comment("The interval in which the client will attempt to reconnect")
+    private int reconnectInterval = 30;
+
+    @Comment("Whether to queue messages if the socket is currently closed")
+    private boolean queueMessages = true;
+
+    @Comment("How long messages will be queued for. Set to -1 to queue until connection has been re-established.")
+    private int queuedMessageTimeout = 30;
 
     @Comment({
             "The amount of time the client will wait for a response of the other side in ms.",

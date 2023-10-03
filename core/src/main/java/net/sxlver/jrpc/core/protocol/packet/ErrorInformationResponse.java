@@ -6,11 +6,11 @@ import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Errors;
 
 @Getter
-public class ErrorInformationPacket extends ErrorInformationHolder {
-    private int errorCode;
+public class ErrorInformationResponse extends ErrorInformationHolder {
+    private final int errorCode;
     private transient Errors error;
 
-    public ErrorInformationPacket(final Errors error, final @NonNull String errorDescription) {
+    public ErrorInformationResponse(final Errors error, final @NonNull String errorDescription) {
         super(errorDescription);
         this.error = error;
         this.errorCode = error.getErrorCode();

@@ -21,7 +21,7 @@ publishing {
     }
 }
 
-group properties.get("package")
+group properties.get("clientPackage")
 version properties.get("clientVersion")
 
 repositories {

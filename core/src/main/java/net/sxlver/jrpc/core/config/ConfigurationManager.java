@@ -1,8 +1,8 @@
 package net.sxlver.jrpc.core.config;
 
-import de.exlll.configlib.annotation.FileLocation;
-import de.exlll.configlib.configs.yaml.YamlConfiguration;
-import de.exlll.configlib.format.FieldNameFormatters;
+import net.sxlver.configlib.annotation.FileLocation;
+import net.sxlver.configlib.configs.yaml.YamlConfiguration;
+import net.sxlver.configlib.format.FieldNameFormatters;
 import lombok.NonNull;
 
 import java.io.File;

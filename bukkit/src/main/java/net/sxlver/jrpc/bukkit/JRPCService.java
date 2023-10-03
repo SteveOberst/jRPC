@@ -26,7 +26,8 @@ public class JRPCService {
             client.registerMessageReceiver(messageProcessor);
             return true;
         }catch(final Exception exception) {
-            plugin.getLogger().severe("Error whilst initializing " + JRPCClient.class + ". This error is non-recoverable.");
+            client.getLogger().fatal("Error whilst initializing " + JRPCClient.class + ". This error is non-recoverable.");
+            client.getLogger().fatal(exception);
             return false;
         }
     }
@@ -46,15 +47,15 @@ public class JRPCService {
     }
 
     public void publish(final @NonNull Packet packet, final MessageTarget target) {
-        client.write(packet, target);
+        client.publish(packet, target);
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(final TRequest packet, final Class<TResponse> expectedResponse, final MessageTarget target) {
-        return client.write(packet, target, expectedResponse);
+        return client.publish(packet, target, expectedResponse);
     }
 
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publishLoadBalanced(final TRequest packet, final Class<TResponse> expectedResponse, final String target) {
-        return client.write(packet, new MessageTarget(Message.TargetType.LOAD_BALANCED, target), expectedResponse);
+        return client.publish(packet, new MessageTarget(Message.TargetType.LOAD_BALANCED, target), expectedResponse);
     }
 
 

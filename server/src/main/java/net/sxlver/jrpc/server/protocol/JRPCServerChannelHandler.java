@@ -1,6 +1,5 @@
 package net.sxlver.jrpc.server.protocol;
 
-import com.google.gson.JsonObject;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -11,17 +10,16 @@ import net.sxlver.jrpc.core.protocol.Errors;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
-import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.server.JRPCServer;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.Collections;
 
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
 
@@ -47,7 +45,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         // has the client authenticated yet?
         if(!handshaked) {
             // Client is not yet authenticated, ignore request and respond with an error
-            write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
+            write(new ErrorInformationResponse(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
             channel.close();
             server.getLogger().warn("Remote client {} has sent data before authenticating, closing connection...", channel.remoteAddress());
             return;
@@ -57,8 +55,7 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             final Packet packet = PacketDataSerializer.deserializePacket(message.data());
             server.onReceive(this, message, packet);
         }
-
-        if(message.targetType() != Message.TargetType.SERVER) {
+        else {
             // forward message to target client instance(s)
             server.forward(message, this);
         }
@@ -67,17 +64,18 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
         if(client == null) return;
-
         if(cause instanceof ReadTimeoutException) {
             server.getLogger().info("Connection to client with id {} has timed out.", client.getUniqueId());
             close();
             return;
         }
+
         if(cause instanceof SocketException) {
             server.getLogger().info("Client '{}' has unexpectedly closed the connection.", client.getUniqueId());
             close();
             return;
         }
+
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
         server.getLogger().fatal(cause);
     }
@@ -141,8 +139,8 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         channel.closeFuture().awaitUninterruptibly();
     }
 
-    public SocketAddress getRemoteAddress() {
-        return channel.remoteAddress();
+    public InetSocketAddress getRemoteAddress() {
+        return (InetSocketAddress) channel.remoteAddress();
     }
 
     public String getUniqueId() {

@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.client.protocol.processors.DefaultErrorHandler;
-import net.sxlver.jrpc.client.protocol.processors.KeepAliveHandler;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Message;
@@ -16,6 +15,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Map;
 
+/**
+ * A Default implementation for a {@link RawDataReceiver} that handles and parses incoming data
+ * and passes it down to handlers that can be registered in this class
+ */
 @SuppressWarnings("UnstableApiUsage")
 public class DefaultMessageProcessor implements RawDataReceiver {
 
@@ -23,13 +26,26 @@ public class DefaultMessageProcessor implements RawDataReceiver {
     private final JRPCClient client;
 
     private ErrorHandler<? extends ErrorInformationHolder> errorHandler;
-    private TriConsumer<MessageHandler<Packet>, MessageContext<Packet>, Throwable> internalErrorHandler;
 
+    /**
+     * Instantiates a new DefaultMessageProcessor.
+     *
+     * @param client the client
+     */
     public DefaultMessageProcessor(final @NonNull JRPCClient client) {
         this.client = client;
         populateDefaultHandlers();
     }
 
+    /**
+     * Receives incoming data, deserializes it back into it's java representation and passes it down to the handlers
+     *
+     * @param source          unique id of the client the messages originates from
+     * @param target          the target of the message
+     * @param targetType      the target type of the message
+     * @param conversationUID the current conversation's id
+     * @param data            the data received
+     */
     @Override
     @SuppressWarnings("Unchecked")
     public void onReceive(final @NonNull String source,
@@ -86,31 +102,42 @@ public class DefaultMessageProcessor implements RawDataReceiver {
                 if(!handler.shouldAccept(packet)) continue;
                 handler.onReceive(context);
             }catch(final Exception exception) {
-                internalErrorHandler.accept(handler, context, exception);
+                errorHandler.raiseException(handler, context, exception);
             }
         }
     }
 
-    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull TriConsumer<MessageHandler<T>, MessageContext<T>, Throwable> handler) {
+    /**
+     * Override the default error handler.
+     *
+     * @param <T>     the type parameter
+     * @param handler the handler
+     * @return the current instance of this class
+     */
+    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull TriConsumer<MessageHandler<?>, MessageContext<T>, Throwable> handler) {
         return setErrorHandler(new DefaultErrorHandler<>(client, handler));
     }
 
+    /**
+     * Override the default error handler.
+     *
+     * @param <T>          the type parameter
+     * @param errorHandler the error handler
+     * @return the current instance of this class
+     */
     public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull ErrorHandler<T> errorHandler) {
         registerHandler(errorHandler);
         this.errorHandler = errorHandler;
         return this;
     }
 
-    public DefaultMessageProcessor setInternalErrorHandler(TriConsumer<MessageHandler<Packet>, MessageContext<Packet>, Throwable> handler) {
-        this.internalErrorHandler = handler;
-        return this;
-    }
-
-    private void invalidateErrorHandler() {
-        unregisterHandler(this.errorHandler.getClass());
-        this.errorHandler = null;
-    }
-
+    /**
+     * Registers a handler for incoming messages
+     *
+     * @param <T>     the type parameter
+     * @param handler the handler
+     * @return the current instance of this class
+     */
     @SuppressWarnings("unchecked")
     public <T extends Packet> DefaultMessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
         registeredMessageReceivers.put((Class<? extends MessageHandler<?>>) handler.getClass(), handler);
@@ -118,6 +145,13 @@ public class DefaultMessageProcessor implements RawDataReceiver {
         return this;
     }
 
+    /**
+     * Unregisters a handler for incoming messages
+     *
+     * @param <T>        the type parameter
+     * @param handlerCls the handler cls
+     * @return the current instance of this class
+     */
     public <T extends MessageHandler<?>> DefaultMessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
         registeredMessageReceivers.invalidate(handlerCls);
         client.getLogger().debugFine("Unregistered message receiver {}", handlerCls.getSimpleName());
@@ -125,17 +159,11 @@ public class DefaultMessageProcessor implements RawDataReceiver {
     }
 
     private void populateDefaultHandlers() {
-        registerHandler(new KeepAliveHandler<>(client));
-        setErrorHandler(new DefaultErrorHandler<>(client, (messageHandler, messageContext, throwable) -> {
-            client.getLogger().warn("{} received error message from the other end. [Source: {}] {}", messageContext.getSource(), throwable.getMessage());
-            client.getLogger().debugFine("Exception thrown: {}", ExceptionUtils.getStackTrace(throwable));
-        }));
-
-        this.internalErrorHandler = (handler, messageContext, throwable) -> {
+        setErrorHandler(new DefaultErrorHandler<>(client, (handler, messageContext, throwable) -> {
             client.getLogger().warn("Class {} has encountered an error whilst processing a request from '{}'. [Packet Type: {}]",
                     handler.getClass(), messageContext.getSource(), throwable.getMessage()
             );
-            client.getLogger().fatal(throwable);
-        };
+            client.getLogger().debugFine("Exception thrown: {}", ExceptionUtils.getStackTrace(throwable));
+        }));
     }
 }

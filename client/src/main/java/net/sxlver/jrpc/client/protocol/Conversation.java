@@ -5,7 +5,7 @@ import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Packet;
-import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.util.TimedCache;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -37,17 +37,17 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     private BiConsumer<TRequest, MessageContext<TResponse>> responseConsumer = (req, res) -> {};
     private BiConsumer<Throwable, ErrorInformationHolder> errorHandler = (throwable, errorInformationPacket) -> {};
     private BiConsumer<TRequest, Set<MessageContext<TResponse>>> timeoutHandler = (tRequest, messageContexts) -> {};
+
     private boolean overrideHandlers;
     private boolean concurrentResponseProcessing;
 
-    private volatile long timeout;
-
     private static final Conversation<?, ?> EMPTY = new Conversation<>();
 
+    private volatile long timeout;
     private volatile boolean alwaysNotifyTimeout;
     private volatile boolean handlerCalled;
 
-    private Set<MessageContext<TResponse>> responses = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<MessageContext<TResponse>> processedResponses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private Conversation() {
         this.request = null;
@@ -60,7 +60,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      *
      * @param client           the client instance
      * @param request          the request
-     * @param conversationUID  the conversation uid
+     * @param conversationUID  the conversation id
      * @param expectedResponse the expected response type
      */
     public Conversation(final @NonNull JRPCClient client,
@@ -100,7 +100,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      */
     void onResponse(final MessageContext<TResponse> response) {
         this.handlerCalled = true;
-        this.responses.add(response);
+        this.processedResponses.add(response);
         responseConsumer.accept(request, response);
     }
 
@@ -137,7 +137,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
 
     /**
      * Handler invoked when an error occurs on the other side, and they respond with an
-     * {@link ErrorInformationPacket}. Throwable might just be an empty exception if the
+     * {@link ErrorInformationResponse}. Throwable might just be an empty exception if the
      * error wasn't raised by an exception or the other end simply didn't provide an exception.
      *
      * @param <T>          the type parameter
@@ -257,7 +257,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     void expire() {
-        client.getLogger().debugFinest("Conversation timed out after {}ms with {} response(s) [Request: {}] [Expected Response: {}]", timeout, responses.size(), request.getClass(), expectedResponse);
-        timeoutHandler.accept(request, responses);
+        client.getLogger().debugFinest("Conversation timed out after {}ms with {} response(s) [Request: {}] [Expected Response: {}]", timeout, processedResponses.size(), request.getClass(), expectedResponse);
+        timeoutHandler.accept(request, processedResponses);
     }
 }

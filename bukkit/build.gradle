@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group = 'net.sxlver.jrpc.bukkit'
-version = '0.1-alpha'
+group properties.get("bukkitPackage")
+version properties.get("bukkitVersion")
 
 archivesBaseName = 'JRPC-Bukkit'
 

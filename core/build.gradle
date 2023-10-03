@@ -21,8 +21,8 @@ publishing {
     }
 }
 
-group properties.get("package")
-version properties.get("commonVersion")
+group properties.get("corePackage")
+version properties.get("coreVersion")
 
 repositories {
     mavenLocal()

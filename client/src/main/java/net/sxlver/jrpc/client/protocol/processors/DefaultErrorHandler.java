@@ -13,7 +13,7 @@ public class DefaultErrorHandler<T extends ErrorInformationHolder> extends Error
         super(client, (receiver, context, throwable) -> client.getLogger().info("An unhandled exception occurred: {}", ExceptionUtils.getStackTrace(throwable)));
     }
 
-    public DefaultErrorHandler(final JRPCClient client, final TriConsumer<MessageHandler<T>, MessageContext<T>, Throwable> handler) {
+    public DefaultErrorHandler(final JRPCClient client, final TriConsumer<MessageHandler<?>, MessageContext<T>, Throwable> handler) {
         super(client, handler);
     }
 }

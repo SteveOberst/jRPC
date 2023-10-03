@@ -6,8 +6,8 @@ import net.sxlver.jrpc.core.protocol.Packet;
 
 @Getter
 public class KeepAlivePacket extends Packet {
-    private long timestamp;
-    private long id;
+    private final long timestamp;
+    private final long id;
 
     public KeepAlivePacket() {
         this.timestamp = System.currentTimeMillis();

@@ -1,12 +1,17 @@
 package net.sxlver.jrpc.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-public class TimedCache<K, V extends TimedCache.NotifyOnExpire> {
+public class TimedCache<K, V extends TimedCache.NotifyOnExpire>  {
     private final Map<K, V> cache = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -57,6 +62,10 @@ public class TimedCache<K, V extends TimedCache.NotifyOnExpire> {
     @Override
     public String toString() {
         return cache.toString();
+    }
+
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        cache.forEach(action);
     }
 
     public interface NotifyOnExpire {

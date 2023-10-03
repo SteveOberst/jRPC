@@ -13,7 +13,7 @@ public class Errors {
     public static Errors ERR_NO_TARGET_FOUND = new Errors(0x3);
     public static Errors ERR_SELF_REFERENCE = new Errors(0x4);
 
-    private int errorCode;
+    private final int errorCode;
     private transient final Function<String, Throwable> throwableSupplier;
 
     private Errors(final int errorCode) {

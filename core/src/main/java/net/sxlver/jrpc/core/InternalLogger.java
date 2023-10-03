@@ -4,6 +4,7 @@ package net.sxlver.jrpc.core;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.util.TimeUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,18 +67,23 @@ public class InternalLogger {
     }
 
     public void debugFine(final String message, final Object... args) {
-        log(Level.FINE, String.format("%s %s", "[DEBUG]", message), args);
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        log(Level.FINE, callCls, String.format("%s %s", "[DEBUG]", message), args);
     }
 
     public void debugFiner(final String message, final Object... args) {
-        log(Level.FINER, String.format("%s %s", "[DEBUG]", message), args);
+        final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        log(Level.FINER, callCls, String.format("%s %s", "[DEBUG]", message), args);
     }
     public void debugFinest(final String message, final Object... args) {
-        log(Level.FINEST, String.format("%s %s", "[DEBUG]", message), args);
-    }
-    public void log(final Level level, final String message, final Object... args) {
         final String callCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
-        logger.log(level, String.format(prependCallerClass(message, callCls).replace("{}", "%s"), args));
+        log(Level.FINEST, callCls, String.format("%s %s", "[DEBUG]", message), args);
+    }
+    public void log(final Level level, @Nullable String callerCls, final String message, final Object... args) {
+        if(callerCls == null) {
+            callerCls = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass().getSimpleName();
+        }
+        logger.log(level, String.format(prependCallerClass(message, callerCls).replace("{}", "%s"), args));
     }
 
     public void setLogLevel(final Level logLevel) {
@@ -120,7 +126,7 @@ public class InternalLogger {
                 case "INFO" -> {
                     return WHITE;
                 }
-                case "WARN" -> {
+                case "WARNING" -> {
                     return YELLOW;
                 }
                 case "SEVERE" -> {
@@ -139,7 +145,7 @@ public class InternalLogger {
 
             return AnsiColor.getByLevel(record.getLevel()) + "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
                     Thread.currentThread().getName() + "/" + record.getLevel() +  "] " +
-                    formatMessage(record) + "\n";
+                    formatMessage(record) + AnsiColor.RESET + "\n";
         }
 
         public String getHead(Handler h) {

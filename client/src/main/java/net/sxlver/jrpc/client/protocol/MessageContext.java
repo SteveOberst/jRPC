@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The type Message context.
+ * Stores stateful information about the incoming data being handled
  *
  * @param <T> the type parameter
  */
@@ -24,14 +24,16 @@ public class MessageContext<T extends Packet> {
     private final ConversationUID conversationUID;
 
     private final T request;
-    private @Nullable Packet response;
+    private final @Nullable Packet response;
+
+    private boolean responseContext;
 
     /**
      * Instantiates a new Message context.
      *
      * <p>This class can represent two different contexts, either one in which
      *    a response is being handled or one in which a request is being handled.
-     *    {@link #response} will be null or not accordingly.
+     *    {@link #response} may be null accordingly.
      *
      * @param client          the client
      * @param request         the request
@@ -56,6 +58,7 @@ public class MessageContext<T extends Packet> {
         this.target = target;
         this.targetType = targetType;
         this.conversationUID = conversationUID;
+        this.responseContext = response != null;
     }
 
 
@@ -65,8 +68,8 @@ public class MessageContext<T extends Packet> {
      * @param <TRequest> the type parameter
      * @param response   the response to send to the source
      */
-    public <TRequest extends Packet> void reply(final @NonNull TRequest response) {
-        reply(response, null);
+    public <TRequest extends Packet> void replyDirectly(final @NonNull TRequest response) {
+        replyDirectly(response, null);
     }
 
     /**
@@ -78,12 +81,12 @@ public class MessageContext<T extends Packet> {
      * @param expectedResponse the expected response
      * @return conversation object representing the new conversation between this instance and the source
      */
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> reply(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
-        return client.write(message, new MessageTarget(targetType, source), expectedResponse, conversationUID);
+    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> replyDirectly(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
+        return client.publish(message, new MessageTarget(targetType, source), expectedResponse, conversationUID);
     }
 
     /**
-     * Gets client.
+     * Returns the {@link JRPCClient} instance.
      *
      * @return the client
      */
@@ -92,7 +95,8 @@ public class MessageContext<T extends Packet> {
     }
 
     /**
-     * Gets request.
+     * The request being handled or that was previously sent if this object represents
+     * a response handling context
      *
      * @return the request
      */
@@ -101,7 +105,7 @@ public class MessageContext<T extends Packet> {
     }
 
     /**
-     * Gets response.
+     * The response being handled or null if this object represents a request handling context
      *
      * @param <TResponse> the type parameter
      * @return the response
@@ -112,17 +116,7 @@ public class MessageContext<T extends Packet> {
     }
 
     /**
-     * Sets response.
-     *
-     * @param <TResponse> the type parameter
-     * @param response    the response
-     */
-    public <TResponse extends Packet> void setResponse(final TResponse response) {
-        this.response = response;
-    }
-
-    /**
-     * Gets source.
+     * The client the message originates from
      *
      * @return the source
      */
@@ -152,12 +146,19 @@ public class MessageContext<T extends Packet> {
     }
 
     /**
-     * Gets conversation uid.
+     * The conversation uid for the current context.
      *
      * @return the conversation uid
      */
     @NotNull
     public ConversationUID getConversationUID() {
         return conversationUID;
+    }
+
+    /**
+     * @return whether this object represents a request or response handling context
+     */
+    public boolean isResponseContext() {
+        return responseContext;
     }
 }

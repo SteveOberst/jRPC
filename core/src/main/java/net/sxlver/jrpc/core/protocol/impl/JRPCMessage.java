@@ -6,14 +6,18 @@ import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageType;
 import net.sxlver.jrpc.core.protocol.ProtocolVersion;
+import net.sxlver.jrpc.core.util.TimedCache;
+import net.sxlver.jrpc.core.util.TimedQueue;
 
 @NoArgsConstructor
-public class JRPCMessage extends HeaderData implements Message {
+public class JRPCMessage extends HeaderData implements Message, TimedQueue.NotifyOnExpire {
     private String target;
     private TargetType targetType;
     private String source;
     private ConversationUID conversationUID;
     private byte[] data;
+
+    private long queueTimeout;
 
     JRPCMessage(final @NonNull String target, final @NonNull TargetType targetType, final @NonNull String source, final byte[] data) {
         this(target, targetType, source, ConversationUID.newUid(), data);
@@ -59,5 +63,17 @@ public class JRPCMessage extends HeaderData implements Message {
     @Override
     public byte[] data() {
         return data;
+    }
+
+    @Override
+    public void notifyExpired() {}
+
+    public void setQueueTimeout(final long timeout) {
+        this.queueTimeout = timeout;
+    }
+
+    @Override
+    public long timeout() {
+        return queueTimeout;
     }
 }

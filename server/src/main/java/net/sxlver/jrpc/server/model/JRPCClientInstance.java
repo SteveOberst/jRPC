@@ -18,7 +18,7 @@ public class JRPCClientInstance {
 
     public JRPCClientInstance(final @NonNull JRPCServerChannelHandler handler) {
         this.handler = handler;
-        this.information = new JRPCClientInformation(handler.getUniqueId(), handler.getType());
+        this.information = new JRPCClientInformation(handler.getUniqueId(), handler.getType(), handler.getRemoteAddress().getHostName(), handler.getRemoteAddress().getPort());
     }
 
     public JRPCServerChannelHandler getNetHandler() {

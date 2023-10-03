@@ -38,7 +38,7 @@ public class BroadcastMessageConversation {
             }else {
                 Bukkit.broadcast(ChatColor.translateAlternateColorCodes('&', request.message), request.permission);
             }
-            context.reply(new Response(request));
+            context.replyDirectly(new Response(request));
         }
 
         @Override

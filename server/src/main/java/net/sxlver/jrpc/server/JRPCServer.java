@@ -25,7 +25,7 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
@@ -58,7 +58,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final InternalLogger logger;
 
-    private Collection<ServerMessageHandler<Packet>> defaultServerMessageHandler;
+    private final Collection<ServerMessageHandler<Packet>> defaultServerMessageHandler;
 
     private static final LazyInitVar<NioEventLoopGroup> nioLazyVar = new LazyInitVar<>(()
             -> new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty JRPC IO #%d").setDaemon(true).build()));
@@ -67,11 +67,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     private final ConfigurationManager configurationManager;
     private final JRPCServerConfig config;
-    private CentralGson centralGson;
+    private final CentralGson centralGson;
 
     private ChannelFuture listeningChannel;
     private EventLoopGroup loopGroup;
-    private SocketAddress localAddress;
+    private final SocketAddress localAddress;
 
     private final Set<JRPCClientInstance> connected = Sets.newSetFromMap(new ConcurrentHashMap<>());
 
@@ -91,9 +91,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Run.
-     *
-     * @throws Exception the exception
+     * Run the server
      */
     public void run() throws Exception {
         Class<? extends ServerSocketChannel> channelClass;
@@ -172,7 +170,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Gets gson.
+     * returns the current gson instance.
      *
      * @return the gson
      */
@@ -210,7 +208,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
      * @param sourceMessage the source message
      * @param packet        the packet
      */
-    public void onReceive(final JRPCServerChannelHandler source, JRPCMessage sourceMessage, final Packet packet) {
+    public void onReceive(final JRPCServerChannelHandler source, final JRPCMessage sourceMessage, final Packet packet) {
         for (final ServerMessageHandler<Packet> handler : defaultServerMessageHandler) {
             if(!handler.getTarget().isAssignableFrom(packet.getClass())) continue;
             final ServerMessageContext<Packet> context = new ServerMessageContext<>(packet, source, sourceMessage);
@@ -272,7 +270,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
         final String target = (targetType == Message.TargetType.TYPE || targetType == Message.TargetType.ALL) ? "*" : message.target();
         if(sendTo.isEmpty() || sendTo.stream().noneMatch(Objects::nonNull)) {
-            final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source(), message.conversationId());
+            final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationResponse(Errors.ERR_NO_TARGET_FOUND, "No suitable target found."), message.source(), message.conversationId());
             invoker.write(errorMessage);
             logger.info("{} No suitable target found whilst forwarding message. [Type: {}] [Source: {}] [Target: {}]", "[MESSAGE FORWARD]", targetType, message.source(), target);
             return;
@@ -282,7 +280,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
             sendTo.removeIf(jrpcClientInstance -> jrpcClientInstance.getUniqueId().equals(message.source()));
             if(targetType == Message.TargetType.DIRECT && sendTo.isEmpty()) {
                 logger.warn("Client {} tried to forward a message to themselves but allow-self-forward is set to false.", target);
-                final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationPacket(Errors.ERR_SELF_REFERENCE, "Clients are not allowed to directly reference themselves."), message.source(), message.conversationId());
+                final JRPCMessage errorMessage = buildDirectResponse(new ErrorInformationResponse(Errors.ERR_SELF_REFERENCE, "Clients are not allowed to directly reference themselves."), message.source(), message.conversationId());
                 invoker.write(errorMessage);
                 return;
             }

@@ -2,10 +2,10 @@
 - [ ] Unit Tests
 
 # Client
-- [ ] Replace google.commons.Cache in net handler with custom cache to notify elements of timeouts
-- [ ] Handle timeouts appropriately (schedule reconnect, notify api)
-- [ ] Fix keep alives (client times out after a while due to keep alive packets being handled improperly)
+- [x] Replace google.commons.Cache in net handler with custom cache to notify elements of timeouts
+- [x] Handle timeouts appropriately (schedule reconnect, notify api)
 - [ ] Test getLoadBalancedServer, getServersOfType and getAllServers methods in JRPCClient
+- [x] Queue Messages if channel is not open
 
 # Core
 - [x] Better logging - maybe colorize logging output

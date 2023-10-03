@@ -10,9 +10,6 @@ import net.sxlver.jrpc.core.protocol.ProtocolVersion;
 @NoArgsConstructor
 public class JRPCClientHandshakeMessage extends JRPCMessage {
 
-    //private String source;
-    //private byte[] data;
-
     public JRPCClientHandshakeMessage(final @NonNull String source, final byte[] data) {
        super("", TargetType.SERVER, source, data, ProtocolVersion.V0_1.getVersionNumber(), MessageType.HANDSHAKE.getId());
     }

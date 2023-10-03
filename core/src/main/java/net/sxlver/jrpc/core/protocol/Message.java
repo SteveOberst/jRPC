@@ -2,6 +2,8 @@ package net.sxlver.jrpc.core.protocol;
 
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 
+import java.util.Arrays;
+
 public interface Message {
 
     int MAX_PACKET_LENGTH = 2097152;
@@ -45,5 +47,10 @@ public interface Message {
          * Message is only meant for the server and will not be redirected to any client.
          */
         SERVER;
+
+
+        public static TargetType fromString(final String type) {
+            return Arrays.stream(values()).filter(targetType -> targetType.toString().equalsIgnoreCase(type)).findFirst().orElse(null);
+        }
     }
 }

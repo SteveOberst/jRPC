@@ -25,7 +25,7 @@ public class QueryClusterInformationHandler extends ServerMessageHandler<Cluster
                     .toList();
 
             final ClusterInformationConversation.Response response = new ClusterInformationConversation.Response(request, cherryPicked);
-            netHandler.write(response);
+            netHandler.write(response, context.getSourceMessage().conversationId());
         });
     }
 }

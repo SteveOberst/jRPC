@@ -1,9 +1,9 @@
 package net.sxlver.jrpc.server.config;
 
 
-import de.exlll.configlib.annotation.Comment;
-import de.exlll.configlib.annotation.FileLocation;
-import de.exlll.configlib.configs.yaml.YamlConfiguration;
+import net.sxlver.configlib.annotation.Comment;
+import net.sxlver.configlib.annotation.FileLocation;
+import net.sxlver.configlib.configs.yaml.YamlConfiguration;
 import io.netty.handler.logging.LogLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +27,7 @@ public class JRPCServerConfig extends YamlConfiguration {
     private String serverId = UUID.randomUUID().toString();
 
     @Comment("Authentication token required for clients in order to authenticate with the server")
-    private String authenticationToken = UUID.randomUUID().toString();;
+    private String authenticationToken = UUID.randomUUID().toString();
 
     @Comment("Port the server will be running on")
     private int port = 2777;

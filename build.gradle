@@ -22,7 +22,6 @@ subprojects {
     repositories {
         mavenCentral()
         maven { url('https://jitpack.io') }
-        mavenLocal()
     }
 
     dependencies {
@@ -37,9 +36,9 @@ subprojects {
         // gson
         implementation 'com.google.code.gson:gson:2.10.1'
 
-        // configuration library - clone and install to local repo
+        // configuration library
         // https://github.com/SteveOberst/ConfigLib
-        implementation group: 'de.exlll', name: 'configlib-core', version: '2.2.0'
+        implementation('com.github.SteveOberst.ConfigLib:configlib-core:2.2.2')
 
         // Lombok
         compileOnly 'org.projectlombok:lombok:1.18.22'

@@ -55,12 +55,12 @@ public class JRPCClientHandshakeHandler extends SimpleChannelInboundHandler<JRPC
     @Override
     public void channelActive(@NotNull ChannelHandlerContext context) {
         this.channel = context.channel();
-        client.getLogger().info("Handshake Channel opened.");
+        client.getLogger().debugFine("Handshake Channel opened.");
         context.fireChannelActive();
     }
 
     public void handshake(final @NonNull JRPCClientHandshakeMessage message) {
         channel.writeAndFlush(message);
-        client.getLogger().info("Handshake sent.");
+        client.getLogger().debugFine("Handshake sent.");
     }
 }

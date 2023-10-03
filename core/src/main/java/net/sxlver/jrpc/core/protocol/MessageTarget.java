@@ -1,9 +1,11 @@
 package net.sxlver.jrpc.core.protocol;
 
+import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
+
 public class MessageTarget {
 
-    private Message.TargetType targetType;
-    private String target;
+    private final Message.TargetType targetType;
+    private final String target;
 
     public MessageTarget(Message.TargetType targetType) {
         this(targetType, "");
@@ -20,5 +22,9 @@ public class MessageTarget {
 
     public Message.TargetType type() {
         return targetType;
+    }
+
+    public static MessageTarget of(final JRPCClientInformation client) {
+        return new MessageTarget(Message.TargetType.DIRECT, client.getUniqueId());
     }
 }

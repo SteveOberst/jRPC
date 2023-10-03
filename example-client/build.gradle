@@ -6,6 +6,9 @@ repositories {
     mavenCentral()
 }
 
+group 'net.sxlver.jrpc.example-client'
+version '0.0.1-alpha'
+
 dependencies {
     implementation project(':client')
     implementation project(':core')
