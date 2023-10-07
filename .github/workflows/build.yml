@@ -11,6 +11,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 17
+          distribution: 'temurin'
       - name: Checkout project sources
         uses: actions/checkout@v3
       - name: Setup Gradle
