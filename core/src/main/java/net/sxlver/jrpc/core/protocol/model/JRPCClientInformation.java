@@ -13,6 +13,7 @@ import java.net.SocketAddress;
 public class JRPCClientInformation {
     private @NonNull String uniqueId;
     private @NonNull String type;
+    private boolean ipAddressesHidden;
     private String remoteAddress;
     private int remotePort;
 

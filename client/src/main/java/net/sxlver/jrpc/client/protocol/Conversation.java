@@ -231,6 +231,23 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     /**
+     * Copies the method references from the provided {@link ResponseHandler} and registers
+     * them as handlers.
+     *
+     * <p>No reference to the class will be stored, instead it will only store the method
+     * references to the handling methods.
+     *
+     * @param handler the handler containing the methods to handle responses
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> setResponseHandler(final ResponseHandler<TRequest, TResponse> handler) {
+        this.responseConsumer = handler::onResponse;
+        this.errorHandler = handler::onExcept;
+        this.timeoutHandler = handler::onTimeout;
+        return this;
+    }
+
+    /**
      * Returns an empty conversation.
      *
      * @param <TRequest>  the type parameter
@@ -259,5 +276,11 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     void expire() {
         client.getLogger().debugFinest("Conversation timed out after {}ms with {} response(s) [Request: {}] [Expected Response: {}]", timeout, processedResponses.size(), request.getClass(), expectedResponse);
         timeoutHandler.accept(request, processedResponses);
+    }
+
+    public interface ResponseHandler<TRequest extends Packet, TResponse extends Packet> {
+        void onResponse(final @NonNull TRequest request, final @NonNull MessageContext<TResponse> messageContext);
+        <T extends ErrorInformationHolder> void onExcept(final @NonNull Throwable throwable, final @NonNull T errorInformationHolder);
+        void onTimeout(final @NonNull TRequest request, final @NonNull Set<MessageContext<TResponse>> responses);
     }
 }

@@ -11,14 +11,12 @@ import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
-import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.server.JRPCServer;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
 
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
@@ -34,7 +32,6 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     private long lastWrite = System.currentTimeMillis();
 
-    private KeepAlivePacket lastKeepAlive = new KeepAlivePacket();
 
     public JRPCServerChannelHandler(final JRPCServer server) {
         this.server = server;
@@ -129,14 +126,12 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         channel.writeAndFlush(message);
     }
 
-    public void sendKeepAlive() {
-        final KeepAlivePacket packet = new KeepAlivePacket();
-        this.lastKeepAlive = packet;
-        write(packet);
-    }
-
     public void shutdown() {
         channel.closeFuture().awaitUninterruptibly();
+    }
+
+    public JRPCServer getServer() {
+        return server;
     }
 
     public InetSocketAddress getRemoteAddress() {

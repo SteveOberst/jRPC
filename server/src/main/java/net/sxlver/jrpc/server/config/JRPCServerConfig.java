@@ -24,6 +24,7 @@ public class JRPCServerConfig extends YamlConfiguration {
     private String logLevel = Level.INFO.getName();
     public Level getLoggingLevel() { return Level.parse(logLevel); }
 
+    @Comment("The id of the server")
     private String serverId = UUID.randomUUID().toString();
 
     @Comment("Authentication token required for clients in order to authenticate with the server")
@@ -38,6 +39,6 @@ public class JRPCServerConfig extends YamlConfiguration {
     @Comment("Whether a client can send a message to themselves")
     private boolean allowSelfForward = false;
 
-    @Comment("Time span before a timeout will be triggered in seconds")
-    private long readTimeout = 30;
+    @Comment("Whether clients should be able to see IP-Addresses from other clients in the network")
+    private boolean hideIpsFromClients = false;
 }

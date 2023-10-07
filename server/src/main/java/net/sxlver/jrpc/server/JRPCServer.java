@@ -358,4 +358,13 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     public void removeConnected(final @NonNull JRPCClientInstance instance) {
         connected.remove(instance);
     }
+
+    /**
+     * The local address on the configured port
+     *
+     * @return the address the server is running on
+     */
+    public InetSocketAddress getLocalAddress() {
+        return (InetSocketAddress) localAddress;
+    }
 }

@@ -11,6 +11,7 @@
 - [x] Better logging - maybe colorize logging output
 - [x] Rewrite protocol codec
 - [x] Fix JRPCMessageBuilder not passing conversation parameter to JRPCMessage constructor
+- [ ] Don't use console colors in file logs
 
 # Examples
 ### Example Bukkit Plugin

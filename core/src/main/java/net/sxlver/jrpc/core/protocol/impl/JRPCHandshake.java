@@ -1,9 +1,9 @@
 package net.sxlver.jrpc.core.protocol.impl;
 
 public class JRPCHandshake  {
-    private final String token;
-    private final String uniqueId;
-    private final String type;
+    private String token;
+    private String uniqueId;
+    private String type;
 
     public JRPCHandshake(String token, String uniqueId, String type) {
         this.token = token;

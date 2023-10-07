@@ -7,7 +7,7 @@ import net.sxlver.jrpc.core.protocol.Errors;
 
 @Getter
 public class ErrorInformationResponse extends ErrorInformationHolder {
-    private final int errorCode;
+    private int errorCode;
     private transient Errors error;
 
     public ErrorInformationResponse(final Errors error, final @NonNull String errorDescription) {

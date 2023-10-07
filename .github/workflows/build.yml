@@ -1,22 +1,15 @@
-name: Build and Test
+name: Build Gradle project
 
-on: [push]
+on:
+  push:
 
 jobs:
-  build:
+  build-gradle-project:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: 17
-
-      - name: Build with Gradle
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run build with Gradle Wrapper
         run: ./gradlew build
-
-      - name: Test with Gradle
-        run: ./gradlew test
