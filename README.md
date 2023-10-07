@@ -3,7 +3,7 @@ jRPC is a NIO, Multithreaded RPC Framework that uses Netty for networking under 
 supporting platforms like Bukkit.
 
 # Quick Start
-In order to get started using the Framework check out the [bukkit api](https://github.com/SteveOberst/jRPC/wiki/Bukkit) and [client](https://github.com/SteveOberst/jRPC/wiki/Client) docs. The project
+In order to get started using the Framework check out the [wiki](https://github.com/SteveOberst/jRPC/wiki/). The project
 is build with java 17 and will therefore require your project to be run and compiled with a java-17
 compatible jre/jdk too.
 
