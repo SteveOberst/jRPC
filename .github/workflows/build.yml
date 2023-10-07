@@ -11,7 +11,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'sbt'
+          cache: 'gradle'
       - name: Checkout project sources
         uses: actions/checkout@v3
       - name: Setup Gradle
