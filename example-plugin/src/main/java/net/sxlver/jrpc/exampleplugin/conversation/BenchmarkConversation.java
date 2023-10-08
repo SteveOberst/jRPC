@@ -7,25 +7,15 @@ import net.sxlver.jrpc.client.protocol.MessageContext;
 import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
-import java.util.Optional;
-import java.util.UUID;
-
-public class LocatePlayerConversation {
-
+public class BenchmarkConversation {
     @AllArgsConstructor
     public static class Request extends Packet {
-        public String player;
+        public byte[] data;
     }
 
     @AllArgsConstructor
-    public static class Response extends Packet  {
-        public Request request;
-        public UUID player;
-        public String name;
-        public String server;
+    public static class Response extends Packet {
     }
 
     public static class RequestHandler implements MessageHandler<Request> {
@@ -38,11 +28,7 @@ public class LocatePlayerConversation {
 
         @Override
         public void onReceive(@NonNull MessageContext<Request> context) {
-            final Request request = context.getRequest();
-            final Optional<Player> playerOpt = Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equalsIgnoreCase(request.player)).map(Player.class::cast).findFirst();
-            playerOpt.ifPresent(player -> {
-                context.replyDirectly(new Response(request, player.getUniqueId(), player.getName(), service.getLocalUniqueId()));
-            });
+            context.replyDirectly(new Response());
         }
 
         @Override

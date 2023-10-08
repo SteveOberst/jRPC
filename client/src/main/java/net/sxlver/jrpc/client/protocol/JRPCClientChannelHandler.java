@@ -34,7 +34,7 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     @Override
     public void channelRead0(final @NotNull ChannelHandlerContext context, final @NotNull JRPCMessage message) {
-        client.publishMessage(message);
+        client.publishToHandlers(message);
     }
 
     @Override

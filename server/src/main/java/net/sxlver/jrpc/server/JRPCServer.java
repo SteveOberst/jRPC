@@ -360,6 +360,13 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
+     * Whether the given client instance exists in the cache
+     */
+    public boolean isConnected(final @NonNull JRPCClientInstance instance) {
+        return connected.stream().anyMatch(other -> other.getUniqueId().equalsIgnoreCase(instance.getUniqueId()));
+    }
+
+    /**
      * The local address on the configured port
      *
      * @return the address the server is running on

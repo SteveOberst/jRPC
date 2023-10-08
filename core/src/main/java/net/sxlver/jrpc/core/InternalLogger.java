@@ -31,13 +31,12 @@ public class InternalLogger {
             logFolder.mkdir();
         }
 
-        final LogFormatter formatter = new LogFormatter();
         try {
             this.logger.setUseParentHandlers(false);
             this.fileHandler = new FileHandler(Path.of(logFolder.getAbsolutePath(), "log_" + df.format(LocalDateTime.now())) + ".txt");
             this.consoleHandler = new ConsoleHandler();
-            consoleHandler.setFormatter(formatter);
-            fileHandler.setFormatter(formatter);
+            consoleHandler.setFormatter(new LogFormatter(true));
+            fileHandler.setFormatter(new LogFormatter(false));
             this.logger.addHandler(consoleHandler);
             this.logger.addHandler(fileHandler);
         }catch(IOException exception) {
@@ -141,11 +140,21 @@ public class InternalLogger {
 
     static class LogFormatter extends Formatter {
 
+        private final boolean colorize;
+
+        public LogFormatter(final boolean colorize) {
+            this.colorize = colorize;
+        }
+
         public String format(LogRecord record) {
 
-            return AnsiColor.getByLevel(record.getLevel()) + "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
+            return getColor(record.getLevel()) + "[" + TimeUtil.logTimeFromMillis(record.getMillis()) + "] [" +
                     Thread.currentThread().getName() + "/" + record.getLevel() +  "] " +
                     formatMessage(record) + AnsiColor.RESET + "\n";
+        }
+
+        private String getColor(final Level level) {
+            return colorize ? AnsiColor.getByLevel(level).toString() : "";
         }
 
         public String getHead(Handler h) {

@@ -39,25 +39,30 @@ public class Callback<T> {
         return this;
     }
 
-    public static <T> Callback<T> newCallback() {
+    public static <T>
+    Callback<T> newCallback() {
         return new Callback<>();
     }
 
-    public static <T> Callback<T> newCallback(final Consumer<T> onComplete) {
+    public static <T>
+    Callback<T> newCallback(final Consumer<T> onComplete) {
         return new Callback<>(onComplete);
     }
 
-    public static <T> Callback<T> newCallback(final Consumer<T> onComplete, final Consumer<Throwable> onExcept) {
+    public static <T>
+    Callback<T> newCallback(final Consumer<T> onComplete, final Consumer<Throwable> onExcept) {
         return new Callback<>(onComplete, onExcept);
     }
 
     @ApiStatus.Internal
     public static class Internal {
-        public static <T> void complete(final Callback<T> callback, T result) {
+        public static <T>
+        void complete(final Callback<T> callback, T result) {
             callback.complete(result);
         }
 
-        public static <T> void except(final Callback<T> callback, final Throwable throwable) {
+        public static <T>
+        void except(final Callback<T> callback, final Throwable throwable) {
             callback.except(throwable);
         }
     }

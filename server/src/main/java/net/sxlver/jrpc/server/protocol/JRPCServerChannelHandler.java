@@ -92,9 +92,11 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     }
 
     private void close() {
-        channel.close();
-        server.removeConnected(client);
-        server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
+        if(channel.isActive() || server.isConnected(client)) {
+            channel.close();
+            server.removeConnected(client);
+            server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
+        }
     }
 
     public boolean onHandshakeSuccess(final JRPCHandshake handshake) {

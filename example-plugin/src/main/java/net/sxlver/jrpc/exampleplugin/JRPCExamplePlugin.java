@@ -1,15 +1,12 @@
 package net.sxlver.jrpc.exampleplugin;
 
 import net.sxlver.jrpc.bukkit.JRPCService;
-import net.sxlver.jrpc.exampleplugin.command.BroadcastCommand;
-import net.sxlver.jrpc.exampleplugin.command.ListServerCommand;
-import net.sxlver.jrpc.exampleplugin.command.LocatePlayerCommand;
-import net.sxlver.jrpc.exampleplugin.command.PlayerListCommand;
+import net.sxlver.jrpc.exampleplugin.command.*;
+import net.sxlver.jrpc.exampleplugin.conversation.BenchmarkConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.BroadcastMessageConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.FetchPlayerListConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.LocatePlayerConversation;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,11 +40,13 @@ public class JRPCExamplePlugin extends JavaPlugin {
         getCommand("playerlist").setExecutor(new PlayerListCommand(this));
         getCommand("broadcast").setExecutor(new BroadcastCommand(this));
         getCommand("listservers").setExecutor(new ListServerCommand(this));
+        getCommand("benchmark").setExecutor(new BenchmarkCommand(this));
 
         // Message handler
-        service.getMessageProcessor().registerHandler(new LocatePlayerConversation.LocatePlayerConversationHandler(this));
-        service.getMessageProcessor().registerHandler(new FetchPlayerListConversation.FetchPlayerListConversationHandler(this));
-        service.getMessageProcessor().registerHandler(new BroadcastMessageConversation.BroadcastMessageConversationHandler(this));
+        service.getMessageProcessor().registerHandler(new LocatePlayerConversation.RequestHandler(this));
+        service.getMessageProcessor().registerHandler(new FetchPlayerListConversation.RequestHandler(this));
+        service.getMessageProcessor().registerHandler(new BroadcastMessageConversation.RequestHandler(this));
+        service.getMessageProcessor().registerHandler(new BenchmarkConversation.RequestHandler(this));
     }
 
     public JRPCService getService() {

@@ -7,6 +7,43 @@ In order to get started using the Framework check out the [wiki](https://github.
 is build with java 17 and will therefore require your project to be run and compiled with a java-17
 compatible jre/jdk too.
 
+# Why choose this Framework?
+## Overview
+
+Experience lightning-fast request/response handling with our high-performance framework. Send up to 300,000 requests per second whilst simultaneously efficiently managing responses.
+
+## Features
+
+- **Extreme Throughput:** Achieve exceptional performance, ideal for high-demand scenarios.
+
+- **Asynchronous Processing:** Send requests rapidly and process responses efficiently.
+
+- **Parallel Response Handling:** Seamlessly handle responses in parallel, ensuring responsiveness.
+
+- **Scalability:** Easily scale horizontally to meet growing demands.
+
+## Tested on Ryzen 9 3900X
+
+Our framework's performance has been rigorously tested on a Ryzen 9 3900X processor, ensuring it meets the highest standards of efficiency and speed.
+
+## Use Cases:
+
+- Web Services
+- Microservices
+- Real-Time Analytics
+
+... And much more!
+
+## Get Started:
+
+1. [Native Java Application](https://github.com/SteveOberst/jRPC/wiki/Client)
+2. [Bukkit](https://github.com/SteveOberst/jRPC/wiki/Bukkit)
+3. [How the internals work](https://github.com/SteveOberst/jRPC/wiki/Internals)
+
+## Conclusion:
+
+Empower your applications with high-throughput request handling. Explore our framework today!
+
 # Gradle dependency
 To add this project as a dependency for your Gradle project, make sure your dependencies section of your
 build.gradle looks like the following:

@@ -10,10 +10,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import net.sxlver.jrpc.client.config.JRPCClientConfig;
-import net.sxlver.jrpc.client.protocol.Conversation;
-import net.sxlver.jrpc.client.protocol.JRPCClientChannelHandler;
-import net.sxlver.jrpc.client.protocol.JRPCClientHandshakeHandler;
-import net.sxlver.jrpc.client.protocol.RawDataReceiver;
+import net.sxlver.jrpc.client.protocol.*;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeEncoder;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientMessageEncoder;
 import net.sxlver.jrpc.core.InternalLogger;
@@ -144,7 +141,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Gets servers of type.
+     * Get clients in the network of the specified type.
      *
      * @param type             the type
      * @param responseCallback the response callback
@@ -155,7 +152,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Gets load balanced server.
+     * Let the load balancer pick a server of the specified type
      *
      * @param type             the type
      * @param responseCallback the response callback
@@ -175,12 +172,14 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         requestClusterInformation(Message.TargetType.ALL, "", responseCallback);
     }
 
-    private void requestClusterInformation(final Message.TargetType target, final String identifier, final Callback<ClusterInformationConversation.Response> responseCallback) {
+    private void requestClusterInformation(final Message.TargetType target,
+                                           final String identifier,
+                                           final Callback<ClusterInformationConversation.Response> responseCallback) {
+
         final ClusterInformationConversation.Request request = buildClusterInformationRequest(target, identifier);
-        publish(request, new MessageTarget(Message.TargetType.SERVER, ""), ClusterInformationConversation.Response.class, null)
-                .onResponse((req, context) -> Callback.Internal.complete(responseCallback, context.getResponse()))
-                .onExcept((throwable, errorInformationHolder) -> Callback.Internal.except(responseCallback, throwable))
-                .onTimeout((req, contexts) -> Callback.Internal.except(responseCallback, new TimeoutException("Server has taken too long to respond")))
+        final MessageTarget messageTarget = new MessageTarget(Message.TargetType.SERVER, "");
+        publish(request, messageTarget, ClusterInformationConversation.Response.class, null)
+                .setResponseHandler(new ClusterInformationResponseHandler(responseCallback))
                 .overrideHandlers();
     }
 
@@ -225,9 +224,9 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
      * @return the {@link Conversation} object representing the current request - response conversation
      */
     @NonBlocking
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(
-            final @NonNull TRequest packet,
-            final @NonNull MessageTarget target) {
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> publish(final @NonNull TRequest packet,
+                                              final @NonNull MessageTarget target) {
 
         return publish(packet, target, null);
     }
@@ -243,10 +242,10 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
      * @return the {@link Conversation} object representing the current request - response conversation
      */
     @NonBlocking
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(
-            final @NonNull TRequest packet,
-            final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedResponse) {
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> publish(final @NonNull TRequest packet,
+                                              final @NonNull MessageTarget target,
+                                              final @Nullable Class<TResponse> expectedResponse) {
 
         return publish(packet, target, expectedResponse, null);
     }
@@ -263,11 +262,11 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
      * @return the {@link Conversation} object representing the current request - response conversation
      */
     @NonBlocking
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(
-            final @NonNull TRequest packet,
-            final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedResponse,
-            final @Nullable ConversationUID conversationUID) {
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> publish(final @NonNull TRequest packet,
+                                              final @NonNull MessageTarget target,
+                                              final @Nullable Class<TResponse> expectedResponse,
+                                              final @Nullable ConversationUID conversationUID) {
 
         return handler.write(packet, target, expectedResponse, conversationUID);
     }
@@ -400,7 +399,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
      *
      * @param message the message
      */
-    public void publishMessage(final @NonNull JRPCMessage message) {
+    public void publishToHandlers(final @NonNull JRPCMessage message) {
         for (final RawDataReceiver dataReceiver : dataReceivers) {
             try {
                 dataReceiver.onReceive(message.source(), message.target(), message.targetType(), message.conversationId(), message.data());
@@ -420,7 +419,6 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     private void authenticate(final @NonNull JRPCHandshake handshake) {
         this.logger.info("Attempting to handshake server {}:{}. [Auth Token: {}]", remoteAddress.getHostName(), remoteAddress.getPort(), StringUtil.cypherString(config.getAuthenticationToken()));
         final JRPCClientHandshakeMessage message = new JRPCClientHandshakeMessage(getSource(), PacketDataSerializer.serialize(handshake));
-        this.connectedChannel.channel().pipeline().get("handshake_handler");
         final JRPCClientHandshakeHandler handshakeHandler = (JRPCClientHandshakeHandler) connectedChannel.channel().pipeline().get("handshake_handler");
         handshakeHandler.handshake(message);
         handler.awaitHandshakeResponse();
@@ -441,6 +439,36 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));
             channel.pipeline().addLast("message_encoder", new JRPCClientMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
             channel.pipeline().addLast("handshake_encoder", new JRPCClientHandshakeEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
+        }
+    }
+
+    private static class ClusterInformationResponseHandler
+            implements Conversation.ResponseHandler<ClusterInformationConversation.Request, ClusterInformationConversation.Response> {
+
+        private final Callback<ClusterInformationConversation.Response> responseCallback;
+
+        public ClusterInformationResponseHandler(final Callback<ClusterInformationConversation.Response> responseCallback) {
+            this.responseCallback = responseCallback;
+        }
+
+        @Override
+        public void onResponse(final @NonNull ClusterInformationConversation.Request request,
+                               final @NonNull MessageContext<ClusterInformationConversation.Response> context) {
+
+            Callback.Internal.complete(responseCallback, context.getResponse());
+        }
+
+        @Override
+        public <T extends ErrorInformationHolder>
+        void onExcept(final @NonNull Throwable throwable, final @NonNull T errorInformationHolder) {
+            Callback.Internal.except(responseCallback, throwable);
+        }
+
+        @Override
+        public void onTimeout(final @NonNull ClusterInformationConversation.Request request,
+                              final @NonNull Set<MessageContext<ClusterInformationConversation.Response>> responses) {
+
+            Callback.Internal.except(responseCallback, new TimeoutException("Server has taken too long to respond"));
         }
     }
 }

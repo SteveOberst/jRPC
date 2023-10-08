@@ -39,9 +39,8 @@ public class ConfigurationManager {
 
     }
 
-    public <T extends YamlConfiguration> YamlConfiguration loadConfigurationFile(
-            final @NonNull Class<T> configurationClass
-    ) {
+    public <T extends YamlConfiguration>
+    YamlConfiguration loadConfigurationFile(final @NonNull Class<T> configurationClass) {
         final FileLocation fileLocation = configurationClass.getAnnotation(FileLocation.class);
         final Path path = new File(provider.getDataFolder(), fileLocation.path() + File.separator + fileLocation.fileName()).toPath();
         try {
@@ -58,10 +57,7 @@ public class ConfigurationManager {
         }
     }
 
-    public YamlConfiguration saveConfigurationFile(
-            final @NonNull YamlConfiguration configuration,
-            final boolean overwrite
-    ) {
+    public YamlConfiguration saveConfigurationFile(final @NonNull YamlConfiguration configuration, final boolean overwrite) {
         final Path path = configuration.getPath();
         if(!path.toFile().exists() || overwrite) {
             configuration.save();
@@ -70,10 +66,8 @@ public class ConfigurationManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends YamlConfiguration> T getConfig(
-            final @NonNull Class<T> configurationClass,
-            final boolean instantiateOnAbsence
-    ) {
+    public <T extends YamlConfiguration>
+    T getConfig(final @NonNull Class<T> configurationClass, final boolean instantiateOnAbsence) {
         YamlConfiguration configuration = configCache.get(configurationClass);
         if(instantiateOnAbsence && configuration == null) {
             configuration = loadConfigurationFile(configurationClass);
@@ -81,9 +75,8 @@ public class ConfigurationManager {
         return (T) configuration;
     }
 
-    public <T extends YamlConfiguration> T saveConfig(
-            final @NonNull Class<T> configurationClass
-    ) {
+    public <T extends YamlConfiguration>
+    T saveConfig(final @NonNull Class<T> configurationClass) {
         final T configuration = getConfig(configurationClass, false);
         if(configuration == null)
             throw new NullPointerException("Configuration for class " + configurationClass + " does not exist in the cache.");

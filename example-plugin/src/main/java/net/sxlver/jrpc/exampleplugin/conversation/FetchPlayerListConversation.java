@@ -25,11 +25,11 @@ public class FetchPlayerListConversation {
         public List<PlayerDTO> players;
     }
 
-    public static class FetchPlayerListConversationHandler implements MessageHandler<Request> {
+    public static class RequestHandler implements MessageHandler<Request> {
 
         private final JRPCService service;
 
-        public FetchPlayerListConversationHandler(final JRPCExamplePlugin plugin) {
+        public RequestHandler(final JRPCExamplePlugin plugin) {
             this.service = plugin.getService();
         }
 

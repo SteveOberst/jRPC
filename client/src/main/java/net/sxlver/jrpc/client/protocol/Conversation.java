@@ -40,7 +40,9 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
 
     private boolean overrideHandlers;
     private boolean concurrentResponseProcessing;
+    private boolean parallelResponseHandling;
 
+    private final Object responseHandlingLock = new Object();
     private static final Conversation<?, ?> EMPTY = new Conversation<>();
 
     private volatile long timeout;
@@ -101,6 +103,17 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     void onResponse(final MessageContext<TResponse> response) {
         this.handlerCalled = true;
         this.processedResponses.add(response);
+
+        if(parallelResponseHandling) {
+            handleResponse(response);
+        }else {
+            synchronized (responseHandlingLock) {
+                handleResponse(response);
+            }
+        }
+    }
+
+    private void handleResponse(final MessageContext<TResponse> response) {
         responseConsumer.accept(request, response);
     }
 
@@ -145,7 +158,8 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * @return current instance of the Conversation Object
      */
     @SuppressWarnings("unchecked")
-    public <T extends ErrorInformationHolder> Conversation<TRequest, TResponse> onExcept(final @NonNull BiConsumer<Throwable, T> errorHandler) {
+    public <T extends ErrorInformationHolder>
+    Conversation<TRequest, TResponse> onExcept(final @NonNull BiConsumer<Throwable, T> errorHandler) {
         this.errorHandler = (BiConsumer<Throwable, ErrorInformationHolder>) errorHandler;
         return this;
     }
@@ -166,6 +180,20 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      */
     public Conversation<TRequest, TResponse> enableConcurrentResponseProcessing() {
         this.concurrentResponseProcessing = true;
+        return this;
+    }
+
+    /**
+     * Enables response handlers to be called in parallel.
+     *
+     * <p>Note that {@link #enableConcurrentResponseProcessing()} only enables multiple responses
+     * to be handled, whilst setting this option to true will actually make them be processed in
+     * parallel.
+     *
+     * @return current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> enableResponseProcessingParallelism() {
+        this.parallelResponseHandling = true;
         return this;
     }
 
@@ -235,7 +263,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * them as handlers.
      *
      * <p>No reference to the class will be stored, instead it will only store the method
-     * references to the handling methods.
+     * references to the handlers methods.
      *
      * @param handler the handler containing the methods to handle responses
      * @return current instance of the Conversation Object
@@ -255,10 +283,16 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * @return empty conversation object
      */
     @SuppressWarnings("unchecked")
-    public static <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> empty() {
+    public static <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> empty() {
         return (Conversation<TRequest, TResponse>) EMPTY;
     }
 
+    /**
+     * Get the request associated with this conversation
+     *
+     * @return the request associated with this conversation
+     */
     @NotNull
     public TRequest getRequest() {
         Objects.requireNonNull(request);
@@ -278,9 +312,22 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
         timeoutHandler.accept(request, processedResponses);
     }
 
+    /**
+     * Provides a non-functional way to deal with responses.
+     *
+     * <p>Note that after setting the response handler through {@link #setResponseHandler(ResponseHandler)},
+     * there never is a reference stored to this class. The Conversation will only store method references,
+     * referring to the method implementations.
+     *
+     * @param <TRequest> The request type of the Conversation this handler is targetting
+     * @param <TResponse> The response type of the Conversation this handler is targetting
+     */
     public interface ResponseHandler<TRequest extends Packet, TResponse extends Packet> {
         void onResponse(final @NonNull TRequest request, final @NonNull MessageContext<TResponse> messageContext);
-        <T extends ErrorInformationHolder> void onExcept(final @NonNull Throwable throwable, final @NonNull T errorInformationHolder);
+
+        <T extends ErrorInformationHolder>
+        void onExcept(final @NonNull Throwable throwable, final @NonNull T errorInformationHolder);
+
         void onTimeout(final @NonNull TRequest request, final @NonNull Set<MessageContext<TResponse>> responses);
     }
 }

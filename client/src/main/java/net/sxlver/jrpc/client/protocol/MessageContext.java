@@ -82,7 +82,7 @@ public class MessageContext<T extends Packet> {
      * @return conversation object representing the new conversation between this instance and the source
      */
     public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> replyDirectly(final @NonNull TRequest message, final @Nullable Class<TResponse> expectedResponse) {
-        return client.publish(message, new MessageTarget(targetType, source), expectedResponse, conversationUID);
+        return client.publish(message, new MessageTarget(Message.TargetType.DIRECT, source), expectedResponse, conversationUID);
     }
 
     /**

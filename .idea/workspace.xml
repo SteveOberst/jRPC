@@ -4,7 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Hopefully finally fixed the CI runner" />
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Add distribution...">
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/BenchmarkCommand.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/BenchmarkConversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/Docs/Conversations.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/Docs/Reponse Handlers.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/Docs/Request-Response-Model.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/Docs/Sending and Receiving data.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/DefaultMessageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/DefaultMessageProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/MessageContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/Packet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/impl/JRPCMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/impl/JRPCMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/Callback.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/Callback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Application.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-client/src/main/java/net/sxlver/jrpc/exampleclient/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/JRPCExamplePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/JRPCExamplePlugin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/BroadcastMessageConversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/BroadcastMessageConversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/FetchPlayerListConversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/FetchPlayerListConversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/LocatePlayerConversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/LocatePlayerConversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/resources/plugin.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo.md" beforeDir="false" afterPath="$PROJECT_DIR$/todo.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -113,7 +148,7 @@
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   },
   &quot;keyToStringList&quot;: {
     &quot;jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: [
@@ -193,7 +228,7 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="jRPC:bukkit [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="jRPC:bukkit [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/bukkit" />
@@ -204,7 +239,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="shadowJar" />
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -215,10 +250,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="jRPC:client [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="jRPC:bukkit [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/client" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/bukkit" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -263,9 +298,9 @@
       <list>
         <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:bukkit [shadowJar]" />
+        <item itemvalue="Gradle.jRPC:bukkit [clean]" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:example-client [shadowJar]" />
-        <item itemvalue="Gradle.jRPC:client [shadowJar]" />
       </list>
     </recent_temporary>
   </component>
@@ -380,7 +415,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696681027960</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Add distribution...">
+      <option name="closed" value="true" />
+      <created>1696681090635</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1696681090635</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -420,7 +463,8 @@
     <MESSAGE value="Use java 17 in CI runner" />
     <MESSAGE value="Use gradle cache in CI Runner" />
     <MESSAGE value="Hopefully finally fixed the CI runner" />
-    <option name="LAST_COMMIT_MESSAGE" value="Hopefully finally fixed the CI runner" />
+    <MESSAGE value="Add distribution..." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add distribution..." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -429,11 +473,6 @@
           <properties class="java.lang.NullPointerException" package="java.lang" />
           <option name="timeStamp" value="1" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java</url>
-          <line>26</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

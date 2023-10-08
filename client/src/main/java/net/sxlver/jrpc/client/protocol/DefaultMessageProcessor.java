@@ -63,7 +63,8 @@ public class DefaultMessageProcessor implements RawDataReceiver {
 
         client.getLogger().debugFiner("Received {} packet from {} [Conversation ID: {}] [Target: {}] [Target Type: {}]", packet.getClass(), source, conversationUID, target, targetType);
         final MessageContext<Packet> context = new MessageContext<>(client, packet, null, source, target, targetType, conversationUID);
-        if(!source.equals(client.getSource()) /* nobody wants to talk to themselves, right?*/ && netHandler.isObserverPresent(conversationUID)) {
+        if(netHandler.isObserverPresent(conversationUID) && (!source.equals(client.getSource()) || netHandler.getObserver(conversationUID).getExpectedResponse() == packet.getClass())) {
+
             final Conversation<Packet, Packet> conversation = netHandler.getObserver(conversationUID);
 
             @SuppressWarnings("all")
@@ -75,18 +76,17 @@ public class DefaultMessageProcessor implements RawDataReceiver {
 
             // Have we received an error from the other end?
             if(packet instanceof ErrorInformationHolder errorPacket) {
-                // If the provided cause is null we just assign a new instance of Exception
+                // If the provided cause is null, which should usually not be the case we just assign a new instance of Exception
                 final Throwable t = errorPacket.getCause() != null ? errorPacket.getCause() : new Exception();
-                // call the error handler
                 conversation.except(t, errorPacket);
                 return;
             }
 
             if(packet.getClass() == conversation.getExpectedResponse()) {
-                // notify handler of the received packet
                 conversation.onResponse(conversationContext);
                 client.getLogger().debugFinest("Invoking Conversation#onResponse for conversation id {}", conversationUID);
-                // do not continue if overrideHandlers is true on the conversation
+                // If the overrideHandlers flag has been set to true, we do not want to continue
+                // and instead break here and skip calling the handlers.
                 if(conversation.shouldOverrideHandlers()) {
                     client.getLogger().debugFinest("Overriding handlers for conversation id {}", conversationUID);
                     return;
@@ -114,7 +114,8 @@ public class DefaultMessageProcessor implements RawDataReceiver {
      * @param handler the handler
      * @return the current instance of this class
      */
-    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull TriConsumer<MessageHandler<?>, MessageContext<T>, Throwable> handler) {
+    public <T extends ErrorInformationHolder> DefaultMessageProcessor
+    setErrorHandler(final @NonNull TriConsumer<MessageHandler<?>, MessageContext<T>, Throwable> handler) {
         return setErrorHandler(new DefaultErrorHandler<>(client, handler));
     }
 
@@ -125,7 +126,8 @@ public class DefaultMessageProcessor implements RawDataReceiver {
      * @param errorHandler the error handler
      * @return the current instance of this class
      */
-    public <T extends ErrorInformationHolder> DefaultMessageProcessor setErrorHandler(final @NonNull ErrorHandler<T> errorHandler) {
+    public <T extends ErrorInformationHolder>
+    DefaultMessageProcessor setErrorHandler(final @NonNull ErrorHandler<T> errorHandler) {
         registerHandler(errorHandler);
         this.errorHandler = errorHandler;
         return this;
@@ -139,7 +141,8 @@ public class DefaultMessageProcessor implements RawDataReceiver {
      * @return the current instance of this class
      */
     @SuppressWarnings("unchecked")
-    public <T extends Packet> DefaultMessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
+    public <T extends Packet>
+    DefaultMessageProcessor registerHandler(final @NonNull MessageHandler<T> handler) {
         registeredMessageReceivers.put((Class<? extends MessageHandler<?>>) handler.getClass(), handler);
         client.getLogger().debugFine("Registered message receiver {}", handler.getClass().getSimpleName());
         return this;
@@ -152,7 +155,8 @@ public class DefaultMessageProcessor implements RawDataReceiver {
      * @param handlerCls the handler cls
      * @return the current instance of this class
      */
-    public <T extends MessageHandler<?>> DefaultMessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
+    public <T extends MessageHandler<?>>
+    DefaultMessageProcessor unregisterHandler(final @NonNull Class<T> handlerCls) {
         registeredMessageReceivers.invalidate(handlerCls);
         client.getLogger().debugFine("Unregistered message receiver {}", handlerCls.getSimpleName());
         return this;

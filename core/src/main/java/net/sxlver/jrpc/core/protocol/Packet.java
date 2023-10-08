@@ -5,7 +5,7 @@ public abstract class Packet {
      * will be extracted from json string in order to deserialize the packet
      * without providing its class path
      */
-    private final String packetCls;
+    private String packetCls;
     protected Packet() {
         this.packetCls = getClass().getName();
     }
