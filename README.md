@@ -2,17 +2,16 @@
 jRPC is a NIO, Multithreaded RPC Framework that uses Netty for networking under the hood, natively 
 supporting platforms like Bukkit.
 
-# Quick Start
+### Overview
+Experience lightning-fast request/response handling with our high-performance framework. Send up to 300,000 requests per second whilst simultaneously efficiently managing responses.
+
+## Quick Start
 In order to get started using the Framework check out the [wiki](https://github.com/SteveOberst/jRPC/wiki/). The project
 is build with java 17 and will therefore require your project to be run and compiled with a java-17
 compatible jre/jdk too.
 
-# Why choose this Framework?
-## Overview
-
-Experience lightning-fast request/response handling with our high-performance framework. Send up to 300,000 requests per second whilst simultaneously efficiently managing responses.
-
-## Features
+## Why choose this Framework?
+### Features
 
 - **Extreme Throughput:** Achieve exceptional performance, ideal for high-demand scenarios.
 
@@ -22,11 +21,11 @@ Experience lightning-fast request/response handling with our high-performance fr
 
 - **Scalability:** Easily scale horizontally to meet growing demands.
 
-## Tested on Ryzen 9 3900X
+### Tested on Ryzen 9 3900X
 
 Our framework's performance has been rigorously tested on a Ryzen 9 3900X processor, ensuring it meets the highest standards of efficiency and speed.
 
-## Use Cases:
+### Use Cases:
 
 - Web Services
 - Microservices
@@ -34,17 +33,17 @@ Our framework's performance has been rigorously tested on a Ryzen 9 3900X proces
 
 ... And much more!
 
-## Get Started:
+### Get Started:
 
 1. [Native Java Application](https://github.com/SteveOberst/jRPC/wiki/Client)
 2. [Bukkit](https://github.com/SteveOberst/jRPC/wiki/Bukkit)
 3. [How the internals work](https://github.com/SteveOberst/jRPC/wiki/Internals)
 
-## Conclusion:
+### Conclusion:
 
 Empower your applications with high-throughput request handling. Explore our framework today!
 
-# Gradle dependency
+## Gradle dependency
 To add this project as a dependency for your Gradle project, make sure your dependencies section of your
 build.gradle looks like the following:
 ```groovy
@@ -101,7 +100,7 @@ First things first, you will need the authentication token in order to authentic
 The client will create its own 'config' directory on first launch where you will need to enter the 
 authentication-token that's specified in the server's config file.
 
-# Bukkit
+## Bukkit
 In order to use the bukkit version in your project you will need to have the JRPC Bukkit plugin installed.
 You can get it here. Make sure to add the dependency on the bukkit module to your project as show in the 
 Gradle dependency section.
@@ -124,7 +123,7 @@ depend:
   #...
 ```
 
-# License
+## License
 ```
 Copyright (c) 2023 Steve Oberst
 
