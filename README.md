@@ -33,6 +33,9 @@ Our framework's performance has been rigorously tested on a Ryzen 9 3900X proces
 
 ... And much more!
 
+### Skyline is the limit
+In our conducted tests we were able to write 2.5 million requests with 114 bytes of data whilst simultaneously receiving responses with 144 bytes of data in 9264 milliseconds with a peak CPU usage of only 30%.
+
 ### Get Started:
 
 1. [Native Java Application](https://github.com/SteveOberst/jRPC/wiki/Client)
