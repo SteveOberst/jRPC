@@ -10,7 +10,7 @@ In order to get started using the Framework check out the [wiki](https://github.
 is build with java 17 and will therefore require your project to be run and compiled with a java-17
 compatible jre/jdk too.
 
-## Why choose this Framework?
+## About
 ### Features
 
 - **Extreme Throughput:** Achieve exceptional performance, ideal for high-demand scenarios.
