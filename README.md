@@ -3,7 +3,7 @@ jRPC is a NIO, Multithreaded RPC Framework that uses Netty for networking under 
 supporting platforms like Bukkit.
 
 ### Overview
-Experience lightning-fast request/response handling with our high-performance framework. Send up to 300,000 requests per second whilst simultaneously efficiently managing responses.
+Experience lightning-fast request/response handling with our high-performance framework. Send up to 200,000 requests per second whilst simultaneously efficiently managing responses.
 
 ## Quick Start
 In order to get started using the Framework check out the [wiki](https://github.com/SteveOberst/jRPC/wiki/). The project
@@ -34,7 +34,7 @@ Our framework's performance has been rigorously tested on a Ryzen 9 3900X proces
 ... And much more!
 
 ### Skyline is the limit
-In our conducted tests we were able to write 2.5 million requests with 114 bytes of data whilst simultaneously receiving responses with 144 bytes of data in 9264 milliseconds with a peak CPU usage of only 30%.
+In our conducted tests we were able to write 1.5 million requests with 114 bytes of data whilst simultaneously receiving responses with 144 bytes of data in 9264 milliseconds with a peak CPU usage of only 30%.
 
 ### Get Started
 
