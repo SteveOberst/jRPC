@@ -2,10 +2,12 @@ package net.sxlver.jrpc.client.protocol;
 
 import lombok.NonNull;
 import net.sxlver.jrpc.client.JRPCClient;
+import net.sxlver.jrpc.client.config.JRPCClientConfiguration;
 import net.sxlver.jrpc.core.protocol.ConversationUID;
 import net.sxlver.jrpc.core.protocol.ErrorInformationHolder;
 import net.sxlver.jrpc.core.protocol.Packet;
 import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
+import net.sxlver.jrpc.core.util.ParallelLock;
 import net.sxlver.jrpc.core.util.TimedCache;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +17,9 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
 
@@ -48,9 +52,15 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     private volatile long timeout;
     private volatile boolean alwaysNotifyTimeout;
     private volatile boolean handlerCalled;
+    private volatile long maxResponseHandlingTime;
 
     private final Set<MessageContext<TResponse>> processedResponses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
+    private ParallelLock parallelResponseHandlingLock;
+
+    /**
+     * Instantiates an empty conversation
+     */
     private Conversation() {
         this.request = null;
         this.conversationUID = null;
@@ -74,7 +84,10 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
         this.request = request;
         this.conversationUID = conversationUID;
         this.expectedResponse = expectedResponse;
-        this.timeout = client.getConfig().getConversationTimeOut();
+        final JRPCClientConfiguration config = client.getConfig();
+        this.timeout = config.getConversationTimeOut();
+        this.maxResponseHandlingTime = config.getMaxResponseHandlingTime();
+        this.parallelResponseHandlingLock = new ParallelLock(config.getMaxResponseParallelism());
     }
 
     /**
@@ -98,17 +111,43 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     /**
      * Invokes the onResponse handler on the given parameter.
      *
+     * <p>This method will wait until other threads are finished if called
+     * in parallel and {@link #parallelResponseHandling) is not enabled. If called
+     * in parallel, waiting time could be included depending on the amount of threads
+     * that are currently handling responses and the client configuration.
+     * <p>
      * @param response the response
      */
-    void onResponse(final MessageContext<TResponse> response) {
+    void onResponse(final MessageContext<TResponse> context) {
         this.handlerCalled = true;
-        this.processedResponses.add(response);
+        this.processedResponses.add(context);
 
-        if(parallelResponseHandling) {
-            handleResponse(response);
-        }else {
+        if(!parallelResponseHandling) {
+            // Since parallelResponseHandling has not been enabled, we make threads wait until each response has been
+            // processed. Heavy I/O in the response handlers can lead to the blockage of netty I/O threads and should
+            // therefor be avoided.
             synchronized (responseHandlingLock) {
-                handleResponse(response);
+                try {
+                    handleResponse(context);
+                }catch(final Exception exception) {
+                    client.getLogger().fatal(exception);
+                }
+            }
+        }else {
+            // attempt to acquire the lock, if no lock can be acquired it will cause the thread to wait
+            try {
+                parallelResponseHandlingLock.acquireLock(maxResponseHandlingTime);
+                handleResponse(context);
+            }catch(final TimeoutException exception) {
+                client.getLogger().fatal("Lock for response handling could not be acquired!");
+                client.getLogger().fatal("Too many threads are taking too long to process the response (Deadlock?)");
+                client.getLogger().fatal("Source: {} Request: {} Response: {} Conversation UID: {}",
+                        context.getSource(), context.getRequest().getClass(), context.getResponse().getClass(), conversationUID);
+                throw new RuntimeException(exception);
+            }catch(final Exception exception) {
+                client.getLogger().fatal(exception);
+            }finally {
+                parallelResponseHandlingLock.releaseLock();
             }
         }
     }
@@ -119,6 +158,10 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
 
     /**
      * Action to be run on the response when one was received.
+     *
+     * <p>
+     * Heavy I/O in the response handlers can lead to the blockage
+     * of netty I/O threads and should therefor be avoided.
      *
      * @param consumer the consumer
      * @return the conversation
@@ -228,6 +271,18 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     /**
+     * Sets a duration on how long a response processing context can take before it will be interrupted
+     *
+     * @param duration the length in time after when a response handling context should be interrupted
+     * @param timeUnit the unit that duration is expressed in
+     * @return         current instance of the Conversation Object
+     */
+    public Conversation<TRequest, TResponse> responseHandlingTimeout(final long duration, final TimeUnit timeUnit) {
+        this.maxResponseHandlingTime = timeUnit.toMillis(duration);
+        return this;
+    }
+
+    /**
      * Settings this option to true will invoke {@link #onTimeout(BiConsumer)} when the Conversation
      * expired, regardless of whether the handler has been called already.
      *
@@ -309,7 +364,18 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
 
     void expire() {
         client.getLogger().debugFinest("Conversation timed out after {}ms with {} response(s) [Request: {}] [Expected Response: {}]", timeout, processedResponses.size(), request.getClass(), expectedResponse);
-        timeoutHandler.accept(request, processedResponses);
+        if(!parallelResponseHandling) {
+            synchronized (responseHandlingLock) {
+                timeoutHandler.accept(request, processedResponses);
+            }
+        }else {
+            final Runnable run = () -> timeoutHandler.accept(request, processedResponses);
+            if(!parallelResponseHandlingLock.hasActiveLocks()) {
+                run.run();
+            }else {
+                parallelResponseHandlingLock.onLocksInactive(run);
+            }
+        }
     }
 
     /**
@@ -319,8 +385,8 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * there never is a reference stored to this class. The Conversation will only store method references,
      * referring to the method implementations.
      *
-     * @param <TRequest> The request type of the Conversation this handler is targetting
-     * @param <TResponse> The response type of the Conversation this handler is targetting
+     * @param <TRequest> The request type of the Conversation this handler is targeting
+     * @param <TResponse> The response type of the Conversation this handler is targeting
      */
     public interface ResponseHandler<TRequest extends Packet, TResponse extends Packet> {
         void onResponse(final @NonNull TRequest request, final @NonNull MessageContext<TResponse> messageContext);

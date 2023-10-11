@@ -50,9 +50,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * The type Jrpc server.
- */
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
     
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
@@ -113,7 +110,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Close.
+     * Initiates a shutdown of the server and cleans up resources.
      */
     public void close() {
         listeningChannel.channel().close().syncUninterruptibly();
@@ -217,11 +214,11 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Handshake handshake status packet.
+     * Verifies the received handshake and builds a response according to the result.
      *
      * @param pipeline  the pipeline
      * @param handshake the handshake
-     * @return the handshake status packet
+     * @return the response
      */
     public HandshakeStatusPacket handshake(final ChannelPipeline pipeline, final JRPCHandshake handshake) {
         return tryHandshake(pipeline, handshake);
@@ -244,10 +241,10 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Client exists boolean.
+     * Whether the client with the given unique id exists
      *
-     * @param uniqueId the unique id
-     * @return the boolean
+     * @param uniqueId the unique id of the client
+     * @return true if a client with the given unique id exists
      */
     public boolean clientExists(final String uniqueId) {
         return !selectDirect(uniqueId).isEmpty();
@@ -258,13 +255,13 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     /**
-     * Forward.
+     * Forwards message to the client(s) matching the message target.
      *
      * @param message the message
      * @param invoker the invoker
      */
     public void forward(final @NonNull JRPCMessage message, final @NonNull JRPCServerChannelHandler invoker) {
-        final Message.TargetType targetType = message.targetType();
+         final Message.TargetType targetType = message.targetType();
         final TargetSelector targetSelector = TargetSelectors.getByTargetType(targetType);
         Collection<JRPCClientInstance> sendTo = targetSelector.select(message.target(), getRegisteredClientsRaw());
 
@@ -301,7 +298,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     }
 
     private void logForward(final Message.TargetType targetType, final String source, final String target, final int dataLen) {
-        logger.info("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , targetType, source, target, dataLen);
+        logger.debugFine("{} Forwarding Message of type {} [{} -> {}] [length: {}]","[MESSAGE FORWARD]" , targetType, source, target, dataLen);
     }
 
     /**

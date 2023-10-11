@@ -13,14 +13,16 @@ import java.util.logging.Level;
 @Getter
 @Setter
 @FileLocation(path = "config", fileName = "config.yml")
-public class JRPCClientConfig extends YamlConfiguration {
+public class JRPCDefaultConfiguration extends YamlConfiguration implements JRPCClientConfiguration {
 
-    public JRPCClientConfig(final Path path, final YamlConfiguration.YamlProperties properties) {
+    public JRPCDefaultConfiguration(final Path path, final YamlConfiguration.YamlProperties properties) {
         super(path, properties);
     }
 
     @Comment("The output level of the logger")
     private String logLevel = Level.INFO.getName();
+
+    @Override
     public Level getLoggingLevel() { return Level.parse(logLevel); }
 
     @Comment("The Clients unique identifier. Requires no specific format, it should just be unique between all connected clients.")
@@ -65,5 +67,15 @@ public class JRPCClientConfig extends YamlConfiguration {
             "This is solely a default value and may be overridden within the code."
     })
     private long conversationTimeOut = 1000;
+
+    @Comment({
+            "Max threads that can process responses in parallel.",
+            "When parallelism on a conversation is enabled, this will determine the max amount of",
+            "threads that can simultaneously process responses."
+    })
+    private int maxResponseParallelism = 4;
+
+    @Comment("Max amount of time a response can take to be processed in milliseconds")
+    private int maxResponseHandlingTime = 1000;
 }
 

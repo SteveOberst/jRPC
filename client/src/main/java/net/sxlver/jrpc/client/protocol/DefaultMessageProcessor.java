@@ -83,7 +83,11 @@ public class DefaultMessageProcessor implements RawDataReceiver {
             }
 
             if(packet.getClass() == conversation.getExpectedResponse()) {
-                conversation.onResponse(conversationContext);
+                try {
+                    conversation.onResponse(conversationContext);
+                }catch(final Exception exception) {
+                    client.getLogger().fatal(exception);
+                }
                 client.getLogger().debugFinest("Invoking Conversation#onResponse for conversation id {}", conversationUID);
                 // If the overrideHandlers flag has been set to true, we do not want to continue
                 // and instead break here and skip calling the handlers.

@@ -9,7 +9,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import net.sxlver.jrpc.client.config.JRPCClientConfig;
+import net.sxlver.jrpc.client.config.JRPCClientConfiguration;
+import net.sxlver.jrpc.client.config.JRPCDefaultConfiguration;
 import net.sxlver.jrpc.client.protocol.*;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientHandshakeEncoder;
 import net.sxlver.jrpc.client.protocol.codec.JRPCClientMessageEncoder;
@@ -41,7 +42,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     public static final ProtocolVersion PROTOCOL_VERSION = ProtocolVersion.V0_1;
     private final ConfigurationManager configurationManager;
-    private final JRPCClientConfig config;
+    private final JRPCClientConfiguration config;
 
     private final InternalLogger logger;
     private final CentralGson centralGson;
@@ -72,8 +73,21 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     public JRPCClient(final String dataFolder, final boolean setUncaughtExceptionHandler) {
         this.dataFolder = dataFolder;
         this.configurationManager = new ConfigurationManager(this);
-        this.config = configurationManager.getConfig(JRPCClientConfig.class, true);
-        this.logger = new InternalLogger(getClass(), Path.of(dataFolder, "logs").toFile());
+        this.config = configurationManager.getConfig(JRPCDefaultConfiguration.class, true);
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
+        this.centralGson = CentralGson.PROTOCOL_INSTANCE;
+        this.logger.setLogLevel(config.getLoggingLevel());
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        if(setUncaughtExceptionHandler) {
+            Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> logger.fatal("An unexpected Exception occurred. {}", ExceptionUtils.getStackTrace(throwable)));
+        }
+    }
+
+    public JRPCClient(final JRPCClientConfiguration config, final String dataFolder, final boolean setUncaughtExceptionHandler) {
+        this.dataFolder = dataFolder;
+        this.configurationManager = new ConfigurationManager(this);
+        this.config = config;
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -327,7 +341,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
      *
      * @return the config
      */
-    public JRPCClientConfig getConfig() {
+    public JRPCClientConfiguration getConfig() {
         return config;
     }
 

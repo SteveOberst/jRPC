@@ -44,13 +44,8 @@ public class JRPCServerHandshakeHandler extends SimpleChannelInboundHandler<JRPC
             server.getLogger().info("Client {} successfully authenticated with the network.", message.source());
         }
 
-        // Inform the client that the handshake has succeeded and synchronize information
-        // about connected clients with the newly registered client
         final JRPCMessage response = buildHandshakeResponse(handshake, handshakeStatus);
-
-        // send handshake succeeded first in order to not cause any errors on the client
         handler.write(response);
-        //handler.sendKeepAlive();
 
         // remove handshake handler from the pipeline and let message_handler
         // process any more incoming messages

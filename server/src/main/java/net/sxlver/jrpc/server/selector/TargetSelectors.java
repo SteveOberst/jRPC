@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public enum TargetSelectors implements TargetSelector {
     TARGET_SELECTOR_ALL(Message.TargetType.TYPE, (target, jrpcClientInstances) -> {
@@ -19,7 +20,7 @@ public enum TargetSelectors implements TargetSelector {
     }),
     TARGET_SELECTOR_BROADCAST(Message.TargetType.ALL, (target, jrpcClientInstances) -> new ArrayList<>(jrpcClientInstances)),
     TARGET_SELECTOR_DIRECT(Message.TargetType.DIRECT, (target, jrpcClientInstances) -> {
-        return jrpcClientInstances.stream().filter(jrpcClientInstance -> jrpcClientInstance.getUniqueId().equals(target)).toList();
+        return jrpcClientInstances.stream().filter(jrpcClientInstance -> jrpcClientInstance.getUniqueId().equals(target)).collect(Collectors.toList());
     });
 
     private final Message.TargetType type;
