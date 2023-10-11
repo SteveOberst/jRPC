@@ -100,9 +100,9 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
     }
 
     /**
-     * Gets expected response.
+     * Returns what type of response this conversation expects
      *
-     * @return the expected response
+     * @return the type of response that is expected
      */
     public Class<? extends Packet> getExpectedResponse() {
         return expectedResponse;
@@ -120,7 +120,6 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      */
     void onResponse(final MessageContext<TResponse> context) {
         this.handlerCalled = true;
-        this.processedResponses.add(context);
 
         if(!parallelResponseHandling) {
             // Since parallelResponseHandling has not been enabled, we make threads wait until each response has been
@@ -139,10 +138,8 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
                 parallelResponseHandlingLock.acquireLock(maxResponseHandlingTime);
                 handleResponse(context);
             }catch(final TimeoutException exception) {
-                client.getLogger().fatal("Lock for response handling could not be acquired!");
-                client.getLogger().fatal("Too many threads are taking too long to process the response (Deadlock?)");
-                client.getLogger().fatal("Source: {} Request: {} Response: {} Conversation UID: {}",
-                        context.getSource(), context.getRequest().getClass(), context.getResponse().getClass(), conversationUID);
+                client.getLogger().fatal("Lock for response handling could not be acquired! Too many threads are taking too long to process the response.");
+                client.getLogger().fatal("Source: {} Request: {} Response: {} Conversation UID: {}", context.getSource(), context.getRequest().getClass(), context.getResponse().getClass(), conversationUID);
                 throw new RuntimeException(exception);
             }catch(final Exception exception) {
                 client.getLogger().fatal(exception);
@@ -152,8 +149,9 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
         }
     }
 
-    private void handleResponse(final MessageContext<TResponse> response) {
-        responseConsumer.accept(request, response);
+    private void handleResponse(final MessageContext<TResponse> context) {
+        responseConsumer.accept(request, context);
+        this.processedResponses.add(context);
     }
 
     /**
@@ -161,7 +159,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      *
      * <p>
      * Heavy I/O in the response handlers can lead to the blockage
-     * of netty I/O threads and should therefor be avoided.
+     * of netty's I/O threads and should therefor be avoided.
      *
      * @param consumer the consumer
      * @return the conversation
@@ -373,6 +371,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
             if(!parallelResponseHandlingLock.hasActiveLocks()) {
                 run.run();
             }else {
+                client.getLogger().debugFinest("Locks are still active on {}/{}, waiting for locks to release.", getClass(), conversationUID);
                 parallelResponseHandlingLock.onLocksInactive(run);
             }
         }

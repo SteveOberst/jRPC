@@ -4,18 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Benchmark, docs, Bugfixes">
-      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/ParallelLock.java" afterDir="false" />
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Thread safety in Conversations">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCClientConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/config/JRPCDefaultConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/DefaultMessageProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/DefaultMessageProcessor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerHandshakeHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/selector/TargetSelectors.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/selector/TargetSelectors.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/ParallelLock.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/ParallelLock.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/BenchmarkCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/BenchmarkCommand.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,6 +87,10 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/Void.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Collectors.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Stream.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.1.97.Final/6602f651718b461cd2d17244d95cc87d58c3169a/netty-common-4.1.97.Final-sources.jar!/io/netty/util/concurrent/SingleThreadEventExecutor.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.1.97.Final/80452a42374b6c4e1a3596ce09f337b4ff4f4efb/netty-transport-4.1.97.Final-sources.jar!/io/netty/channel/SimpleChannelInboundHandler.java" root0="SKIP_INSPECTION" />
     <setting file="jar://$MAVEN_REPOSITORY$/org/spigotmc/spigot-api/1.12.2-R0.1-SNAPSHOT/spigot-api-1.12.2-R0.1-SNAPSHOT-sources.jar!/org/bukkit/plugin/ServicePriority.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="MacroExpansionManager">
@@ -101,6 +98,9 @@
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="autoscrollToSource" value="true" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -411,7 +411,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696761365059</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Thread safety in Conversations">
+      <option name="closed" value="true" />
+      <created>1697033190884</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1697033190885</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -453,7 +461,8 @@
     <MESSAGE value="Hopefully finally fixed the CI runner" />
     <MESSAGE value="Add distribution..." />
     <MESSAGE value="Benchmark, docs, Bugfixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Benchmark, docs, Bugfixes" />
+    <MESSAGE value="Thread safety in Conversations" />
+    <option name="LAST_COMMIT_MESSAGE" value="Thread safety in Conversations" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

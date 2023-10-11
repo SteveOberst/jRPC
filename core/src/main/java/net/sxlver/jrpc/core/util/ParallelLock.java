@@ -27,11 +27,19 @@ public class ParallelLock {
      * @return True if the lock was acquired; false if the lock could not be acquired within the timeout.
      */
     public void acquireLock(long timeout) throws TimeoutException {
+        final long timestamp = System.currentTimeMillis();
         try {
             while(!(semaphore.tryAcquire(1, timeout, TimeUnit.MILLISECONDS))) {
+                checkTimeout(timestamp, timeout);
             }
         } catch (InterruptedException e) {
             throw new TimeoutException();
+        }
+    }
+
+    private void checkTimeout(final long timestamp, final long max) throws InterruptedException {
+        if(System.currentTimeMillis() - timestamp >= max) {
+            throw new InterruptedException();
         }
     }
 
