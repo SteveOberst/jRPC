@@ -100,7 +100,8 @@ public class JRPCService {
      * @param <TResponse>      the response type parameter
      * @param packet           the packet to publish
      * @param expectedResponse the expected response, could technically be null but this will lead to
-     *                         unintended behavior.
+     *                         unintended behavior. if you do not expect a response, refer to
+     *                         {@link #publish(Packet, MessageTarget)}.
      * @param target           the message target
      * @return the conversation
      */
@@ -132,7 +133,7 @@ public class JRPCService {
 
 
     /**
-     * Gets local unique id.
+     * Gets the client's local unique id.
      *
      * @return the local unique id
      */

@@ -71,11 +71,11 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         this.handshaked = handshaked;
     }
 
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> write(
-            final @NonNull TRequest packet,
-            final @NonNull MessageTarget target,
-            final @Nullable Class<TResponse> expectedResponse,
-            final @Nullable ConversationUID conversationUID) {
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> write(final @NonNull TRequest packet,
+                                            final @NonNull MessageTarget target,
+                                            final @Nullable Class<TResponse> expectedResponse,
+                                            final @Nullable ConversationUID conversationUID) {
 
         final ConversationUID uid = conversationUID == null ? ConversationUID.newUid() : conversationUID;
         final JRPCMessage message = JRPCMessageBuilder.builder()
@@ -97,11 +97,11 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         return conversation;
     }
 
-    private <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> newConversation(
-            final @NonNull TRequest request,
-            final @NonNull ConversationUID uid,
-            final @Nullable Class<? extends Packet> expectedResponse,
-            final boolean registerConversation) {
+    private <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> newConversation(final @NonNull TRequest request,
+                                                      final @NonNull ConversationUID uid,
+                                                      final @Nullable Class<? extends Packet> expectedResponse,
+                                                      final boolean registerConversation) {
 
         if(expectedResponse == null) {
             return Conversation.empty();
@@ -112,7 +112,12 @@ public class JRPCClientChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         return conversation;
     }
 
-    private <TRequest extends Packet> void logPacketDispatch(final TRequest packet, final MessageTarget target, final ConversationUID uid, final JRPCMessage message) {
+    private <TRequest extends Packet>
+    void logPacketDispatch(final TRequest packet,
+                           final MessageTarget target,
+                           final ConversationUID uid,
+                           final JRPCMessage message) {
+        
         client.getLogger().debugFiner(
                 "Sent packet {} to target {}. [Conversation UID: {}] [Target Type: {}] [Content Length. {}]",
                 packet.getClass(), target.target(), uid.uid(), target.type().toString(), message.data().length

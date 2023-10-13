@@ -138,7 +138,7 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
                 parallelResponseHandlingLock.acquireLock(maxResponseHandlingTime);
                 handleResponse(context);
             }catch(final TimeoutException exception) {
-                client.getLogger().fatal("Lock for response handling could not be acquired! Too many threads are taking too long to process the response.");
+                client.getLogger().fatal("Lock for response handling could not be acquired! Too many threads are taking too long to process their response.");
                 client.getLogger().fatal("Source: {} Request: {} Response: {} Conversation UID: {}", context.getSource(), context.getRequest().getClass(), context.getResponse().getClass(), conversationUID);
                 throw new RuntimeException(exception);
             }catch(final Exception exception) {

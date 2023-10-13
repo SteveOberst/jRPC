@@ -29,6 +29,7 @@ import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
+import net.sxlver.jrpc.core.util.RuntimeProfiler;
 import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.server.config.JRPCServerConfig;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
@@ -261,7 +262,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
      * @param invoker the invoker
      */
     public void forward(final @NonNull JRPCMessage message, final @NonNull JRPCServerChannelHandler invoker) {
-         final Message.TargetType targetType = message.targetType();
+        final Message.TargetType targetType = message.targetType();
         final TargetSelector targetSelector = TargetSelectors.getByTargetType(targetType);
         Collection<JRPCClientInstance> sendTo = targetSelector.select(message.target(), getRegisteredClientsRaw());
 

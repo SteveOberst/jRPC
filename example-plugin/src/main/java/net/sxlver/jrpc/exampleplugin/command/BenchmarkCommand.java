@@ -84,8 +84,10 @@ public class BenchmarkCommand implements CommandExecutor {
         return CompletableFuture.runAsync(() -> {
             final BenchmarkConversation.Request request = new BenchmarkConversation.Request(new byte[payloadSize]);
             for (int i = 0; i < requests; i++) {
-                service.broadcast(request, BenchmarkConversation.Response.class).waitFor(20000, TimeUnit.MILLISECONDS)
+                service.broadcast(request, BenchmarkConversation.Response.class)
+                        .waitFor(20000, TimeUnit.MILLISECONDS)
                         .onResponse((res,context) -> responseCallback.accept(sender, context, requests));
+
                 sentRequests.incrementAndGet();
             }
             requestTimestamp.set(System.currentTimeMillis());

@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Thread safety in Conversations">
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Avoid deadlock by adding timeout">
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/RuntimeProfiler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit/src/main/java/net/sxlver/jrpc/bukkit/JRPCService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/ParallelLock.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/util/ParallelLock.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/JRPCClientChannelHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/BenchmarkCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/command/BenchmarkCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,6 +89,8 @@
     </option>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/Thread.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/ThreadLocal.class" root0="SKIP_INSPECTION" />
     <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/Void.class" root0="SKIP_INSPECTION" />
     <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Collectors.class" root0="SKIP_INSPECTION" />
     <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Stream.class" root0="SKIP_INSPECTION" />
@@ -150,7 +155,7 @@
       <recent name="net.sxlver.jrpc.server.config" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
       <module name="jRPC.server.main" />
@@ -419,7 +424,15 @@
       <option name="project" value="LOCAL" />
       <updated>1697033190885</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Avoid deadlock by adding timeout">
+      <option name="closed" value="true" />
+      <created>1697052871553</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1697052871553</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -462,7 +475,8 @@
     <MESSAGE value="Add distribution..." />
     <MESSAGE value="Benchmark, docs, Bugfixes" />
     <MESSAGE value="Thread safety in Conversations" />
-    <option name="LAST_COMMIT_MESSAGE" value="Thread safety in Conversations" />
+    <MESSAGE value="Avoid deadlock by adding timeout" />
+    <option name="LAST_COMMIT_MESSAGE" value="Avoid deadlock by adding timeout" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -471,11 +485,6 @@
           <properties class="java.lang.NullPointerException" package="java.lang" />
           <option name="timeStamp" value="1" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java</url>
-          <line>264</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
