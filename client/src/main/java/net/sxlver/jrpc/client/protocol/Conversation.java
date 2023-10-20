@@ -112,11 +112,11 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
      * Invokes the onResponse handler on the given parameter.
      *
      * <p>This method will wait until other threads are finished if called
-     * in parallel and {@link #parallelResponseHandling) is not enabled. If called
+     * in parallel and {@link #parallelResponseHandling} is not enabled. If called
      * in parallel, waiting time could be included depending on the amount of threads
      * that are currently handling responses and the client configuration.
      * <p>
-     * @param response the response
+     * @param context the response
      */
     void onResponse(final MessageContext<TResponse> context) {
         this.handlerCalled = true;
@@ -133,8 +133,10 @@ public final class Conversation<TRequest extends Packet, TResponse extends Packe
                 }
             }
         }else {
-            // attempt to acquire the lock, if no lock can be acquired it will cause the thread to wait
             try {
+                // attempt to acquire the lock, if no lock can be acquired it will cause the thread to wait.
+                // whether a lock can be acquired or not depends on how many threads are allowed to have this
+                // lock acquired in parallel, which is defined on instantiation of the ParallelLock class.
                 parallelResponseHandlingLock.acquireLock(maxResponseHandlingTime);
                 handleResponse(context);
             }catch(final TimeoutException exception) {

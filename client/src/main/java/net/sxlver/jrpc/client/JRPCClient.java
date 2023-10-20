@@ -447,7 +447,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             } catch (ChannelException exception) {
                 logger.fatal("Encountered error whilst settings options to channel: {}", ExceptionUtils.getStackTrace(exception));
             }
-            channel.pipeline().addLast("frame_decoder", new LengthFieldBasedFrameDecoder(Message.MAX_PACKET_LENGTH, 0, 4,0,4));
+            channel.pipeline().addLast("frame_decoder", new LengthFieldBasedFrameDecoder(Message.MAX_PACKET_LENGTH, 0, 4, 0, 4));
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCClient.this));
             channel.pipeline().addLast("handshake_handler", new JRPCClientHandshakeHandler(JRPCClient.this));
             channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));
