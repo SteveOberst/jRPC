@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The type Jrpc service.
  */
-public class JRPCService {
+public class JRPCBukkitService {
 
     private final JRPCBukkitPlugin plugin;
     private DefaultMessageProcessor messageProcessor;
@@ -24,7 +24,7 @@ public class JRPCService {
      *
      * @param plugin the plugin
      */
-    public JRPCService(final JRPCBukkitPlugin plugin) {
+    public JRPCBukkitService(final JRPCBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 

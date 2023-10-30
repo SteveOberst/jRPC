@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class JRPCBukkitPlugin extends JavaPlugin {
 
-    private JRPCService service;
+    private JRPCBukkitService service;
 
     @Override
     public void onEnable() {
@@ -19,13 +19,13 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
     }
 
     private void registerService() {
-        this.service = new JRPCService(this);
+        this.service = new JRPCBukkitService(this);
         if(!service.start()) {
             getLogger().severe("Service could not be created, exiting.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
-        Bukkit.getServicesManager().register(JRPCService.class, service, this, ServicePriority.Highest);
+        Bukkit.getServicesManager().register(JRPCBukkitService.class, service, this, ServicePriority.Highest);
     }
 }

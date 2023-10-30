@@ -1,8 +1,8 @@
-package net.sxlver.jrpc.exampleplugin.command;
+package net.sxlver.jrpc.examplepluginservices.command;
 
 import net.sxlver.jrpc.bukkit.JRPCBukkitService;
-import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
-import net.sxlver.jrpc.exampleplugin.conversation.LocatePlayerConversation;
+import net.sxlver.jrpc.examplepluginservices.JRPCServiceExamplePlugin;
+import net.sxlver.jrpc.examplepluginservices.conversation.LocatePlayerConversation;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 public class LocatePlayerCommand implements CommandExecutor {
 
-    private final JRPCExamplePlugin plugin;
+    private final JRPCServiceExamplePlugin plugin;
     private final JRPCBukkitService service;
 
-    public LocatePlayerCommand(final JRPCExamplePlugin plugin) {
+    public LocatePlayerCommand(final JRPCServiceExamplePlugin plugin) {
         this.plugin = plugin;
         this.service = plugin.getService();
     }
@@ -32,12 +32,13 @@ public class LocatePlayerCommand implements CommandExecutor {
         service.broadcast(new LocatePlayerConversation.Request(target), LocatePlayerConversation.Response.class)
                 .onResponse((request, context) -> {
                     final LocatePlayerConversation.Response response = context.getResponse();
-                    sender.sendMessage(String.format("%sLocated player '%s' on server '%s'. UUID: %s", ChatColor.GREEN, response.name, response.server, response.player));
+                    sender.sendMessage(String.format("%sLocated player '%s' on server '%s'.", ChatColor.GREEN, response.request.player, response.serverId));
                 })
                 .onTimeout((request, messageContexts) -> {
                     sender.sendMessage(String.format("Could not find %s on the entire network.", target));
                 })
                 .waitFor(1000, TimeUnit.MILLISECONDS)
+                .alwaysNotifyTimeout()
                 .overrideHandlers();
 
         return true;

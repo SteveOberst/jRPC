@@ -1,6 +1,6 @@
 package net.sxlver.jrpc.exampleplugin;
 
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.exampleplugin.command.*;
 import net.sxlver.jrpc.exampleplugin.conversation.BenchmarkConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.BroadcastMessageConversation;
@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JRPCExamplePlugin extends JavaPlugin {
 
-    private JRPCService service;
+    private JRPCBukkitService service;
 
     @Override
     public final void onEnable() {
@@ -24,10 +24,10 @@ public class JRPCExamplePlugin extends JavaPlugin {
     public final void onDisable() {
     }
 
-    private JRPCService getJRPCService() {
-        final RegisteredServiceProvider<JRPCService> serviceProvider = Bukkit.getServicesManager().getRegistration(JRPCService.class);
+    private JRPCBukkitService getJRPCService() {
+        final RegisteredServiceProvider<JRPCBukkitService> serviceProvider = Bukkit.getServicesManager().getRegistration(JRPCBukkitService.class);
         if(serviceProvider == null) {
-            getLogger().severe(String.format("%s is not initialized or the plugin is not installed.", JRPCService.class));
+            getLogger().severe(String.format("%s is not initialized or the plugin is not installed.", JRPCBukkitService.class));
             Bukkit.getPluginManager().disablePlugin(this);
             return null;
         }
@@ -49,7 +49,7 @@ public class JRPCExamplePlugin extends JavaPlugin {
         service.getMessageProcessor().registerHandler(new BenchmarkConversation.RequestHandler(this));
     }
 
-    public JRPCService getService() {
+    public JRPCBukkitService getService() {
         return service;
     }
 }

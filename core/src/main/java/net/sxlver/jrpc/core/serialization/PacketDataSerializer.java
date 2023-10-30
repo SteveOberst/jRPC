@@ -20,7 +20,7 @@ public class PacketDataSerializer {
         } catch(final Exception exception) {
             exception.printStackTrace();
         }
-        return null;
+        return new byte[0];
     }
 
     public static <T> T deserialize(final JsonObject jsonObject, final Class<T> cls) {

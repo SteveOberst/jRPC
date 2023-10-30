@@ -1,9 +1,7 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.client.JRPCClient;
-import net.sxlver.jrpc.core.protocol.Message;
-import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.core.protocol.packet.ClusterInformationConversation;
 import net.sxlver.jrpc.core.util.Callback;
@@ -18,7 +16,7 @@ import java.util.List;
 
 public class ListServerCommand implements CommandExecutor {
     private final JRPCExamplePlugin plugin;
-    private final JRPCService service;
+    private final JRPCBukkitService service;
 
     public ListServerCommand(final JRPCExamplePlugin plugin) {
         this.plugin = plugin;
