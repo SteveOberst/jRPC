@@ -1,24 +1,22 @@
 package net.sxlver.jrpc.server.protocol;
 
-import com.google.gson.JsonObject;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.ReadTimeoutException;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.*;
+import net.sxlver.jrpc.core.protocol.Errors;
 import net.sxlver.jrpc.core.protocol.impl.JRPCHandshake;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessageBuilder;
-import net.sxlver.jrpc.core.protocol.packet.ErrorInformationPacket;
-import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
+import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
 import net.sxlver.jrpc.server.JRPCServer;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 
 public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMessage> {
@@ -34,7 +32,6 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
 
     private long lastWrite = System.currentTimeMillis();
 
-    private KeepAlivePacket lastKeepAlive = new KeepAlivePacket();
 
     public JRPCServerChannelHandler(final JRPCServer server) {
         this.server = server;
@@ -45,25 +42,17 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         // has the client authenticated yet?
         if(!handshaked) {
             // Client is not yet authenticated, ignore request and respond with an error
-            write(new ErrorInformationPacket(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated.", null));
+            write(new ErrorInformationResponse(Errors.ERR_NOT_AUTHENTICATED, "Client is not authenticated."));
+            channel.close();
+            server.getLogger().warn("Remote client {} has sent data before authenticating, closing connection...", channel.remoteAddress());
             return;
         }
 
-        // TODO: think of another solution than extracting the class path every time as this
-        //       is a little I/O heavy
-        //
-        // Preserve JsonObject in first step to save up on some I/O load
-        final JsonObject jsonObject = PacketDataSerializer.deserializeJson(message.data());
-        if(PacketDataSerializer.extractClassPath(jsonObject).equals(KeepAlivePacket.class.getName())) {
-            // Finally deserialize the JsonObject to the KeepAlivePacket class instance
-            final KeepAlivePacket packet = PacketDataSerializer.deserialize(jsonObject, KeepAlivePacket.class);
-            final JRPCClientInstance client = server.getByUniqueId(message.source());
-            client.onKeepAlive(context, lastKeepAlive, packet);
-            sendKeepAlive();
-            return;
+        if(message.targetType() == Message.TargetType.SERVER) {
+            final Packet packet = PacketDataSerializer.deserializePacket(message.data());
+            server.onReceive(this, message, packet);
         }
-
-        if(message.targetType() != Message.TargetType.SERVER) {
+        else {
             // forward message to target client instance(s)
             server.forward(message, this);
         }
@@ -72,17 +61,20 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     @Override
     public void exceptionCaught(final ChannelHandlerContext context, final Throwable cause) {
         if(client == null) return;
-
         if(cause instanceof ReadTimeoutException) {
             server.getLogger().info("Connection to client with id {} has timed out.", client.getUniqueId());
+            close();
             return;
         }
+
         if(cause instanceof SocketException) {
             server.getLogger().info("Client '{}' has unexpectedly closed the connection.", client.getUniqueId());
+            close();
             return;
         }
+
         server.getLogger().warn("An unhandled Exception has reached the end of pipeline: {}: {}", cause.getClass(), cause.getMessage());
-        server.getLogger().fatal(ExceptionUtils.getStackTrace(cause));
+        server.getLogger().fatal(cause);
     }
 
     @Override
@@ -96,8 +88,15 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
             server.getLogger().info("An unauthenticated client has closed the connection. Remote address: {}", getRemoteAddress());
             return;
         }
-        server.removeConnected(client);
-        server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
+        close();
+    }
+
+    private void close() {
+        if(channel.isActive() || server.isConnected(client)) {
+            channel.close();
+            server.removeConnected(client);
+            server.getLogger().info("The Connection to {} has been closed.", client.getUniqueId());
+        }
     }
 
     public boolean onHandshakeSuccess(final JRPCHandshake handshake) {
@@ -109,9 +108,14 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
     }
 
     public void write(final Packet packet) {
+        write(packet, ConversationUID.newUid());
+    }
+
+    public void write(final Packet packet, final @NonNull ConversationUID sourceConversation) {
         final JRPCMessage message = JRPCMessageBuilder.builder()
                 .source(server)
                 .target(uniqueId)
+                .conversationUid(sourceConversation)
                 .targetType(Message.TargetType.DIRECT)
                 .data(PacketDataSerializer.serialize(packet))
                 .build();
@@ -124,18 +128,16 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         channel.writeAndFlush(message);
     }
 
-    public void sendKeepAlive() {
-        final KeepAlivePacket packet = new KeepAlivePacket();
-        this.lastKeepAlive = packet;
-        write(packet);
-    }
-
     public void shutdown() {
         channel.closeFuture().awaitUninterruptibly();
     }
 
-    public SocketAddress getRemoteAddress() {
-        return channel.remoteAddress();
+    public JRPCServer getServer() {
+        return server;
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return (InetSocketAddress) channel.remoteAddress();
     }
 
     public String getUniqueId() {

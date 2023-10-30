@@ -1,6 +1,5 @@
 package net.sxlver.jrpc.bukkit;
 
-import net.sxlver.jrpc.bukkit.protocol.processors.ClientInformationHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +11,6 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         registerService();
-        registerMessageReceiver();
     }
 
     @Override
@@ -29,9 +27,5 @@ public final class JRPCBukkitPlugin extends JavaPlugin {
         }
 
         Bukkit.getServicesManager().register(JRPCService.class, service, this, ServicePriority.Highest);
-    }
-
-    private void registerMessageReceiver() {
-        //service.getMessageProcessor().registerHandler(new ClientInformationHandler (this));
     }
 }

@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapterFactory;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.lang.reflect.Modifier;
 
+@ThreadSafe
 public enum CentralGson {
     PROTOCOL_INSTANCE;
 

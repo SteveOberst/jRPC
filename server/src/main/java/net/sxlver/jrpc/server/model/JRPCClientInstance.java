@@ -1,11 +1,11 @@
 package net.sxlver.jrpc.server.model;
 
-import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.NonNull;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import net.sxlver.jrpc.core.protocol.packet.KeepAlivePacket;
 import net.sxlver.jrpc.server.protocol.JRPCServerChannelHandler;
+
+import java.net.InetSocketAddress;
 
 public class JRPCClientInstance {
     private final JRPCServerChannelHandler handler;
@@ -13,12 +13,12 @@ public class JRPCClientInstance {
     @Getter
     private final JRPCClientInformation information;
 
-    @Getter
-    private long ping;
-
     public JRPCClientInstance(final @NonNull JRPCServerChannelHandler handler) {
         this.handler = handler;
-        this.information = new JRPCClientInformation(handler.getUniqueId(), handler.getType());
+
+        final boolean hideIps = handler.getServer().getConfig().isHideIpsFromClients();
+        final InetSocketAddress address = hideIps ? handler.getServer().getLocalAddress() : handler.getRemoteAddress();
+        this.information = new JRPCClientInformation(handler.getUniqueId(), handler.getType(), hideIps, address.getHostName(), address.getPort());
     }
 
     public JRPCServerChannelHandler getNetHandler() {
@@ -35,9 +35,5 @@ public class JRPCClientInstance {
 
     public String getType() {
         return information.getType();
-    }
-
-    public void onKeepAlive(final ChannelHandlerContext context, final KeepAlivePacket sent, final KeepAlivePacket received) {
-        this.ping = System.currentTimeMillis() - sent.getTimestamp();
     }
 }

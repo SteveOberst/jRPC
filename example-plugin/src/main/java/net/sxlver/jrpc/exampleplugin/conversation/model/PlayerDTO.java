@@ -9,12 +9,12 @@ import java.util.UUID;
 @Getter
 public class PlayerDTO {
 
-    private UUID uuid;
-    private String name;
+    private final UUID uuid;
+    private final String name;
 
-    private double health;
-    private int foodLevel;
-    private double walkSpeed;
+    private final double health;
+    private final int foodLevel;
+    private final double walkSpeed;
 
     PlayerDTO(final Player player) {
         this.uuid = player.getUniqueId();

@@ -28,11 +28,11 @@ public class LocatePlayerConversation {
         public String server;
     }
 
-    public static class LocatePlayerConversationHandler implements MessageHandler<Request> {
+    public static class RequestHandler implements MessageHandler<Request> {
 
         private final JRPCService service;
 
-        public LocatePlayerConversationHandler(final JRPCExamplePlugin plugin) {
+        public RequestHandler(final JRPCExamplePlugin plugin) {
             this.service = plugin.getService();
         }
 
@@ -41,7 +41,7 @@ public class LocatePlayerConversation {
             final Request request = context.getRequest();
             final Optional<Player> playerOpt = Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equalsIgnoreCase(request.player)).map(Player.class::cast).findFirst();
             playerOpt.ifPresent(player -> {
-                context.reply(new Response(request, player.getUniqueId(), player.getName(), service.getUniqueId()));
+                context.replyDirectly(new Response(request, player.getUniqueId(), player.getName(), service.getLocalUniqueId()));
             });
         }
 

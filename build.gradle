@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'com.palantir.git-version' version '0.12.1'
     id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
@@ -22,7 +21,6 @@ subprojects {
     repositories {
         mavenCentral()
         maven { url('https://jitpack.io') }
-        mavenLocal()
     }
 
     dependencies {
@@ -31,18 +29,15 @@ subprojects {
         // guava
         implementation 'com.google.guava:guava:11.0.2'
 
-        // netty
-        implementation 'io.netty:netty-all:4.1.97.Final'
-
         // apache commons
         implementation 'org.apache.commons:commons-lang3:3.0'
 
         // gson
         implementation 'com.google.code.gson:gson:2.10.1'
 
-        // configuration library - clone and install to local repo
+        // configuration library
         // https://github.com/SteveOberst/ConfigLib
-        implementation group: 'de.exlll', name: 'configlib-core', version: '2.2.0'
+        implementation('com.github.SteveOberst.ConfigLib:configlib-core:2.2.2')
 
         // Lombok
         compileOnly 'org.projectlombok:lombok:1.18.22'

@@ -35,11 +35,10 @@ public class LocatePlayerCommand implements CommandExecutor {
                     sender.sendMessage(String.format("%sLocated player '%s' on server '%s'. UUID: %s", ChatColor.GREEN, response.name, response.server, response.player));
                 })
                 .onTimeout((request, messageContexts) -> {
-                    sender.sendMessage(String.format("%s Did not respond.", target));
+                    sender.sendMessage(String.format("Could not find %s on the entire network.", target));
                 })
                 .waitFor(1000, TimeUnit.MILLISECONDS)
-                .overrideHandlers()
-                .enableConcurrentResponseProcessing();
+                .overrideHandlers();
 
         return true;
     }

@@ -21,8 +21,8 @@ publishing {
     }
 }
 
-group properties.get("package")
-version properties.get("commonVersion")
+group properties.get("corePackage")
+version properties.get("coreVersion")
 
 repositories {
     mavenLocal()
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-
+    implementation 'io.netty:netty-all:4.1.97.Final'
 }
 
 test {

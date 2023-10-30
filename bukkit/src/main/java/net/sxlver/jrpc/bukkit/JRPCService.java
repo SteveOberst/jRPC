@@ -1,74 +1,161 @@
 package net.sxlver.jrpc.bukkit;
 
-import com.google.common.collect.Lists;
-import lombok.Getter;
 import lombok.NonNull;
 import net.sxlver.jrpc.client.protocol.Conversation;
-import net.sxlver.jrpc.client.protocol.MessageProcessor;
+import net.sxlver.jrpc.client.protocol.DefaultMessageProcessor;
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.core.protocol.Message;
 import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.core.protocol.Packet;
-import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-
+/**
+ * The type Jrpc service.
+ */
 public class JRPCService {
 
     private final JRPCBukkitPlugin plugin;
-    private MessageProcessor messageProcessor;
+    private DefaultMessageProcessor messageProcessor;
     private JRPCClient client;
 
+    /**
+     * Instantiates a new Jrpc service.
+     *
+     * @param plugin the plugin
+     */
     public JRPCService(final JRPCBukkitPlugin plugin) {
         this.plugin = plugin;
     }
 
+    /**
+     * Start boolean.
+     *
+     * @return the boolean
+     */
     boolean start() {
-        this.client = new JRPCClient(plugin.getDataFolder().getPath());
-        this.messageProcessor = new MessageProcessor(this.client);
+        this.client = new JRPCClient(plugin.getDataFolder().getPath(), false);
+        this.messageProcessor = new DefaultMessageProcessor(this.client);
         try {
             client.open();
             client.registerMessageReceiver(messageProcessor);
             return true;
         }catch(final Exception exception) {
-            plugin.getLogger().severe("Error whilst initializing " + JRPCClient.class + ". This error is non-recoverable.");
+            client.getLogger().fatal("Error whilst initializing " + JRPCClient.class + ". This error is non-recoverable.");
+            client.getLogger().fatal(exception);
             return false;
         }
     }
 
+    /**
+     * Initiates shutdown of the client.
+     */
+    @Blocking
     public void shutdown() {
         if(client != null) {
             client.close();
         }
     }
 
+    /**
+     * Broadcast a message to all clients.
+     *
+     * @param packet the packet
+     */
     public void broadcast(final @NonNull Packet packet) {
-        publish(packet, new MessageTarget(Message.TargetType.BROADCAST));
+        publish(packet, new MessageTarget(Message.TargetType.ALL));
     }
 
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet, final Class<TResponse> expectedResponse) {
-         return publish(packet, new MessageTarget(Message.TargetType.BROADCAST), expectedResponse);
-    }
-
+    /**
+     * Publish a message to the client(s) matching the provided {@link MessageTarget}
+     *
+     * @param packet the packet to publish
+     * @param target the message target
+     */
     public void publish(final @NonNull Packet packet, final MessageTarget target) {
-        client.write(packet, target);
+        client.publish(packet, target);
     }
 
-    public <TRequest extends Packet, TResponse extends Packet> Conversation<TRequest, TResponse> publish(final TRequest packet, final MessageTarget target, final Class<TResponse> expectedResponse) {
-        return client.write(packet, target, expectedResponse);
+    /**
+     * Broadcast a message to all clients and register a conversation awaiting the responses
+     *
+     * @param <TRequest>       the request type parameter
+     * @param <TResponse>      the response type parameter
+     * @param packet           the packet to broadcast
+     * @param expectedResponse the expected response, could technically be null but this will lead to
+     *                         unintended behavior.
+     * @return the conversation object
+     */
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet,
+                                                final @NotNull Class<TResponse> expectedResponse) {
+
+         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.ALL));
     }
 
-    public String getUniqueId() {
+    /**
+     * Publish conversation.
+     *
+     * @param <TRequest>       the request type parameter
+     * @param <TResponse>      the response type parameter
+     * @param packet           the packet to publish
+     * @param expectedResponse the expected response, could technically be null but this will lead to
+     *                         unintended behavior. if you do not expect a response, refer to
+     *                         {@link #publish(Packet, MessageTarget)}.
+     * @param target           the message target
+     * @return the conversation
+     */
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> publish(final @NonNull TRequest packet,
+                                              final @NotNull Class<TResponse> expectedResponse,
+                                              final @NonNull MessageTarget target) {
+
+        return client.publish(packet, target, expectedResponse);
+    }
+
+    /**
+     * Publish load balanced conversation.
+     *
+     * @param <TRequest>       the type parameter
+     * @param <TResponse>      the type parameter
+     * @param packet           the packet
+     * @param expectedResponse the expected response
+     * @param target           the target
+     * @return the conversation
+     */
+    public <TRequest extends Packet, TResponse extends Packet>
+    Conversation<TRequest, TResponse> publishLoadBalanced(final @NonNull TRequest packet,
+                                                          final @NotNull Class<TResponse> expectedResponse,
+                                                          final @NonNull String target) {
+
+        return client.publish(packet, new MessageTarget(Message.TargetType.LOAD_BALANCED, target), expectedResponse);
+    }
+
+
+    /**
+     * Gets the client's local unique id.
+     *
+     * @return the local unique id
+     */
+    public String getLocalUniqueId() {
         return client.getConfig().getUniqueId();
     }
 
+    /**
+     * Gets client.
+     *
+     * @return the client
+     */
     public JRPCClient getClient() {
         return client;
     }
 
-    public MessageProcessor getMessageProcessor() {
+    /**
+     * Gets message processor.
+     *
+     * @return the message processor
+     */
+    public DefaultMessageProcessor getMessageProcessor() {
         return messageProcessor;
     }
 }

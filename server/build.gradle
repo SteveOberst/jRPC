@@ -21,7 +21,7 @@ publishing {
     }
 }
 
-group properties.get("package")
+group properties.get("serverPackage")
 version properties.get("serverVersion")
 
 repositories {
@@ -30,6 +30,7 @@ repositories {
 
 dependencies {
     implementation project(':core')
+    implementation 'io.netty:netty-all:4.1.97.Final'
 }
 
 tasks.shadowJar {

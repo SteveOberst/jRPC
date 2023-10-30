@@ -1,10 +1,14 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
 import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.core.protocol.Errors;
+import net.sxlver.jrpc.core.protocol.Message;
+import net.sxlver.jrpc.core.protocol.MessageTarget;
 import net.sxlver.jrpc.core.protocol.model.JRPCClientInformation;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
 import net.sxlver.jrpc.exampleplugin.conversation.FetchPlayerListConversation;
 import net.sxlver.jrpc.exampleplugin.conversation.model.PlayerDTO;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,11 +36,14 @@ public class PlayerListCommand implements CommandExecutor {
 
         final String target = args[0];
         sender.sendMessage(String.format("%sFetching player list for server '%s'...", ChatColor.GRAY, target));
-        service.broadcast(new FetchPlayerListConversation.Request(target), FetchPlayerListConversation.Response.class)
+        service.publish(new FetchPlayerListConversation.Request(target), FetchPlayerListConversation.Response.class, new MessageTarget(Message.TargetType.DIRECT, target))
                 .onResponse((request, context) -> {
                     final FetchPlayerListConversation.Response response = context.getResponse();
                     final List<PlayerDTO> players = response.players;
                     sender.sendMessage(String.format("%s Players online on %s: %s", ChatColor.GREEN, response.request.server, Arrays.toString(players.toArray())));
+                })
+                .onExcept((throwable, errorInformationHolder) -> {
+                    sender.sendMessage(String.format("%sAn error occurred whilst fetching player list for %s: %s", ChatColor.RED, target, errorInformationHolder.getErrorDescription()));
                 })
                 .onTimeout((request, messageContexts) -> {
                     sender.sendMessage(String.format("%sTarget server did not respond.", ChatColor.RED));

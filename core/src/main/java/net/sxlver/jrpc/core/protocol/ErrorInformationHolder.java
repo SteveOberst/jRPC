@@ -9,5 +9,5 @@ import org.jetbrains.annotations.Nullable;
 @AllArgsConstructor
 public abstract class ErrorInformationHolder extends Packet {
     private @NonNull String errorDescription;
-    private @Nullable Throwable cause;
+    public abstract Throwable getCause();
 }

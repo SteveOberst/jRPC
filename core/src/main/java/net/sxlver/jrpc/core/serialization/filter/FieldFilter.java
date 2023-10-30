@@ -1,6 +1,7 @@
 package net.sxlver.jrpc.core.serialization.filter;
 
 import com.google.gson.FieldAttributes;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 public interface FieldFilter extends Predicate<FieldAttributes> {
 
     @Override
-    default FieldFilter and(Predicate<? super FieldAttributes> other) {
+    default @NotNull FieldFilter and(@NotNull Predicate<? super FieldAttributes> other) {
         Objects.requireNonNull(other);
         return (t) -> test(t) && other.test(t);
     }

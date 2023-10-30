@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group = 'net.sxlver.jrpc.bukkit'
-version = '0.1-alpha'
+group properties.get("bukkitPackage")
+version properties.get("bukkitVersion")
 
 archivesBaseName = 'JRPC-Bukkit'
 
@@ -20,9 +20,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
     implementation project(':client')
     implementation project(':core')
+    compileOnly "org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT"
+    implementation 'io.netty:netty-all:4.1.97.Final'
 }
 
 tasks.shadowJar {

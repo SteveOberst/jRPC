@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="small bug fixes, removal of redundant code">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="Avoid deadlock by adding timeout">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/protocol/codec/JRPCMessageDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/PacketDataSerializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/serialization/PacketDataSerializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/protocol/Conversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,7 +18,13 @@
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+    <projectState path="$PROJECT_DIR$/JRPCExamplePlugin">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/bukkit">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/example-plugin">
       <ProjectState />
     </projectState>
   </component>
@@ -64,15 +68,31 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;SteveOberst&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="9936f40c-f003-4997-9360-d0f196f5a211" />
+        <option name="url" value="https://github.com/SteveOberst/jRPC" />
+      </UrlAndAccount>
+    </option>
+  </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/764fbcf20fe348c23338b3f8a7373c9e7d206956/lombok-1.18.22-sources.jar!/lombok/Getter.java" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/Thread.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/ThreadLocal.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/lang/Void.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Collectors.class" root0="SKIP_INSPECTION" />
+    <setting file="jrt://$APPLICATION_HOME_DIR$/jbr!/java.base/java/util/stream/Stream.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.1.97.Final/6602f651718b461cd2d17244d95cc87d58c3169a/netty-common-4.1.97.Final-sources.jar!/io/netty/util/concurrent/SingleThreadEventExecutor.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.1.97.Final/80452a42374b6c4e1a3596ce09f337b4ff4f4efb/netty-transport-4.1.97.Final-sources.jar!/io/netty/channel/SimpleChannelInboundHandler.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/spigotmc/spigot-api/1.12.2-R0.1-SNAPSHOT/spigot-api-1.12.2-R0.1-SNAPSHOT-sources.jar!/org/bukkit/plugin/ServicePriority.java" root0="SKIP_INSPECTION" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="wu6lfaam" />
@@ -80,40 +100,48 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="autoscrollToSource" value="true" />
+  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 1
+  &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2VLwBnA0XoaOPVDHklk8N2Uq6x7" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "jdk.selected.JAVA_MODULE": "corretto-17 (2)",
-    "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "corretto-17 (2)",
-    "last_opened_file_path": "C:/Users/steve/IdeaProjects/jRPC",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "Errors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;jbr-17&quot;,
+    &quot;jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: &quot;jbr-17&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Steve Oberst/IdeaProjects/pvpdojo&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;
   },
-  "keyToStringList": {
-    "jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": [
-      "17=C:/Users/Steve Oberst/.jdks/corretto-17.0.8"
+  &quot;keyToStringList&quot;: {
+    &quot;jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk&quot;: [
+      &quot;17=C:/Program Files/JetBrains/IntelliJ IDEA Community Edition 2023.2.2/jbr&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin\src\main\resources" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\core\src\main\java\net\sxlver\jrpc\core\serialization" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\server\src\main\resources" />
+    </key>
+    <key name="ExtractSuperBase.RECENT_KEYS">
+      <recent name="net.sxlver.jrpc.client.config" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="net.sxlver.jrpc.client" />
@@ -140,7 +168,7 @@
     <configuration name="bukkit build" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" value="bukkit build" />
-        <option name="externalProjectPath" value="C:\Users\Steve Oberst\IdeaProjects\jRPC\bukkit" />
+        <option name="externalProjectPath" value="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -181,7 +209,7 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="jRPC:bukkit [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="jRPC:bukkit [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/bukkit" />
@@ -192,7 +220,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="shadowJar" />
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -203,10 +231,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="jRPC:client [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="jRPC:bukkit [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/client" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/bukkit" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -250,17 +278,17 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.jRPC [shadowJar]" />
-        <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:bukkit [shadowJar]" />
+        <item itemvalue="Gradle.jRPC:bukkit [clean]" />
+        <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:example-client [shadowJar]" />
-        <item itemvalue="Gradle.jRPC:client [shadowJar]" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="" />
+      <changelist id="a258443d-224b-4dfb-a7c9-7568a47e8ce2" name="Changes" comment="" />
       <created>1694628535489</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -280,7 +308,127 @@
       <option name="project" value="LOCAL" />
       <updated>1694860468047</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="added Conversation functionality, other improvements and fixes">
+      <option name="closed" value="true" />
+      <created>1695320976725</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1695320976725</updated>
+    </task>
+    <task id="LOCAL-00004" summary="better error handling, Conversation functionality">
+      <option name="closed" value="true" />
+      <created>1695360191239</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1695360191239</updated>
+    </task>
+    <task id="LOCAL-00005" summary="refactoring">
+      <option name="closed" value="true" />
+      <created>1695396121659</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1695396121659</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Conversation timeouts, Example plugin functionality">
+      <option name="closed" value="true" />
+      <created>1695467281459</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1695467281459</updated>
+    </task>
+    <task id="LOCAL-00007" summary="fixed many logic errors&#10;working client -&gt; server -&gt; client -&gt; server -&gt; client conversation&#10;many other small improvements and bug fixes">
+      <option name="closed" value="true" />
+      <created>1695671192556</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1695671192556</updated>
+    </task>
+    <task id="LOCAL-00008" summary="integrated client -&gt; server communication&#10;Removed and replaced redundant code">
+      <option name="closed" value="true" />
+      <created>1695752797288</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1695752797288</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Docs, ResponseHandlers">
+      <option name="closed" value="true" />
+      <created>1696680426209</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1696680426209</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Fix CI Runner">
+      <option name="closed" value="true" />
+      <created>1696680558663</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1696680558663</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Use java 17 in CI runner">
+      <option name="closed" value="true" />
+      <created>1696680776431</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1696680776431</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Use gradle cache in CI Runner">
+      <option name="closed" value="true" />
+      <created>1696680905617</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1696680905617</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Hopefully finally fixed the CI runner">
+      <option name="closed" value="true" />
+      <created>1696681027960</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1696681027960</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Add distribution...">
+      <option name="closed" value="true" />
+      <created>1696681090635</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1696681090635</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Benchmark, docs, Bugfixes">
+      <option name="closed" value="true" />
+      <created>1696761365059</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1696761365059</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Thread safety in Conversations">
+      <option name="closed" value="true" />
+      <created>1697033190884</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1697033190885</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Avoid deadlock by adding timeout">
+      <option name="closed" value="true" />
+      <created>1697052871553</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1697052871553</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -288,7 +436,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -297,8 +457,22 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit missing files" />
     <MESSAGE value="Successfully establish connection and authenticate with server" />
-    <MESSAGE value="small bug fixes, removal of redundant code" />
-    <option name="LAST_COMMIT_MESSAGE" value="small bug fixes, removal of redundant code" />
+    <MESSAGE value="added Conversation functionality, other improvements and fixes" />
+    <MESSAGE value="better error handling, Conversation functionality" />
+    <MESSAGE value="refactoring" />
+    <MESSAGE value="Conversation timeouts, Example plugin functionality" />
+    <MESSAGE value="fixed many logic errors&#10;working client -&gt; server -&gt; client -&gt; server -&gt; client conversation&#10;many other small improvements and bug fixes" />
+    <MESSAGE value="integrated client -&gt; server communication&#10;Removed and replaced redundant code" />
+    <MESSAGE value="Docs, ResponseHandlers" />
+    <MESSAGE value="Fix CI Runner" />
+    <MESSAGE value="Use java 17 in CI runner" />
+    <MESSAGE value="Use gradle cache in CI Runner" />
+    <MESSAGE value="Hopefully finally fixed the CI runner" />
+    <MESSAGE value="Add distribution..." />
+    <MESSAGE value="Benchmark, docs, Bugfixes" />
+    <MESSAGE value="Thread safety in Conversations" />
+    <MESSAGE value="Avoid deadlock by adding timeout" />
+    <option name="LAST_COMMIT_MESSAGE" value="Avoid deadlock by adding timeout" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

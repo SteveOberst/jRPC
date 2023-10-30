@@ -2,6 +2,8 @@ package net.sxlver.jrpc.core.protocol;
 
 import net.sxlver.jrpc.core.protocol.impl.JRPCMessage;
 
+import java.util.Arrays;
+
 public interface Message {
 
     int MAX_PACKET_LENGTH = 2097152;
@@ -10,7 +12,7 @@ public interface Message {
 
     String target();
 
-    JRPCMessage.TargetType targetType();
+    TargetType targetType();
 
     ConversationUID conversationId();
 
@@ -33,17 +35,22 @@ public interface Message {
         /**
          * Forwards the message to every client instance matching the given type.
          */
-        ALL,
+        TYPE,
 
         /**
          * Forwards a message to every single client instance connected to the server.
          * The target for this operation does not matter.
          */
-        BROADCAST,
+        ALL,
 
         /**
          * Message is only meant for the server and will not be redirected to any client.
          */
         SERVER;
+
+
+        public static TargetType fromString(final String type) {
+            return Arrays.stream(values()).filter(targetType -> targetType.toString().equalsIgnoreCase(type)).findFirst().orElse(null);
+        }
     }
 }

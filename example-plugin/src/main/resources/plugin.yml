@@ -16,5 +16,11 @@ commands:
     description: lists online players on the target server
     aliases:
       - online
+  broadcast:
+    description: broadcasts a message across the network to players with the specified permission
+  listservers:
+    description: lists servers in the network
+  benchmark:
+    description: runs a benchmark by sending x amount of requests to every client in the network
 
 

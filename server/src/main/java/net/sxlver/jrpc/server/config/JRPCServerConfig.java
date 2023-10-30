@@ -1,9 +1,9 @@
 package net.sxlver.jrpc.server.config;
 
 
-import de.exlll.configlib.annotation.Comment;
-import de.exlll.configlib.annotation.FileLocation;
-import de.exlll.configlib.configs.yaml.YamlConfiguration;
+import net.sxlver.configlib.annotation.Comment;
+import net.sxlver.configlib.annotation.FileLocation;
+import net.sxlver.configlib.configs.yaml.YamlConfiguration;
 import io.netty.handler.logging.LogLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,10 +24,11 @@ public class JRPCServerConfig extends YamlConfiguration {
     private String logLevel = Level.INFO.getName();
     public Level getLoggingLevel() { return Level.parse(logLevel); }
 
+    @Comment("The id of the server")
     private String serverId = UUID.randomUUID().toString();
 
     @Comment("Authentication token required for clients in order to authenticate with the server")
-    private String authenticationToken = UUID.randomUUID().toString();;
+    private String authenticationToken = UUID.randomUUID().toString();
 
     @Comment("Port the server will be running on")
     private int port = 2777;
@@ -35,6 +36,9 @@ public class JRPCServerConfig extends YamlConfiguration {
     @Comment("Whether the server will accept messages sent from a client with a different version number")
     private boolean allowVersionMismatch = false;
 
-    @Comment("Time span before a timeout will be triggered in seconds")
-    private long readTimeout = 30;
+    @Comment("Whether a client can send a message to themselves")
+    private boolean allowSelfForward = false;
+
+    @Comment("Whether clients should be able to see IP-Addresses from other clients in the network")
+    private boolean hideIpsFromClients = false;
 }
