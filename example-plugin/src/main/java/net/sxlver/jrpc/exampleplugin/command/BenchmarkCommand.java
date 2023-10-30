@@ -1,33 +1,25 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
-import lombok.SneakyThrows;
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.client.protocol.MessageContext;
-import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.core.util.TriConsumer;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
 import net.sxlver.jrpc.exampleplugin.conversation.BenchmarkConversation;
-import net.sxlver.jrpc.exampleplugin.conversation.BroadcastMessageConversation;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class BenchmarkCommand implements CommandExecutor {
 
     private final JRPCExamplePlugin plugin;
-    private final JRPCService service;
+    private final JRPCBukkitService service;
 
     public BenchmarkCommand(final JRPCExamplePlugin plugin) {
         this.plugin = plugin;

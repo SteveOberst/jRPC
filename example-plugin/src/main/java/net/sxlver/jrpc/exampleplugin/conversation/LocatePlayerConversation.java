@@ -2,7 +2,7 @@ package net.sxlver.jrpc.exampleplugin.conversation;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.client.protocol.MessageContext;
 import net.sxlver.jrpc.client.protocol.MessageHandler;
 import net.sxlver.jrpc.core.protocol.Packet;
@@ -30,7 +30,7 @@ public class LocatePlayerConversation {
 
     public static class RequestHandler implements MessageHandler<Request> {
 
-        private final JRPCService service;
+        private final JRPCBukkitService service;
 
         public RequestHandler(final JRPCExamplePlugin plugin) {
             this.service = plugin.getService();

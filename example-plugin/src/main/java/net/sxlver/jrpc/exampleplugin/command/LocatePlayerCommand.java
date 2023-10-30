@@ -1,6 +1,6 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
 import net.sxlver.jrpc.exampleplugin.conversation.LocatePlayerConversation;
 import org.bukkit.ChatColor;
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class LocatePlayerCommand implements CommandExecutor {
 
     private final JRPCExamplePlugin plugin;
-    private final JRPCService service;
+    private final JRPCBukkitService service;
 
     public LocatePlayerCommand(final JRPCExamplePlugin plugin) {
         this.plugin = plugin;

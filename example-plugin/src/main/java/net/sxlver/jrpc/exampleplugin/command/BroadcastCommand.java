@@ -1,22 +1,20 @@
 package net.sxlver.jrpc.exampleplugin.command;
 
-import net.sxlver.jrpc.bukkit.JRPCService;
+import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.exampleplugin.JRPCExamplePlugin;
 import net.sxlver.jrpc.exampleplugin.conversation.BroadcastMessageConversation;
-import net.sxlver.jrpc.exampleplugin.conversation.LocatePlayerConversation;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class BroadcastCommand implements CommandExecutor {
 
     private final JRPCExamplePlugin plugin;
-    private final JRPCService service;
+    private final JRPCBukkitService service;
 
     public BroadcastCommand(final JRPCExamplePlugin plugin) {
         this.plugin = plugin;
