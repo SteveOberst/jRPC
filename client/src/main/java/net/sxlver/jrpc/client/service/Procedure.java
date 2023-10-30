@@ -30,7 +30,9 @@ public class Procedure {
     public Packet invoke(Packet request) throws ProcedureInvocationException {
         try {
             method.setAccessible(true);
-            return (Packet) method.invoke(service, request);
+            final Object response = method.invoke(service, request);
+            if(response == null) return null;
+            return (Packet) response;
         } catch (Exception exception) {
             String errorMsg = exception.getClass() + " whilst invoking " + service.getClass().getSimpleName() + "#" + method.getName();
             throw new ProcedureInvocationException(errorMsg, exception);

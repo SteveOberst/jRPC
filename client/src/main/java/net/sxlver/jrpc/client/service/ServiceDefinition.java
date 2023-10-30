@@ -47,7 +47,9 @@ public abstract class ServiceDefinition implements MessageHandler<Packet> {
         };
 
         if(procedure.isAsync()) {
-            CompletableFuture.supplyAsync(() -> invokeFunc.apply(request)).thenAccept(context::replyDirectly);
+            CompletableFuture.supplyAsync(() -> invokeFunc.apply(request)).thenAccept(packet -> {
+                if(packet != null) context.replyDirectly(packet);
+            });
         }else {
             context.replyDirectly(invokeFunc.apply(request));
         }

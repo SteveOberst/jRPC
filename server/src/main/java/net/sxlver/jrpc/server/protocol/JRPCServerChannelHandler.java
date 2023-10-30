@@ -103,8 +103,12 @@ public class JRPCServerChannelHandler extends SimpleChannelInboundHandler<JRPCMe
         this.uniqueId = handshake.getUniqueId();
         this.type = handshake.getType();
         this.client = new JRPCClientInstance(this);
-        server.addConnected(client);
-        return (this.handshaked = handshake.getToken().equals(server.getConfig().getAuthenticationToken()));
+
+        final boolean success = (this.handshaked = handshake.getToken().equals(server.getConfig().getAuthenticationToken()));
+        if(success) {
+            server.addConnected(client);
+        }
+        return success;
     }
 
     public void write(final Packet packet) {

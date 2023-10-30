@@ -1,4 +1,4 @@
-package net.sxlver.jrpc.exampleplugin.conversation.model;
+package net.sxlver.jrpc.examplepluginservices.conversation.model;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -30,5 +30,16 @@ public class PlayerDTO {
 
     public static PlayerDTO fromPlayer(final Player player) {
         return new PlayerDTO(player);
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerDTO{" +
+                "uuid=" + uuid +
+                ", name='" + name + '\'' +
+                ", health=" + health +
+                ", foodLevel=" + foodLevel +
+                ", walkSpeed=" + walkSpeed +
+                '}';
     }
 }

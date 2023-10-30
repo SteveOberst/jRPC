@@ -1,0 +1,18 @@
+name: JRPCServicesExamplePlugin
+version: '${version}'
+main: net.sxlver.jrpc.examplepluginservices.JRPCServiceExamplePlugin
+api-version: 1.13
+
+depend:
+  - JRPCBukkit
+
+commands:
+  locateplayer:
+    description: locates a player across the network
+    aliases:
+      - locate
+      - findplayer
+  getplayer:
+    description: dumps player data
+    aliases:
+      - get
