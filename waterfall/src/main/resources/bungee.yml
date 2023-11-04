@@ -1,0 +1,5 @@
+name: JRPCProxy
+version: '${version}'
+main: net.sxlver.jrpc.watterfall.JRPCProxyPlugin
+author: Sxlver
+description: JRPC Server running on the proxy

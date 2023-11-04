@@ -13,7 +13,10 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/example-plugin" />
             <option value="$PROJECT_DIR$/example-plugin-services" />
+            <option value="$PROJECT_DIR$/proxy-commons" />
             <option value="$PROJECT_DIR$/server" />
+            <option value="$PROJECT_DIR$/velocity" />
+            <option value="$PROJECT_DIR$/waterfall" />
           </set>
         </option>
       </GradleProjectSettings>
