@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.sxlver.jrpc.proxycommons'
+version = '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation project(':server')
+}
+
+test {
+    useJUnitPlatform()
+}

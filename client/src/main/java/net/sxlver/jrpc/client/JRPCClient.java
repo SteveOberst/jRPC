@@ -74,7 +74,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         this.dataFolder = dataFolder;
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCDefaultConfiguration.class, true);
-        this.logger = new InternalLogger(getClass(), Path.of(getStorage(), "logs").toFile());
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -87,7 +87,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         this.dataFolder = dataFolder;
         this.configurationManager = new ConfigurationManager(this);
         this.config = config;
-        this.logger = new InternalLogger(getClass(), Path.of(getStorage(), "logs").toFile());
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
         this.centralGson = CentralGson.PROTOCOL_INSTANCE;
         this.logger.setLogLevel(config.getLoggingLevel());
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -318,7 +318,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     @Override
     @SneakyThrows
-    public String getStorage() {
+    public String getDataFolder() {
         return this.dataFolder == null ? getRunningDir() : this.dataFolder;
     }
 
