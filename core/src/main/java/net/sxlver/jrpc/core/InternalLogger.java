@@ -28,7 +28,7 @@ public class InternalLogger {
         }
 
         if(!logFolder.exists()){
-            logFolder.mkdir();
+            logFolder.mkdirs();
         }
 
         try {

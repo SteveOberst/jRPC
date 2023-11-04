@@ -1,4 +1,4 @@
 rootProject.name = 'jRPC'
-include 'server', 'client', 'core', 'bukkit', 'example-plugin', 'example-plugin-services'
+include 'server', 'client', 'core', 'bukkit', 'example-plugin', 'example-plugin-services', 'waterfall'
 
 

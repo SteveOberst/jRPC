@@ -29,7 +29,6 @@ import net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;
 import net.sxlver.jrpc.core.protocol.packet.HandshakeStatusPacket;
 import net.sxlver.jrpc.core.serialization.CentralGson;
 import net.sxlver.jrpc.core.serialization.PacketDataSerializer;
-import net.sxlver.jrpc.core.util.RuntimeProfiler;
 import net.sxlver.jrpc.core.util.StringUtil;
 import net.sxlver.jrpc.server.config.JRPCServerConfig;
 import net.sxlver.jrpc.server.model.JRPCClientInstance;
@@ -37,18 +36,20 @@ import net.sxlver.jrpc.server.protocol.*;
 import net.sxlver.jrpc.server.protocol.codec.JRPCServerMessageEncoder;
 import net.sxlver.jrpc.server.selector.TargetSelector;
 import net.sxlver.jrpc.server.selector.TargetSelectors;
+import net.sxlver.jrpc.server.util.DataFolder;
 import net.sxlver.jrpc.server.util.LazyInitVar;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class JRPCServer implements DataFolderProvider, ProtocolInformationProvider, LogProvider, DataSource {
@@ -73,11 +74,16 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     private final Set<JRPCClientInstance> connected = Sets.newSetFromMap(new ConcurrentHashMap<>());
 
-    /**
-     * Instantiates a new Jrpc server.
-     */
+    private String dataFolder;
+
+    @SneakyThrows
     public JRPCServer() {
-        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
+        this(DataFolder.getDefaultDataFolder());
+    }
+
+    public JRPCServer(String dataFolder) {
+        this.dataFolder = dataFolder;
+        this.logger = new InternalLogger(getClass(), Path.of(getStorage(), "logs").toFile());
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCServerConfig.class, true);
         this.localAddress = new InetSocketAddress("localhost", config.getPort());
@@ -88,10 +94,19 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
         this.defaultServerMessageHandler = DefaultHandlerRegistry.getMessageHandlers();
     }
 
+    public CompletableFuture<ChannelFuture> runAsync(final long wait, final TimeUnit waitUnit) {
+        return CompletableFuture.supplyAsync(this::openSocket)
+                .completeOnTimeout(null, wait, waitUnit);
+    }
+
     /**
      * Run the server
      */
-    public void run() throws Exception {
+    public ChannelFuture run() throws Exception {
+        return openSocket().sync();
+    }
+
+    private ChannelFuture openSocket() {
         Class<? extends ServerSocketChannel> channelClass;
         LazyInitVar<? extends MultithreadEventLoopGroup> loopGroup;
         synchronized (this) {
@@ -106,7 +121,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
                     ).localAddress(localAddress).bind().syncUninterruptibly();
 
             logger.info("Running server on {}", localAddress);
-            listeningChannel.channel().closeFuture().sync();
+            return listeningChannel.channel().closeFuture();
         }
     }
 
@@ -127,12 +142,8 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     @Override
     @SneakyThrows
-    public String getDataFolder() {
-        return new File(getClass().getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .toURI().getPath())
-                .getParent();
+    public String getStorage() {
+        return dataFolder;
     }
 
     /**
@@ -179,6 +190,10 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
     @Override
     public String getSource() {
         return config.getServerId();
+    }
+
+    public ConfigurationManager getConfigurationManager() {
+        return configurationManager;
     }
 
     /**

@@ -42,7 +42,7 @@ public class ConfigurationManager {
     public <T extends YamlConfiguration>
     YamlConfiguration loadConfigurationFile(final @NonNull Class<T> configurationClass) {
         final FileLocation fileLocation = configurationClass.getAnnotation(FileLocation.class);
-        final Path path = new File(provider.getDataFolder(), fileLocation.path() + File.separator + fileLocation.fileName()).toPath();
+        final Path path = new File(provider.getStorage(), fileLocation.path() + File.separator + fileLocation.fileName()).toPath();
         try {
             final Constructor<T> constructor = configurationClass.getDeclaredConstructor(Path.class, YamlConfiguration.YamlProperties.class);
             constructor.setAccessible(true);

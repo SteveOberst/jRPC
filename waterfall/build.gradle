@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+}
+
+group properties.get("waterfallPackage")
+version properties.get("waterfallVersion")
+
+archivesBaseName = 'JRPC-Waterfall'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+}
+
+dependencies {
+    implementation project(':server')
+    implementation project(':core')
+    compileOnly "io.github.waterfallmc:waterfall-api:1.20-R0.1-SNAPSHOT"
+}
+
+tasks.shadowJar {
+    relocate("org.yaml.snakeyaml", "net.sxlver.snakeyaml")
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    expand props
+    filteringCharset 'UTF-8'
+    filesMatching('bungee.yml') {
+        expand props
+    }
+}

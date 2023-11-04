@@ -5,21 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="small bug fixes, removal of redundant code">
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/GetPlayerCommand.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/LocatePlayerCommand.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/GetPlayerConversation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/LocatePlayerConversation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/model/PlayerDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/resources/plugin.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/util/DataFolder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/src/main/java/net/sxlver/jrpc/watterfall/JRPCProxyPlugin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/src/main/java/net/sxlver/jrpc/watterfall/config/ProxyConfiguration.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/waterfall/src/main/resources/bungee.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/model/PlayerDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation/model/PlayerDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/InternalLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/DataFolderProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/DataFolderProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -32,6 +32,9 @@
       <ProjectState />
     </projectState>
     <projectState path="$PROJECT_DIR$/bukkit">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/waterfall">
       <ProjectState />
     </projectState>
   </component>
@@ -54,6 +57,15 @@
           <activation />
         </task>
         <task path="$PROJECT_DIR$/example-plugin-services">
+          <activation />
+        </task>
+        <task path="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin">
+          <activation />
+        </task>
+        <task path="C:\Users\Steve Oberst\IdeaProjects\jRPC\waterfall">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/waterfall">
           <activation />
         </task>
         <projects_view>
@@ -110,11 +122,11 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "feature/services",
+    "git-widget-placeholder": "feature/waterfall",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "corretto-17 (2)",
-    "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "corretto-17 (2)",
-    "last_opened_file_path": "C:/Users/Steve Oberst/IdeaProjects/jRPC/example-plugin/src/main/java/net/sxlver/jrpc/exampleplugin/conversation",
+    "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "jbr-17",
+    "last_opened_file_path": "C:/Users/Steve Oberst/IdeaProjects/jRPC/waterfall/gradle/wrapper",
     "project.structure.last.edited": "SDKs",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -122,12 +134,13 @@
   },
   "keyToStringList": {
     "jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": [
-      "17=C:/Users/Steve Oberst/.jdks/corretto-17.0.8"
+      "17=C:/Program Files/JetBrains/IntelliJ IDEA Community Edition 2023.2.2/jbr"
     ]
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\waterfall\gradle\wrapper" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\example-plugin\src\main\java\net\sxlver\jrpc\exampleplugin\conversation" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC" />
       <recent name="C:\Users\Steve Oberst\IdeaProjects\jRPC\core\src\main\java\net\sxlver\jrpc\core\serialization" />
@@ -141,7 +154,7 @@
       <recent name="net.sxlver.jrpc.server" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
+  <component name="RunManager" selected="Gradle.jRPC:waterfall [shadowJar]">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
       <module name="jRPC.server.main" />
@@ -154,6 +167,28 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="JRPC build" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" value="JRPC build" />
+        <option name="externalProjectPath" value="C:\Users\Steve Oberst\IdeaProjects\jRPC\waterfall" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
     </configuration>
     <configuration name="bukkit build" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
@@ -221,28 +256,6 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="jRPC:example-client [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/example-client" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="shadowJar" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="jRPC:example-plugin-services [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -265,13 +278,35 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="jRPC:waterfall [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/waterfall" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.jRPC:waterfall [shadowJar]" />
         <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:example-plugin-services [shadowJar]" />
         <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.jRPC:bukkit [shadowJar]" />
-        <item itemvalue="Gradle.jRPC:example-client [shadowJar]" />
       </list>
     </recent_temporary>
   </component>
@@ -339,11 +374,6 @@
           <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>
           <line>81</line>
           <option name="timeStamp" value="5" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java</url>
-          <line>228</line>
-          <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>
