@@ -1,4 +1,4 @@
-package net.sxlver.jrpc.watterfall.config;
+package net.sxlver.jrpc.proxycommons;
 
 import lombok.Getter;
 import lombok.Setter;

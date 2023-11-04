@@ -22,6 +22,7 @@ repositories {
 dependencies {
     implementation project(':server')
     implementation project(':core')
+    implementation project(':proxy-commons')
     compileOnly "io.github.waterfallmc:waterfall-api:1.20-R0.1-SNAPSHOT"
 }
 

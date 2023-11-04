@@ -83,7 +83,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     public JRPCServer(String dataFolder) {
         this.dataFolder = dataFolder;
-        this.logger = new InternalLogger(getClass(), Path.of(getStorage(), "logs").toFile());
+        this.logger = new InternalLogger(getClass(), Path.of(getDataFolder(), "logs").toFile());
         this.configurationManager = new ConfigurationManager(this);
         this.config = configurationManager.getConfig(JRPCServerConfig.class, true);
         this.localAddress = new InetSocketAddress("localhost", config.getPort());
@@ -142,7 +142,7 @@ public class JRPCServer implements DataFolderProvider, ProtocolInformationProvid
 
     @Override
     @SneakyThrows
-    public String getStorage() {
+    public String getDataFolder() {
         return dataFolder;
     }
 
