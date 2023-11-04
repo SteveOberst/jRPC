@@ -5,25 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="small bug fixes, removal of redundant code">
-      <change afterPath="$PROJECT_DIR$/proxy-commons/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/proxy-commons/src/main/java/net/sxlver/jrpc/proxycommons/ProxyServerWrapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/velocity/build.gradle" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/velocity/src/main/java/net/sxlver/jrpc/velocity/BuildConstants.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/velocity/src/main/java/net/sxlver/jrpc/velocity/JRPCProxyPlugin.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/velocity/src/main/templates/net/sxlver/jrpc/velocity/BuildConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/JRPCClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/ConfigurationManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/DataFolderProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/sxlver/jrpc/core/config/DataFolderProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/JRPCServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/waterfall/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/waterfall/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/waterfall/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/waterfall/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/waterfall/src/main/java/net/sxlver/jrpc/watterfall/JRPCProxyPlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/waterfall/src/main/java/net/sxlver/jrpc/watterfall/JRPCProxyPlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/waterfall/src/main/java/net/sxlver/jrpc/watterfall/config/ProxyConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/proxy-commons/src/main/java/net/sxlver/jrpc/proxycommons/ProxyConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +121,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "feature/velocity",
+    "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "jbr-17",
     "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "11",
@@ -170,7 +153,7 @@
       <recent name="net.sxlver.jrpc.server.serialization" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.jRPC:velocity [shadowJar]">
+  <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
       <module name="jRPC.server.main" />
@@ -340,9 +323,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:velocity [shadowJar]" />
         <item itemvalue="Gradle.jRPC:waterfall [shadowJar]" />
-        <item itemvalue="Gradle.jRPC [shadowJar]" />
         <item itemvalue="Gradle.jRPC:example-plugin-services [shadowJar]" />
         <item itemvalue="Application.Main" />
       </list>
@@ -371,7 +354,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694860468047</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Add Waterfall module">
+      <option name="closed" value="true" />
+      <created>1699108491933</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1699108491933</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -389,7 +380,8 @@
     <MESSAGE value="commit missing files" />
     <MESSAGE value="Successfully establish connection and authenticate with server" />
     <MESSAGE value="small bug fixes, removal of redundant code" />
-    <option name="LAST_COMMIT_MESSAGE" value="small bug fixes, removal of redundant code" />
+    <MESSAGE value="Add Waterfall module" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Waterfall module" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
