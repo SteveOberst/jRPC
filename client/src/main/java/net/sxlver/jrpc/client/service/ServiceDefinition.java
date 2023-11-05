@@ -51,7 +51,10 @@ public abstract class ServiceDefinition implements MessageHandler<Packet> {
                 if(packet != null) context.replyDirectly(packet);
             });
         }else {
-            context.replyDirectly(invokeFunc.apply(request));
+            final Packet response = invokeFunc.apply(request);
+            if(response != null) {
+                context.replyDirectly(response);
+            }
         }
 
         client.getLogger().debugFinest("Invoked procedure {} in service {}", procedure.getMethod().getName(), getClass().getSimpleName());
@@ -59,8 +62,16 @@ public abstract class ServiceDefinition implements MessageHandler<Packet> {
 
     private void registerProcedures() {
         for (Method method : getClass().getMethods()) {
-            if(!method.isAnnotationPresent(ProcedureImplementation.class)) continue;
-            final Procedure procedure = Procedure.of(this, method);
+            final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
+            if(procedureAnnotation == null) continue;
+
+            final ProcedureType procedureType = procedureAnnotation.type();
+            if(!procedureType.checkPrerequisites(method)) {
+                client.getLogger().warn("{} failed the pre-requisites check for type {}. Check the documentation on how to declare procedures.", method.getName(), procedureType);
+                continue;
+            }
+
+            final Procedure procedure = procedureType.parse(this, method);
             procedures.put(procedure.getRequestType(), procedure);
             client.getLogger().debugFine("Registered procedure implementation {} in service {}", method.getName(), getClass().getSimpleName());
         }

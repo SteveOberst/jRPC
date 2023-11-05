@@ -3,6 +3,7 @@ package net.sxlver.jrpc.examplepluginservices;
 import net.sxlver.jrpc.bukkit.JRPCBukkitService;
 import net.sxlver.jrpc.examplepluginservices.command.GetPlayerCommand;
 import net.sxlver.jrpc.examplepluginservices.command.LocatePlayerCommand;
+import net.sxlver.jrpc.examplepluginservices.command.SavePlayerCommand;
 import net.sxlver.jrpc.examplepluginservices.service.PlayerNetworkService;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -37,6 +38,7 @@ public class JRPCServiceExamplePlugin extends JavaPlugin {
 
         getCommand("locateplayer").setExecutor(new LocatePlayerCommand(this));
         getCommand("getplayer").setExecutor(new GetPlayerCommand(this));
+        getCommand("saveplayer").setExecutor(new SavePlayerCommand(this));
     }
 
     public JRPCBukkitService getService() {

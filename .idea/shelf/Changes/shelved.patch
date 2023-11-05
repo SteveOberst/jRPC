@@ -1,0 +1,545 @@
+Index: example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/SavePlayerCommand.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/SavePlayerCommand.java b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/SavePlayerCommand.java
+new file mode 100644
+--- /dev/null	(date 1699174542062)
++++ b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/SavePlayerCommand.java	(date 1699174542062)
+@@ -0,0 +1,44 @@
++package net.sxlver.jrpc.examplepluginservices.command;
++
++import net.sxlver.jrpc.bukkit.JRPCBukkitService;
++import net.sxlver.jrpc.examplepluginservices.JRPCServiceExamplePlugin;
++import net.sxlver.jrpc.examplepluginservices.conversation.GetPlayerConversation;
++import net.sxlver.jrpc.examplepluginservices.conversation.model.PlayerDTO;
++import net.sxlver.jrpc.examplepluginservices.conversation.oneway.SavePlayerRequest;
++import org.bukkit.Bukkit;
++import org.bukkit.ChatColor;
++import org.bukkit.command.Command;
++import org.bukkit.command.CommandExecutor;
++import org.bukkit.command.CommandSender;
++import org.bukkit.entity.Player;
++
++import java.util.concurrent.TimeUnit;
++
++public class SavePlayerCommand implements CommandExecutor {
++
++    private final JRPCServiceExamplePlugin plugin;
++    private final JRPCBukkitService service;
++
++    public SavePlayerCommand(final JRPCServiceExamplePlugin plugin) {
++        this.plugin = plugin;
++        this.service = plugin.getService();
++    }
++
++    @Override
++    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
++        if(args.length < 1) {
++            sender.sendMessage(String.format("%sNot enough arguments provided", ChatColor.RED));
++            return true;
++        }
++
++        final String target = args[0];
++        final Player player = Bukkit.getPlayer(target);
++        if(player == null) {
++            sender.sendMessage(String.format("%sPlayer '%s' is not locally online.", ChatColor.RED, target));
++        }
++        sender.sendMessage(String.format("%sTrying to fetch player data for '%s'...", ChatColor.GRAY, target));
++        service.broadcast(new SavePlayerRequest(PlayerDTO.fromPlayer(player)));
++
++        return true;
++    }
++}
+Index: example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/oneway/SavePlayerRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/oneway/SavePlayerRequest.java b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/oneway/SavePlayerRequest.java
+new file mode 100644
+--- /dev/null	(date 1699174260407)
++++ b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/oneway/SavePlayerRequest.java	(date 1699174260407)
+@@ -0,0 +1,10 @@
++package net.sxlver.jrpc.examplepluginservices.conversation.oneway;
++
++import lombok.AllArgsConstructor;
++import net.sxlver.jrpc.core.protocol.Packet;
++import net.sxlver.jrpc.examplepluginservices.conversation.model.PlayerDTO;
++
++@AllArgsConstructor
++public class SavePlayerRequest extends Packet {
++    public PlayerDTO player;
++}
+Index: example-plugin-services/src/main/resources/plugin.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>name: JRPCServicesExamplePlugin\r\nversion: '${version}'\r\nmain: net.sxlver.jrpc.examplepluginservices.JRPCServiceExamplePlugin\r\napi-version: 1.13\r\n\r\ndepend:\r\n  - JRPCBukkit\r\n\r\ncommands:\r\n  locateplayer:\r\n    description: locates a player across the network\r\n    aliases:\r\n      - locate\r\n      - findplayer\r\n  getplayer:\r\n    description: dumps player data\r\n    aliases:\r\n      - get
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/example-plugin-services/src/main/resources/plugin.yml b/example-plugin-services/src/main/resources/plugin.yml
+--- a/example-plugin-services/src/main/resources/plugin.yml	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/example-plugin-services/src/main/resources/plugin.yml	(date 1699174952493)
+@@ -15,4 +15,8 @@
+   getplayer:
+     description: dumps player data
+     aliases:
+-      - get
+\ No newline at end of file
++      - get
++  saveplayer:
++    description: saves player data
++    aliases:
++      - save
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"EntryPointsManager\">\r\n    <list size=\"4\">\r\n      <item index=\"0\" class=\"java.lang.String\" itemvalue=\"org.bukkit.event.EventHandler\" />\r\n      <item index=\"1\" class=\"java.lang.String\" itemvalue=\"net.md_5.bungee.event.EventHandler\" />\r\n      <item index=\"2\" class=\"java.lang.String\" itemvalue=\"com.velocitypowered.api.event.Subscribe\" />\r\n      <item index=\"3\" class=\"java.lang.String\" itemvalue=\"com.velocitypowered.api.plugin.Plugin\" />\r\n    </list>\r\n  </component>\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_17\" default=\"true\" project-jdk-name=\"jbr-17\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/.idea/misc.xml	(date 1699166823853)
+@@ -1,4 +1,3 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="EntryPointsManager">
+     <list size="4">
+Index: example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package net.sxlver.jrpc.examplepluginservices;\r\n\r\nimport net.sxlver.jrpc.bukkit.JRPCBukkitService;\r\nimport net.sxlver.jrpc.examplepluginservices.command.GetPlayerCommand;\r\nimport net.sxlver.jrpc.examplepluginservices.command.LocatePlayerCommand;\r\nimport net.sxlver.jrpc.examplepluginservices.service.PlayerNetworkService;\r\nimport org.bukkit.Bukkit;\r\nimport org.bukkit.plugin.RegisteredServiceProvider;\r\nimport org.bukkit.plugin.java.JavaPlugin;\r\n\r\npublic class JRPCServiceExamplePlugin extends JavaPlugin {\r\n\r\n    private JRPCBukkitService service;\r\n\r\n    @Override\r\n    public final void onEnable() {\r\n        this.service = getJRPCService();\r\n        registerContent();\r\n    }\r\n\r\n    @Override\r\n    public final void onDisable() {\r\n    }\r\n\r\n    private JRPCBukkitService getJRPCService() {\r\n        final RegisteredServiceProvider<JRPCBukkitService> serviceProvider = Bukkit.getServicesManager().getRegistration(JRPCBukkitService.class);\r\n        if(serviceProvider == null) {\r\n            getLogger().severe(String.format(\"%s is not initialized or the plugin is not installed.\", JRPCBukkitService.class));\r\n            Bukkit.getPluginManager().disablePlugin(this);\r\n            return null;\r\n        }\r\n        return serviceProvider.getProvider();\r\n    }\r\n\r\n    private void registerContent() {\r\n        service.getMessageProcessor().registerHandler(new PlayerNetworkService(service.getClient()));\r\n\r\n        getCommand(\"locateplayer\").setExecutor(new LocatePlayerCommand(this));\r\n        getCommand(\"getplayer\").setExecutor(new GetPlayerCommand(this));\r\n    }\r\n\r\n    public JRPCBukkitService getService() {\r\n        return service;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java
+--- a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java	(date 1699174935830)
+@@ -3,6 +3,7 @@
+ import net.sxlver.jrpc.bukkit.JRPCBukkitService;
+ import net.sxlver.jrpc.examplepluginservices.command.GetPlayerCommand;
+ import net.sxlver.jrpc.examplepluginservices.command.LocatePlayerCommand;
++import net.sxlver.jrpc.examplepluginservices.command.SavePlayerCommand;
+ import net.sxlver.jrpc.examplepluginservices.service.PlayerNetworkService;
+ import org.bukkit.Bukkit;
+ import org.bukkit.plugin.RegisteredServiceProvider;
+@@ -37,6 +38,7 @@
+ 
+         getCommand("locateplayer").setExecutor(new LocatePlayerCommand(this));
+         getCommand("getplayer").setExecutor(new GetPlayerCommand(this));
++        getCommand("saveplayer").setExecutor(new SavePlayerCommand(this));
+     }
+ 
+     public JRPCBukkitService getService() {
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"5995046c-194b-4054-83f3-50fa41d47f25\" name=\"Changes\" comment=\"small bug fixes, removal of redundant code\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/gradle.properties\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/gradle.properties\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"ExternalProjectsData\">\r\n    <projectState path=\"$PROJECT_DIR$\">\r\n      <ProjectState />\r\n    </projectState>\r\n    <projectState path=\"$PROJECT_DIR$/bukkit\">\r\n      <ProjectState />\r\n    </projectState>\r\n    <projectState path=\"$PROJECT_DIR$/velocity\">\r\n      <ProjectState />\r\n    </projectState>\r\n    <projectState path=\"$PROJECT_DIR$/waterfall\">\r\n      <ProjectState />\r\n    </projectState>\r\n  </component>\r\n  <component name=\"ExternalProjectsManager\">\r\n    <system id=\"GRADLE\">\r\n      <state>\r\n        <task path=\"$PROJECT_DIR$\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/client\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/example-client\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\bukkit\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/bukkit\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/example-plugin-services\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\example-plugin\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\waterfall\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/waterfall\">\r\n          <activation />\r\n        </task>\r\n        <task path=\"$PROJECT_DIR$/velocity\">\r\n          <activation>\r\n            <after_sync>\r\n              <task name=\"generateTemplates\" />\r\n            </after_sync>\r\n          </activation>\r\n        </task>\r\n        <task path=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\velocity\">\r\n          <activation />\r\n        </task>\r\n        <projects_view>\r\n          <tree_state>\r\n            <expand />\r\n            <select />\r\n          </tree_state>\r\n        </projects_view>\r\n      </state>\r\n    </system>\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Enum\" />\r\n        <option value=\"Record\" />\r\n        <option value=\"Kotlin Class\" />\r\n        <option value=\"Interface\" />\r\n        <option value=\"AnnotationType\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"feature/waterfall\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"HighlightingSettingsPerFile\">\r\n    <setting file=\"jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/764fbcf20fe348c23338b3f8a7373c9e7d206956/lombok-1.18.22-sources.jar!/lombok/Getter.java\" root0=\"SKIP_INSPECTION\" />\r\n  </component>\r\n  <component name=\"MacroExpansionManager\">\r\n    <option name=\"directoryName\" value=\"wu6lfaam\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 1\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2VLwBnA0XoaOPVDHklk8N2Uq6x7\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"git-widget-placeholder\": \"master\",\r\n    \"ignore.virus.scanning.warn.message\": \"true\",\r\n    \"jdk.selected.JAVA_MODULE\": \"jbr-17\",\r\n    \"jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk\": \"11\",\r\n    \"last_opened_file_path\": \"C:/Users/Steve Oberst/IdeaProjects/jRPC/velocity/src/main/java/net/sxlver/jrpc/velocity\",\r\n    \"project.structure.last.edited\": \"Modules\",\r\n    \"project.structure.proportion\": \"0.15\",\r\n    \"project.structure.side.proportion\": \"0.2\",\r\n    \"settings.editor.selected.configurable\": \"Errors\"\r\n  },\r\n  \"keyToStringList\": {\r\n    \"jdk.preference.com.intellij.ui.dsl.builder.impl.RowImpl.sdk\": [\r\n      \"17=C:/Program Files/JetBrains/IntelliJ IDEA Community Edition 2023.2.2/jbr\"\r\n    ]\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\velocity\\src\\main\\java\\net\\sxlver\\jrpc\\velocity\" />\r\n      <recent name=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\waterfall\\gradle\\wrapper\" />\r\n      <recent name=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\example-plugin\\src\\main\\java\\net\\sxlver\\jrpc\\exampleplugin\\conversation\" />\r\n      <recent name=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\" />\r\n      <recent name=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\core\\src\\main\\java\\net\\sxlver\\jrpc\\core\\serialization\" />\r\n    </key>\r\n    <key name=\"CopyClassDialog.RECENTS_KEY\">\r\n      <recent name=\"net.sxlver.jrpc.proxycommons\" />\r\n      <recent name=\"net.sxlver.jrpc.examplepluginservices.command\" />\r\n      <recent name=\"net.sxlver.jrpc.client\" />\r\n      <recent name=\"net.sxlver.jrpc.server.util\" />\r\n      <recent name=\"net.sxlver.jrpc.server.serialization\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\" selected=\"Gradle.jRPC [shadowJar]\">\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"net.sxlver.jrpc.server.Main\" />\r\n      <module name=\"jRPC.server.main\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"net.sxlver.jrpc.server.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration name=\"JRPC build\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" value=\"JRPC build\" />\r\n        <option name=\"externalProjectPath\" value=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\waterfall\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"build\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"bukkit build\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" value=\"bukkit build\" />\r\n        <option name=\"externalProjectPath\" value=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\bukkit\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"build\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"jRPC [shadowJar]\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"shadowJar\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"jRPC:example-plugin-services [shadowJar]\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$/example-plugin-services\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"shadowJar\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"jRPC:velocity [shadowJar]\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$/velocity\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"shadowJar\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"jRPC:waterfall [shadowJar]\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\" temporary=\"true\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$/waterfall\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"shadowJar\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <configuration name=\"velocity build\" type=\"GradleRunConfiguration\" factoryName=\"Gradle\">\r\n      <ExternalSystemSettings>\r\n        <option name=\"executionName\" value=\"velocity build\" />\r\n        <option name=\"externalProjectPath\" value=\"C:\\Users\\Steve Oberst\\IdeaProjects\\jRPC\\velocity\" />\r\n        <option name=\"externalSystemIdString\" value=\"GRADLE\" />\r\n        <option name=\"scriptParameters\" />\r\n        <option name=\"taskDescriptions\">\r\n          <list />\r\n        </option>\r\n        <option name=\"taskNames\">\r\n          <list>\r\n            <option value=\"build\" />\r\n          </list>\r\n        </option>\r\n        <option name=\"vmOptions\" />\r\n      </ExternalSystemSettings>\r\n      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>\r\n      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>\r\n      <DebugAllEnabled>false</DebugAllEnabled>\r\n      <RunAsTest>false</RunAsTest>\r\n      <method v=\"2\" />\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Gradle.jRPC [shadowJar]\" />\r\n        <item itemvalue=\"Gradle.jRPC:velocity [shadowJar]\" />\r\n        <item itemvalue=\"Gradle.jRPC:waterfall [shadowJar]\" />\r\n        <item itemvalue=\"Gradle.jRPC:example-plugin-services [shadowJar]\" />\r\n        <item itemvalue=\"Application.Main\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"5995046c-194b-4054-83f3-50fa41d47f25\" name=\"Changes\" comment=\"\" />\r\n      <created>1694628535489</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1694628535489</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"commit missing files\">\r\n      <created>1694807055824</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1694807055824</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"Successfully establish connection and authenticate with server\">\r\n      <created>1694860468047</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1694860468047</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"Add Waterfall module\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1699108491933</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1699108491933</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"4\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"commit missing files\" />\r\n    <MESSAGE value=\"Successfully establish connection and authenticate with server\" />\r\n    <MESSAGE value=\"small bug fixes, removal of redundant code\" />\r\n    <MESSAGE value=\"Add Waterfall module\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Add Waterfall module\" />\r\n  </component>\r\n  <component name=\"XDebuggerManager\">\r\n    <breakpoint-manager>\r\n      <breakpoints>\r\n        <breakpoint enabled=\"true\" type=\"java-exception\">\r\n          <properties class=\"java.lang.NullPointerException\" package=\"java.lang\" />\r\n          <option name=\"timeStamp\" value=\"1\" />\r\n        </breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>\r\n          <line>86</line>\r\n          <option name=\"timeStamp\" value=\"2\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>\r\n          <line>94</line>\r\n          <option name=\"timeStamp\" value=\"3\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>\r\n          <line>81</line>\r\n          <option name=\"timeStamp\" value=\"5\" />\r\n        </line-breakpoint>\r\n        <line-breakpoint enabled=\"true\" type=\"java-line\">\r\n          <url>file://$PROJECT_DIR$/server/src/main/java/net/sxlver/jrpc/server/protocol/JRPCServerChannelHandler.java</url>\r\n          <line>102</line>\r\n          <option name=\"timeStamp\" value=\"7\" />\r\n        </line-breakpoint>\r\n      </breakpoints>\r\n    </breakpoint-manager>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/.idea/workspace.xml	(date 1699174952524)
+@@ -4,9 +4,19 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="small bug fixes, removal of redundant code">
++    <list default="true" id="5995046c-194b-4054-83f3-50fa41d47f25" name="Changes" comment="change version number">
++      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureType.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureTypes.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/command/SavePlayerCommand.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/conversation/oneway/SavePlayerRequest.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/JRPCServiceExamplePlugin.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/example-plugin-services/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example-plugin-services/src/main/resources/plugin.yml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -79,11 +89,11 @@
+   <component name="FileTemplateManagerImpl">
+     <option name="RECENT_TEMPLATES">
+       <list>
+-        <option value="Enum" />
+         <option value="Record" />
+-        <option value="Kotlin Class" />
+-        <option value="Interface" />
+         <option value="AnnotationType" />
++        <option value="Enum" />
++        <option value="Interface" />
++        <option value="Kotlin Class" />
+         <option value="Class" />
+       </list>
+     </option>
+@@ -91,7 +101,7 @@
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$" value="feature/waterfall" />
++        <entry key="$PROJECT_DIR$" value="master" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+@@ -121,7 +131,7 @@
+     "RunOnceActivity.OpenProjectViewOnStart": "true",
+     "RunOnceActivity.ShowReadmeOnStart": "true",
+     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+-    "git-widget-placeholder": "master",
++    "git-widget-placeholder": "feature/consuming-procedures",
+     "ignore.virus.scanning.warn.message": "true",
+     "jdk.selected.JAVA_MODULE": "jbr-17",
+     "jdk.selected.com.intellij.ui.dsl.builder.impl.RowImpl.sdk": "11",
+@@ -154,19 +164,6 @@
+     </key>
+   </component>
+   <component name="RunManager" selected="Gradle.jRPC [shadowJar]">
+-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+-      <option name="MAIN_CLASS_NAME" value="net.sxlver.jrpc.server.Main" />
+-      <module name="jRPC.server.main" />
+-      <extension name="coverage">
+-        <pattern>
+-          <option name="PATTERN" value="net.sxlver.jrpc.server.*" />
+-          <option name="ENABLED" value="true" />
+-        </pattern>
+-      </extension>
+-      <method v="2">
+-        <option name="Make" enabled="true" />
+-      </method>
+-    </configuration>
+     <configuration name="JRPC build" type="GradleRunConfiguration" factoryName="Gradle">
+       <ExternalSystemSettings>
+         <option name="executionName" value="JRPC build" />
+@@ -201,6 +198,28 @@
+         <option name="taskNames">
+           <list>
+             <option value="build" />
++          </list>
++        </option>
++        <option name="vmOptions" />
++      </ExternalSystemSettings>
++      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
++      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
++      <DebugAllEnabled>false</DebugAllEnabled>
++      <RunAsTest>false</RunAsTest>
++      <method v="2" />
++    </configuration>
++    <configuration name="jRPC [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
++      <ExternalSystemSettings>
++        <option name="executionName" />
++        <option name="externalProjectPath" value="$PROJECT_DIR$" />
++        <option name="externalSystemIdString" value="GRADLE" />
++        <option name="scriptParameters" />
++        <option name="taskDescriptions">
++          <list />
++        </option>
++        <option name="taskNames">
++          <list>
++            <option value="clean" />
+           </list>
+         </option>
+         <option name="vmOptions" />
+@@ -324,10 +343,10 @@
+     <recent_temporary>
+       <list>
+         <item itemvalue="Gradle.jRPC [shadowJar]" />
++        <item itemvalue="Gradle.jRPC [clean]" />
+         <item itemvalue="Gradle.jRPC:velocity [shadowJar]" />
+         <item itemvalue="Gradle.jRPC:waterfall [shadowJar]" />
+         <item itemvalue="Gradle.jRPC:example-plugin-services [shadowJar]" />
+-        <item itemvalue="Application.Main" />
+       </list>
+     </recent_temporary>
+   </component>
+@@ -362,7 +381,15 @@
+       <option name="project" value="LOCAL" />
+       <updated>1699108491933</updated>
+     </task>
+-    <option name="localTasksCounter" value="4" />
++    <task id="LOCAL-00004" summary="change version number">
++      <option name="closed" value="true" />
++      <created>1699109363309</created>
++      <option name="number" value="00004" />
++      <option name="presentableId" value="LOCAL-00004" />
++      <option name="project" value="LOCAL" />
++      <updated>1699109363309</updated>
++    </task>
++    <option name="localTasksCounter" value="5" />
+     <servers />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+@@ -381,7 +408,8 @@
+     <MESSAGE value="Successfully establish connection and authenticate with server" />
+     <MESSAGE value="small bug fixes, removal of redundant code" />
+     <MESSAGE value="Add Waterfall module" />
+-    <option name="LAST_COMMIT_MESSAGE" value="Add Waterfall module" />
++    <MESSAGE value="change version number" />
++    <option name="LAST_COMMIT_MESSAGE" value="change version number" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+Index: client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package net.sxlver.jrpc.client.service;\r\n\r\nimport com.google.common.cache.Cache;\r\nimport com.google.common.cache.CacheBuilder;\r\nimport lombok.NonNull;\r\nimport lombok.SneakyThrows;\r\nimport net.sxlver.jrpc.client.JRPCClient;\r\nimport net.sxlver.jrpc.client.protocol.MessageContext;\r\nimport net.sxlver.jrpc.client.protocol.MessageHandler;\r\nimport net.sxlver.jrpc.client.service.exception.ProcedureInvocationException;\r\nimport net.sxlver.jrpc.core.protocol.Errors;\r\nimport net.sxlver.jrpc.core.protocol.Packet;\r\nimport net.sxlver.jrpc.core.protocol.packet.ErrorInformationResponse;\r\nimport org.jetbrains.annotations.Nullable;\r\n\r\nimport java.lang.reflect.Method;\r\nimport java.util.concurrent.CompletableFuture;\r\nimport java.util.function.Function;\r\n\r\n@SuppressWarnings(\"UnstableApiUsage\")\r\npublic abstract class ServiceDefinition implements MessageHandler<Packet> {\r\n    private Cache<Class<? extends Packet>, Procedure> procedures = CacheBuilder.newBuilder().build();\r\n\r\n    private final JRPCClient client;\r\n\r\n    public ServiceDefinition(final JRPCClient client) {\r\n        this.client = client;\r\n        registerProcedures();\r\n    }\r\n\r\n    @Override\r\n    public void onReceive(final MessageContext<Packet> context) {\r\n        final Packet request = context.getRequest();\r\n        final Procedure procedure = getProcedure(request.getClass());\r\n        if(procedure == null) {\r\n            context.replyDirectly(new ErrorInformationResponse(Errors.ERR_INTERNAL_ERROR, String.format(\"No procedure for %s\", request.getClass())));\r\n            return;\r\n        }\r\n\r\n        final Function<Packet, Packet> invokeFunc = paramRequest -> {\r\n            try {\r\n                return procedure.invoke(paramRequest);\r\n            } catch (final ProcedureInvocationException exception) {\r\n                client.getLogger().fatal(exception);\r\n                return new ErrorInformationResponse(Errors.ERR_INTERNAL_ERROR, exception.getMessage());\r\n            }\r\n        };\r\n\r\n        if(procedure.isAsync()) {\r\n            CompletableFuture.supplyAsync(() -> invokeFunc.apply(request)).thenAccept(packet -> {\r\n                if(packet != null) context.replyDirectly(packet);\r\n            });\r\n        }else {\r\n            context.replyDirectly(invokeFunc.apply(request));\r\n        }\r\n\r\n        client.getLogger().debugFinest(\"Invoked procedure {} in service {}\", procedure.getMethod().getName(), getClass().getSimpleName());\r\n    }\r\n\r\n    private void registerProcedures() {\r\n        for (Method method : getClass().getMethods()) {\r\n            if(!method.isAnnotationPresent(ProcedureImplementation.class)) continue;\r\n            final Procedure procedure = Procedure.of(this, method);\r\n            procedures.put(procedure.getRequestType(), procedure);\r\n            client.getLogger().debugFine(\"Registered procedure implementation {} in service {}\", method.getName(), getClass().getSimpleName());\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public boolean shouldAccept(@NonNull Packet packet) {\r\n        return getProcedure(packet.getClass()) != null;\r\n    }\r\n\r\n    @Nullable\r\n    public Procedure getProcedure(Class<? extends Packet> cls) {\r\n        return procedures.getIfPresent(cls);\r\n    }\r\n\r\n    public JRPCClient getClient() {\r\n        return client;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java b/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java
+--- a/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/client/src/main/java/net/sxlver/jrpc/client/service/ServiceDefinition.java	(date 1699174260420)
+@@ -51,7 +51,10 @@
+                 if(packet != null) context.replyDirectly(packet);
+             });
+         }else {
+-            context.replyDirectly(invokeFunc.apply(request));
++            final Packet response = invokeFunc.apply(request);
++            if(response != null) {
++                context.replyDirectly(response);
++            }
+         }
+ 
+         client.getLogger().debugFinest("Invoked procedure {} in service {}", procedure.getMethod().getName(), getClass().getSimpleName());
+@@ -59,8 +62,16 @@
+ 
+     private void registerProcedures() {
+         for (Method method : getClass().getMethods()) {
+-            if(!method.isAnnotationPresent(ProcedureImplementation.class)) continue;
+-            final Procedure procedure = Procedure.of(this, method);
++            final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
++            if(procedureAnnotation == null) continue;
++
++            final ProcedureType procedureType = procedureAnnotation.type();
++            if(!procedureType.checkPrerequisites(method)) {
++                client.getLogger().warn("{} failed the pre-requisites check for type {}. Check the documentation on how to declare procedures.", method.getName(), procedureType);
++                continue;
++            }
++
++            final Procedure procedure = procedureType.parse(this, method);
+             procedures.put(procedure.getRequestType(), procedure);
+             client.getLogger().debugFine("Registered procedure implementation {} in service {}", method.getName(), getClass().getSimpleName());
+         }
+Index: client/src/main/java/net/sxlver/jrpc/client/service/ProcedureTypes.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureTypes.java b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureTypes.java
+new file mode 100644
+--- /dev/null	(date 1699170858893)
++++ b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureTypes.java	(date 1699170858893)
+@@ -0,0 +1,60 @@
++package net.sxlver.jrpc.client.service;
++
++import net.sxlver.jrpc.core.protocol.Packet;
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.reflect.Method;
++import java.util.function.Predicate;
++
++/**
++ * Enumerates the types of procedures available for the RPC framework.
++ */
++public enum ProcedureTypes implements ProcedureType {
++    /**
++     * Represents a query-type procedure that retrieves data from
++     * the remote server and returns a corresponding response.
++     *
++     * <p>
++     * This procedure facilitates data retrieval and interaction
++     * with the server's resources.
++     */
++    QUERY(method -> method.getParameterCount() == 1
++            && Packet.class.isAssignableFrom(method.getParameterTypes()[0])
++            && Packet.class.isAssignableFrom(method.getReturnType())) {
++        @Override
++        public @NotNull Procedure parse(ServiceDefinition service, Method method) {
++            final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
++            final @SuppressWarnings("All") Class<? extends Packet> requestType = (Class<? extends Packet>) method.getParameterTypes()[0];
++            final @SuppressWarnings("All") Class<? extends Packet> responseType = (Class<? extends Packet>) method.getReturnType();
++            return new Procedure(service, method, requestType, responseType, procedureAnnotation);
++        }
++    },
++
++    /**
++     * Represents a consumer-type procedure that accepts and processes
++     * data received from the remote server.
++     *
++     * <p>
++     * This procedure enables the client to send data and trigger
++     * server-side actions without expecting a direct response.
++     */
++    CONSUMER(method -> method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0])) {
++        @Override
++        public @NotNull Procedure parse(ServiceDefinition service, Method method) {
++            final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
++            final @SuppressWarnings("All") Class<? extends Packet> requestType = (Class<? extends Packet>) method.getParameterTypes()[0];
++            return new Procedure(service, method, requestType, null, procedureAnnotation);
++        }
++    };
++
++    private final Predicate<Method> methodValidator;
++
++    ProcedureTypes(final Predicate<Method> methodValidator) {
++        this.methodValidator = methodValidator;
++    }
++
++    @Override
++    public boolean checkPrerequisites(final Method method) {
++        return methodValidator.test(method);
++    }
++}
+Index: client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package net.sxlver.jrpc.client.service;\r\n\r\nimport java.lang.annotation.ElementType;\r\nimport java.lang.annotation.Retention;\r\nimport java.lang.annotation.RetentionPolicy;\r\nimport java.lang.annotation.Target;\r\n\r\n@Target(ElementType.METHOD)\r\n@Retention(RetentionPolicy.RUNTIME)\r\npublic @interface ProcedureImplementation {\r\n    boolean async() default true;\r\n\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java
+--- a/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureImplementation.java	(date 1699174260416)
+@@ -8,7 +8,7 @@
+ @Target(ElementType.METHOD)
+ @Retention(RetentionPolicy.RUNTIME)
+ public @interface ProcedureImplementation {
+-    boolean async() default true;
++    ProcedureTypes type() default ProcedureTypes.QUERY;
+ 
+-
++    boolean async() default false;
+ }
+\ No newline at end of file
+Index: client/src/main/java/net/sxlver/jrpc/client/service/ProcedureType.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureType.java b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureType.java
+new file mode 100644
+--- /dev/null	(date 1699167932691)
++++ b/client/src/main/java/net/sxlver/jrpc/client/service/ProcedureType.java	(date 1699167932691)
+@@ -0,0 +1,12 @@
++package net.sxlver.jrpc.client.service;
++
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.reflect.Method;
++
++public interface ProcedureType {
++
++    boolean checkPrerequisites(final Method method);
++
++    @NotNull Procedure parse(final ServiceDefinition service, final Method method);
++}
+Index: client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package net.sxlver.jrpc.client.service;\r\n\r\nimport net.sxlver.jrpc.client.service.exception.ProcedureInvocationException;\r\nimport net.sxlver.jrpc.core.protocol.Packet;\r\n\r\nimport java.lang.annotation.Annotation;\r\nimport java.lang.reflect.Method;\r\n\r\npublic class Procedure {\r\n    private final ServiceDefinition service;\r\n\r\n    private final Method method;\r\n    private final Class<? extends Packet> requestType;\r\n    private final Class<? extends Packet> responseType;\r\n    private final boolean async;\r\n\r\n    public Procedure(final ServiceDefinition service,\r\n                     final Method method,\r\n                     final Class<? extends Packet> requestType,\r\n                     final Class<? extends Packet> responseType,\r\n                     final ProcedureImplementation metadata) {\r\n\r\n        this.service = service;\r\n        this.method = method;\r\n        this.requestType = requestType;\r\n        this.responseType = responseType;\r\n        this.async = metadata.async();\r\n    }\r\n\r\n    public Packet invoke(Packet request) throws ProcedureInvocationException {\r\n        try {\r\n            method.setAccessible(true);\r\n            final Object response = method.invoke(service, request);\r\n            if(response == null) return null;\r\n            return (Packet) response;\r\n        } catch (Exception exception) {\r\n            String errorMsg = exception.getClass() + \" whilst invoking \" + service.getClass().getSimpleName() + \"#\" + method.getName();\r\n            throw new ProcedureInvocationException(errorMsg, exception);\r\n        }\r\n    }\r\n\r\n    private static boolean checkPrerequisites(final Method method) {\r\n        return method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0])\r\n                && Packet.class.isAssignableFrom(method.getReturnType());\r\n    }\r\n\r\n    public static Procedure of(final ServiceDefinition service, final Method method) {\r\n        if(!checkPrerequisites(method)) {\r\n            throw new IllegalArgumentException(String.format(\"%s is not a valid procedure implementation.\", method.getName()));\r\n        }\r\n\r\n        final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);\r\n        final @SuppressWarnings(\"All\") Class<? extends Packet> requestType = (Class<? extends Packet>) method.getParameterTypes()[0];\r\n        final @SuppressWarnings(\"All\") Class<? extends Packet> responseType = (Class<? extends Packet>) method.getReturnType();\r\n        return new Procedure(service, method, requestType, responseType, procedureAnnotation);\r\n    }\r\n\r\n    public Method getMethod() {\r\n        return method;\r\n    }\r\n\r\n    public Class<? extends Packet> getRequestType() {\r\n        return requestType;\r\n    }\r\n\r\n    public Class<? extends Packet> getResponseType() {\r\n        return responseType;\r\n    }\r\n\r\n    public boolean isAsync() {\r\n        return async;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java b/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java
+--- a/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/client/src/main/java/net/sxlver/jrpc/client/service/Procedure.java	(date 1699170446143)
+@@ -2,6 +2,8 @@
+ 
+ import net.sxlver.jrpc.client.service.exception.ProcedureInvocationException;
+ import net.sxlver.jrpc.core.protocol.Packet;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
+ 
+ import java.lang.annotation.Annotation;
+ import java.lang.reflect.Method;
+@@ -12,18 +14,20 @@
+     private final Method method;
+     private final Class<? extends Packet> requestType;
+     private final Class<? extends Packet> responseType;
++    private final ProcedureType type;
+     private final boolean async;
+ 
+-    public Procedure(final ServiceDefinition service,
+-                     final Method method,
+-                     final Class<? extends Packet> requestType,
+-                     final Class<? extends Packet> responseType,
+-                     final ProcedureImplementation metadata) {
++    public Procedure(@NotNull  final ServiceDefinition service,
++                     @NotNull  final Method method,
++                     @NotNull final Class<? extends Packet> requestType,
++                     @Nullable final Class<? extends Packet> responseType,
++                     @NotNull  final ProcedureImplementation metadata) {
+ 
+         this.service = service;
+         this.method = method;
+         this.requestType = requestType;
+         this.responseType = responseType;
++        this.type = metadata.type();
+         this.async = metadata.async();
+     }
+ 
+@@ -40,19 +44,7 @@
+     }
+ 
+     private static boolean checkPrerequisites(final Method method) {
+-        return method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0])
+-                && Packet.class.isAssignableFrom(method.getReturnType());
+-    }
+-
+-    public static Procedure of(final ServiceDefinition service, final Method method) {
+-        if(!checkPrerequisites(method)) {
+-            throw new IllegalArgumentException(String.format("%s is not a valid procedure implementation.", method.getName()));
+-        }
+-
+-        final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
+-        final @SuppressWarnings("All") Class<? extends Packet> requestType = (Class<? extends Packet>) method.getParameterTypes()[0];
+-        final @SuppressWarnings("All") Class<? extends Packet> responseType = (Class<? extends Packet>) method.getReturnType();
+-        return new Procedure(service, method, requestType, responseType, procedureAnnotation);
++        return method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0]);
+     }
+ 
+     public Method getMethod() {
+Index: example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package net.sxlver.jrpc.examplepluginservices.service;\r\n\r\nimport net.sxlver.jrpc.client.JRPCClient;\r\nimport net.sxlver.jrpc.client.service.ProcedureImplementation;\r\nimport net.sxlver.jrpc.client.service.ServiceDefinition;\r\nimport net.sxlver.jrpc.examplepluginservices.conversation.GetPlayerConversation;\r\nimport net.sxlver.jrpc.examplepluginservices.conversation.LocatePlayerConversation;\r\nimport net.sxlver.jrpc.examplepluginservices.conversation.model.PlayerDTO;\r\nimport org.bukkit.Bukkit;\r\nimport org.bukkit.entity.Player;\r\nimport org.jetbrains.annotations.Nullable;\r\n\r\nimport java.util.UUID;\r\n\r\npublic class PlayerNetworkService extends ServiceDefinition {\r\n    private final JRPCClient client;\r\n\r\n    public PlayerNetworkService(final JRPCClient client) {\r\n        super(client);\r\n        this.client = client;\r\n    }\r\n\r\n    @ProcedureImplementation\r\n    public GetPlayerConversation.Response getPlayer(final GetPlayerConversation.Request request) {\r\n        final Player player = Bukkit.getPlayer(request.player);\r\n        if(player == null) {\r\n            return new GetPlayerConversation.Response(request, false, null);\r\n        }\r\n\r\n        final PlayerDTO dto = PlayerDTO.fromPlayer(player);\r\n        return new GetPlayerConversation.Response(request, true, dto);\r\n    }\r\n\r\n    @ProcedureImplementation\r\n    public @Nullable LocatePlayerConversation.Response locatePlayer(final LocatePlayerConversation.Request request) {\r\n        final Player player = Bukkit.getPlayer(request.player);\r\n        if(player == null) {\r\n            return null;\r\n        }\r\n\r\n        return new LocatePlayerConversation.Response(request, client.getSource());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java
+--- a/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java	(revision 29ef09c250e2ea7223effe2c92987003f1ba61cb)
++++ b/example-plugin-services/src/main/java/net/sxlver/jrpc/examplepluginservices/service/PlayerNetworkService.java	(date 1699174260412)
+@@ -2,10 +2,12 @@
+ 
+ import net.sxlver.jrpc.client.JRPCClient;
+ import net.sxlver.jrpc.client.service.ProcedureImplementation;
++import net.sxlver.jrpc.client.service.ProcedureTypes;
+ import net.sxlver.jrpc.client.service.ServiceDefinition;
+ import net.sxlver.jrpc.examplepluginservices.conversation.GetPlayerConversation;
+ import net.sxlver.jrpc.examplepluginservices.conversation.LocatePlayerConversation;
+ import net.sxlver.jrpc.examplepluginservices.conversation.model.PlayerDTO;
++import net.sxlver.jrpc.examplepluginservices.conversation.oneway.SavePlayerRequest;
+ import org.bukkit.Bukkit;
+ import org.bukkit.entity.Player;
+ import org.jetbrains.annotations.Nullable;
+@@ -40,4 +42,11 @@
+ 
+         return new LocatePlayerConversation.Response(request, client.getSource());
+     }
++
++    @ProcedureImplementation(type = ProcedureTypes.CONSUMER, async = true)
++    public void savePlayer(final SavePlayerRequest request) {
++        final PlayerDTO player = request.player;
++        // save user...
++        client.getLogger().info("saved user " + player);
++    }
+ }

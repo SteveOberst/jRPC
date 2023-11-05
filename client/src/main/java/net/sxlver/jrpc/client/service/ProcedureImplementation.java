@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProcedureImplementation {
-    boolean async() default true;
+    ProcedureTypes type() default ProcedureTypes.QUERY;
 
-
+    boolean async() default false;
 }
