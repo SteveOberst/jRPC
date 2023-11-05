@@ -16,3 +16,7 @@ commands:
     description: dumps player data
     aliases:
       - get
+  saveplayer:
+    description: saves player data
+    aliases:
+      - save

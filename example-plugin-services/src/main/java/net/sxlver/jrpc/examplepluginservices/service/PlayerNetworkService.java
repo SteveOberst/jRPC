@@ -2,10 +2,12 @@ package net.sxlver.jrpc.examplepluginservices.service;
 
 import net.sxlver.jrpc.client.JRPCClient;
 import net.sxlver.jrpc.client.service.ProcedureImplementation;
+import net.sxlver.jrpc.client.service.ProcedureTypes;
 import net.sxlver.jrpc.client.service.ServiceDefinition;
 import net.sxlver.jrpc.examplepluginservices.conversation.GetPlayerConversation;
 import net.sxlver.jrpc.examplepluginservices.conversation.LocatePlayerConversation;
 import net.sxlver.jrpc.examplepluginservices.conversation.model.PlayerDTO;
+import net.sxlver.jrpc.examplepluginservices.conversation.oneway.SavePlayerRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -39,5 +41,12 @@ public class PlayerNetworkService extends ServiceDefinition {
         }
 
         return new LocatePlayerConversation.Response(request, client.getSource());
+    }
+
+    @ProcedureImplementation(type = ProcedureTypes.CONSUMER, async = true)
+    public void savePlayer(final SavePlayerRequest request) {
+        final PlayerDTO player = request.player;
+        // save user...
+        client.getLogger().info("saved user " + player);
     }
 }

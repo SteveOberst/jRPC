@@ -2,6 +2,8 @@ package net.sxlver.jrpc.client.service;
 
 import net.sxlver.jrpc.client.service.exception.ProcedureInvocationException;
 import net.sxlver.jrpc.core.protocol.Packet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -12,18 +14,20 @@ public class Procedure {
     private final Method method;
     private final Class<? extends Packet> requestType;
     private final Class<? extends Packet> responseType;
+    private final ProcedureType type;
     private final boolean async;
 
-    public Procedure(final ServiceDefinition service,
-                     final Method method,
-                     final Class<? extends Packet> requestType,
-                     final Class<? extends Packet> responseType,
-                     final ProcedureImplementation metadata) {
+    public Procedure(@NotNull  final ServiceDefinition service,
+                     @NotNull  final Method method,
+                     @NotNull final Class<? extends Packet> requestType,
+                     @Nullable final Class<? extends Packet> responseType,
+                     @NotNull  final ProcedureImplementation metadata) {
 
         this.service = service;
         this.method = method;
         this.requestType = requestType;
         this.responseType = responseType;
+        this.type = metadata.type();
         this.async = metadata.async();
     }
 
@@ -40,19 +44,7 @@ public class Procedure {
     }
 
     private static boolean checkPrerequisites(final Method method) {
-        return method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0])
-                && Packet.class.isAssignableFrom(method.getReturnType());
-    }
-
-    public static Procedure of(final ServiceDefinition service, final Method method) {
-        if(!checkPrerequisites(method)) {
-            throw new IllegalArgumentException(String.format("%s is not a valid procedure implementation.", method.getName()));
-        }
-
-        final ProcedureImplementation procedureAnnotation = method.getAnnotation(ProcedureImplementation.class);
-        final @SuppressWarnings("All") Class<? extends Packet> requestType = (Class<? extends Packet>) method.getParameterTypes()[0];
-        final @SuppressWarnings("All") Class<? extends Packet> responseType = (Class<? extends Packet>) method.getReturnType();
-        return new Procedure(service, method, requestType, responseType, procedureAnnotation);
+        return method.getParameterCount() == 1 && Packet.class.isAssignableFrom(method.getParameterTypes()[0]);
     }
 
     public Method getMethod() {
