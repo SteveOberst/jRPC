@@ -5,7 +5,7 @@ plugins {
 }
 
 group properties.get("velocityPackage")
-version properties.get("velocityVersion")
+version properties.get("projectVersion")
 
 archivesBaseName = 'JRPC-Velocity'
 

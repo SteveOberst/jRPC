@@ -90,7 +90,7 @@ public class JRPCBukkitService {
     Conversation<TRequest, TResponse> broadcast(final @NonNull TRequest packet,
                                                 final @NotNull Class<TResponse> expectedResponse) {
 
-         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.ALL));
+         return publish(packet, expectedResponse, new MessageTarget(Message.TargetType.ALL)).enableConcurrentResponseProcessing();
     }
 
     /**

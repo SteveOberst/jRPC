@@ -43,4 +43,8 @@ subprojects {
         compileOnly 'org.projectlombok:lombok:1.18.22'
         annotationProcessor 'org.projectlombok:lombok:1.18.22'
     }
+
+    shadowJar {
+        relocate('com.google', 'net.sxlver.google')
+    }
 }

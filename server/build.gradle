@@ -22,7 +22,7 @@ publishing {
 }
 
 group properties.get("serverPackage")
-version properties.get("serverVersion")
+version properties.get("projectVersion")
 
 repositories {
     mavenCentral()

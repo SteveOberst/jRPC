@@ -59,6 +59,10 @@ public class Procedure {
         return responseType;
     }
 
+    public ProcedureType getType() {
+        return type;
+    }
+
     public boolean isAsync() {
         return async;
     }

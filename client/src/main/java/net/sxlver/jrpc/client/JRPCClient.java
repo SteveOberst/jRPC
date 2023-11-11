@@ -57,6 +57,8 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
 
     private final String dataFolder;
 
+    private CompletableFuture<Void> reconnectFuture;
+
     /**
      * Instantiates a new Jrpc client.
      */
@@ -99,10 +101,14 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     @Nullable
     @Blocking
     public ChannelFuture open() {
+        this.reconnectFuture = null;
         final String host = config.getServerAddress();
         final int port = config.getServerPort();
         this.remoteAddress = new InetSocketAddress(host, port);
         this.loopGroup = new NioEventLoopGroup();
+        if(this.handler == null)
+            this.handler = new JRPCClientChannelHandler(this);
+
         logger.info("Opening socket...");
         try {
             final Bootstrap bootstrap = new Bootstrap()
@@ -129,6 +135,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             logger.info(ExceptionUtils.getStackTrace(exception));
             loopGroup.shutdownGracefully();
         }
+
         return this.connectedChannel;
     }
 
@@ -217,8 +224,9 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
     }
 
     private void scheduleReconnect() {
+        if(reconnectFuture != null) return;
         logger.info("Scheduling reconnect for {}s", config.getReconnectInterval());
-        CompletableFuture.runAsync(this::open, CompletableFuture.delayedExecutor(config.getReconnectInterval(), TimeUnit.SECONDS));
+        reconnectFuture = CompletableFuture.runAsync(this::open, CompletableFuture.delayedExecutor(config.getReconnectInterval(), TimeUnit.SECONDS));
         final Channel channel = connectedChannel.channel();
         if(channel.pipeline().get("handshake_handler") == null && channel.pipeline().get("message_handler") != null) {
             channel.pipeline().addBefore("message_handler", "handshake_handler",new JRPCClientHandshakeHandler(JRPCClient.this));
@@ -450,7 +458,7 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
             channel.pipeline().addLast("frame_decoder", new LengthFieldBasedFrameDecoder(Message.MAX_PACKET_LENGTH, 0, 4, 0, 4));
             channel.pipeline().addLast("message_decoder", new JRPCMessageDecoder<>(JRPCClient.this));
             channel.pipeline().addLast("handshake_handler", new JRPCClientHandshakeHandler(JRPCClient.this));
-            channel.pipeline().addLast("message_handler", JRPCClient.this.handler = new JRPCClientChannelHandler(JRPCClient.this));
+            channel.pipeline().addLast("message_handler", handler);
             channel.pipeline().addLast("message_encoder", new JRPCClientMessageEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
             channel.pipeline().addLast("handshake_encoder", new JRPCClientHandshakeEncoder(JRPCClient.PROTOCOL_VERSION.getVersionNumber()));
         }

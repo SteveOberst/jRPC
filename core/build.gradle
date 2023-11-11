@@ -22,7 +22,7 @@ publishing {
 }
 
 group properties.get("corePackage")
-version properties.get("coreVersion")
+version properties.get("projectVersion")
 
 repositories {
     mavenLocal()

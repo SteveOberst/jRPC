@@ -3,7 +3,7 @@ plugins {
 }
 
 group properties.get("bukkitPackage")
-version properties.get("bukkitVersion")
+version properties.get("projectVersion")
 
 archivesBaseName = 'JRPC-Bukkit'
 

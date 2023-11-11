@@ -37,7 +37,7 @@ public class JRPCServerConfig extends YamlConfiguration {
     private boolean allowVersionMismatch = false;
 
     @Comment("Whether a client can send a message to themselves")
-    private boolean allowSelfForward = false;
+    private boolean allowSelfForward = true;
 
     @Comment("Whether clients should be able to see IP-Addresses from other clients in the network")
     private boolean hideIpsFromClients = false;

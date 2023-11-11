@@ -3,7 +3,7 @@ plugins {
 }
 
 group properties.get("waterfallPackage")
-version properties.get("waterfallVersion")
+version properties.get("projectVersion")
 
 archivesBaseName = 'JRPC-Waterfall'
 

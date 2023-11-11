@@ -82,7 +82,7 @@ public class DefaultMessageProcessor implements RawDataReceiver {
                 return;
             }
 
-            if(packet.getClass() == conversation.getExpectedResponse()) {
+            if(conversation.getExpectedResponse().isAssignableFrom(packet.getClass())) {
                 try {
                     conversation.onResponse(conversationContext);
                 }catch(final Exception exception) {
