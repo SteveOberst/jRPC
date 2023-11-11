@@ -45,6 +45,7 @@ subprojects {
     }
 
     shadowJar {
+        destinationDirectory = file('../binaries/')
         relocate('com.google', 'net.sxlver.google')
     }
 }
