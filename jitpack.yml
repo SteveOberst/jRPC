@@ -2,5 +2,9 @@ jdk:
   - openjdk17
 
 modules:
-  - module1
-  - module2
+  - core
+  - bukkit
+  - client
+  - waterfall
+  - velocity
+  - server
