@@ -3,8 +3,8 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.0"
 }
 
-group = 'net.sxlver.jrpc'
-version = '0.0.1-alpha'
+group 'net.sxlver.jrpc'
+version properties.get("projectVersion")
 
 subprojects {
     apply plugin: 'java'

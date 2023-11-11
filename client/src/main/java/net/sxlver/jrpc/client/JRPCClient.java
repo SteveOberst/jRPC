@@ -106,9 +106,6 @@ public class JRPCClient implements DataFolderProvider, ProtocolInformationProvid
         final int port = config.getServerPort();
         this.remoteAddress = new InetSocketAddress(host, port);
         this.loopGroup = new NioEventLoopGroup();
-        if(this.handler == null)
-            this.handler = new JRPCClientChannelHandler(this);
-
         logger.info("Opening socket...");
         try {
             final Bootstrap bootstrap = new Bootstrap()
