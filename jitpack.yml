@@ -1,2 +1,6 @@
 jdk:
   - openjdk17
+
+modules:
+  - module1
+  - module2
